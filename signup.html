@@ -759,40 +759,36 @@
 
         // Insert profile row if Supabase signUp succeeded
         if (data.user) {
+          // Step 1: Core profile (username + email — always safe)
           try {
-            // Map game UID to correct column
-            const gameUidFields = {
-              bgmi: { bgmi_uid: uid },
-              freefire: { ff_uid: uid },
-              cod: { cod_uid: uid },
-            };
-            const gameUidData = gameUidFields[game] || { bgmi_uid: uid };
-
-            // Build the referral code for this new user
-            const newReferralCode = username.toUpperCase().slice(0, 5) + Math.random().toString(36).slice(2, 6).toUpperCase();
-
+            const newReferralCode = username.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5) + Math.random().toString(36).slice(2,6).toUpperCase();
             await sb.from('profiles').upsert({
               id: data.user.id,
               username,
               email,
-              ...gameUidData,
-              game_type: game,
-              avatar_index: selectedAvatar,
               referral_code: newReferralCode,
               referred_by: referral || null,
             }, { onConflict: 'id' });
+          } catch (e) { console.warn('Core profile:', e); }
 
-            // Create wallet if trigger didn't
-            await sb.from('wallets').upsert({ user_id: data.user.id }, { onConflict: 'user_id' });
+          // Step 2: Extended fields (game data — non-critical)
+          try {
+            const gameUidMap = { bgmi: { bgmi_uid: uid }, freefire: { ff_uid: uid }, cod: { cod_uid: uid } };
+            await sb.from('profiles').update({
+              ...(gameUidMap[game] || { bgmi_uid: uid }),
+            }).eq('id', data.user.id);
+          } catch (e) { console.warn('Game UID update (non-critical):', e); }
 
-            // Process referral bonus if code was provided
-            if (referral) {
+          // Step 3: Ensure wallet exists
+          try { await sb.from('wallets').upsert({ user_id: data.user.id }, { onConflict: 'user_id' }); } catch(e){}
+
+          // Step 4: Process referral
+          if (referral) {
+            try {
               const { data: referrer } = await sb.from('profiles').select('id').eq('referral_code', referral).maybeSingle();
-              if (referrer) {
-                await sb.from('referrals').insert({ referrer_id: referrer.id, referred_id: data.user.id }).onConflict('referred_id').ignore();
-              }
-            }
-          } catch (profileErr) { console.warn('Profile insert failed:', profileErr); }
+              if (referrer) await sb.from('referrals').insert({ referrer_id: referrer.id, referred_id: data.user.id });
+            } catch(e){}
+          }
         }
 
         document.getElementById('auth-success').classList.add('visible');
