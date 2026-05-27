@@ -9,7 +9,7 @@ const GENBCONFIG = {
   // ─── Supabase ────────────────────────────────────────────────────────────────
   supabase: {
     url: 'https://uuimjtabzepnoeevkjas.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1aW1qdGFiemVwbm9lZXZramFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MzMzNzgsImV4cCI6MjA2MzMxOTM3OH0.6VvHXu7Xv5-i-eJ8-g8Q2F5zP_Qf8g49lQf8g49lQf8',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1aW1qdGFiemVwbm9lZXZramFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mzg1MjAsImV4cCI6MjA5NTQxNDUyMH0.f4_f0wcCKO3wSTuyVhGSouklp6Ei4tUWIx0UvEYrkI8',
   },
 
   // ─── Cloudinary ──────────────────────────────────────────────────────────────
