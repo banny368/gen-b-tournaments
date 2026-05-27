@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Wallet Management | Gen B Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/><link rel="stylesheet" href="../assets/css/animations.css"/><link rel="stylesheet" href="../assets/css/components.css"/><link rel="stylesheet" href="../assets/css/admin.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{'neon-blue':'#00d4ff','neon-purple':'#b14aed'},fontFamily:{'rajdhani':['Rajdhani','sans-serif'],'inter':['Inter','sans-serif']}}}}</script>
+  <style>
+    body{background:#030308;color:#e2e8f0;font-family:'Inter',sans-serif;}
+    .glass-card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.12);border-radius:14px;}
+    .admin-sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:rgba(3,3,8,0.98);backdrop-filter:blur(20px);border-right:1px solid rgba(0,212,255,0.1);z-index:40;overflow-y:auto;}
+    .admin-sidebar-link{display:flex;align-items:center;gap:12px;padding:11px 18px;color:#64748b;border-radius:10px;margin:2px 8px;transition:all 0.2s;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;}
+    .admin-sidebar-link:hover,.admin-sidebar-link.active{background:rgba(0,212,255,0.1);color:#00d4ff;}
+    .admin-sidebar-link.active{border-left:3px solid #00d4ff;}
+    .main-content{margin-left:280px;min-height:100vh;padding:28px;}
+    .input-cyber{background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:all 0.2s;width:100%;}
+    .input-cyber:focus{border-color:#00d4ff;}
+    .btn-primary{background:linear-gradient(135deg,#00d4ff,#b14aed);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;}
+    .btn-approve{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:#00ff88;border-radius:8px;padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+    .btn-edit{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:#00d4ff;border-radius:8px;padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:12px 16px;text-align:left;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;color:#475569;border-bottom:1px solid rgba(0,212,255,0.08);text-transform:uppercase;}
+    td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;vertical-align:middle;}
+    tr:hover td{background:rgba(0,212,255,0.025);}
+    .status-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;}
+    .pill-approved{background:rgba(0,255,136,0.1);color:#00ff88;}
+    .pill-pending{background:rgba(245,158,11,0.15);color:#f59e0b;}
+    .pill-rejected{background:rgba(255,45,120,0.1);color:#ff2d78;}
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:12px 18px;border-radius:10px;backdrop-filter:blur(20px);border:1px solid;animation:slideIn 0.3s ease;font-size:13px;}
+    .toast-success{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:#00ff88;}
+    .toast-error{background:rgba(255,45,120,0.1);border-color:rgba(255,45,120,0.3);color:#ff2d78;}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:0.5px;color:#475569;text-transform:uppercase;margin-bottom:5px;display:block;}
+    .wallet-mini{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center;}
+    .select-cyber{background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:13px;outline:none;width:100%;}
+  </style>
+</head>
+<body>
+<nav class="admin-sidebar">
+  <div class="p-6 border-b border-white/5">
+    <div class="font-rajdhani font-bold text-lg" style="color:#ff2d78;letter-spacing:2px;">GEN B ADMIN</div>
+    <div class="text-xs text-gray-500 mt-1">Control Panel</div>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="admin-sidebar-link"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</a>
+    <a href="tournaments.html" class="admin-sidebar-link"><i data-lucide="trophy" class="w-4 h-4"></i>Tournaments</a>
+    <a href="users.html" class="admin-sidebar-link"><i data-lucide="users" class="w-4 h-4"></i>Users</a>
+    <a href="payments.html" class="admin-sidebar-link"><i data-lucide="credit-card" class="w-4 h-4"></i>Payments</a>
+    <a href="wallet.html" class="admin-sidebar-link active"><i data-lucide="wallet" class="w-4 h-4"></i>Wallet Mgmt</a>
+    <a href="rewards.html" class="admin-sidebar-link"><i data-lucide="gift" class="w-4 h-4"></i>Rewards</a>
+    <a href="notifications.html" class="admin-sidebar-link"><i data-lucide="bell" class="w-4 h-4"></i>Notifications</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <a href="../index.html" class="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to Site</a>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="mb-6">
+    <h1 class="font-rajdhani font-bold text-2xl" style="color:#00d4ff;letter-spacing:1px;">WALLET MANAGEMENT</h1>
+    <p class="text-gray-400 text-sm">Search users, edit balances, add bonus credits</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- User Search + Wallet Editor -->
+    <div class="lg:col-span-1 space-y-5">
+      <!-- Search -->
+      <div class="glass-card p-5">
+        <h3 class="font-rajdhani font-bold text-sm mb-3" style="color:#00d4ff;letter-spacing:1px;">SEARCH USER</h3>
+        <input type="text" id="userSearch" class="input-cyber mb-3" placeholder="Username or email..." oninput="searchUsers(this.value)"/>
+        <div id="searchResults" class="space-y-1 max-h-48 overflow-y-auto"></div>
+      </div>
+
+      <!-- Selected User Wallet -->
+      <div class="glass-card p-5" id="selectedUserPanel" style="display:none;">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00d4ff,#b14aed);" id="selAvatar">?</div>
+          <div><div class="font-semibold text-white" id="selUsername">—</div><div class="text-xs text-gray-500" id="selEmail">—</div></div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          <div class="wallet-mini"><div class="text-xs text-gray-400 mb-1">Main</div><div class="font-rajdhani font-bold text-sm" style="color:#00d4ff;" id="selMain">₹0</div></div>
+          <div class="wallet-mini"><div class="text-xs text-gray-400 mb-1">Bonus</div><div class="font-rajdhani font-bold text-sm" style="color:#b14aed;" id="selBonus">₹0</div></div>
+          <div class="wallet-mini"><div class="text-xs text-gray-400 mb-1">Winning</div><div class="font-rajdhani font-bold text-sm" style="color:#ffd700;" id="selWinning">₹0</div></div>
+        </div>
+        <div class="space-y-3">
+          <div><label class="label">Wallet Type</label>
+            <select id="editWalletType" class="select-cyber"><option value="main">Main</option><option value="bonus">Bonus</option><option value="winning">Winning</option></select>
+          </div>
+          <div><label class="label">New Balance (₹)</label><input type="number" id="editWalletBalance" class="input-cyber" placeholder="0.00" step="0.01"/></div>
+          <div><label class="label">Audit Note</label><input type="text" id="editWalletNote" class="input-cyber" placeholder="Reason..."/></div>
+          <button onclick="saveUserWallet()" class="btn-primary w-full">💾 UPDATE BALANCE</button>
+        </div>
+      </div>
+
+      <!-- Add Bonus -->
+      <div class="glass-card p-5">
+        <h3 class="font-rajdhani font-bold text-sm mb-3" style="color:#ffd700;letter-spacing:1px;">🎁 ADD BONUS</h3>
+        <div class="space-y-3">
+          <div><label class="label">User (select above)</label><input type="text" id="bonusUserDisplay" class="input-cyber" readonly placeholder="Select user first" style="opacity:0.6;"/></div>
+          <div><label class="label">Amount (₹)</label><input type="number" id="bonusAmount" class="input-cyber" placeholder="e.g. 50" min="1"/></div>
+          <div><label class="label">Wallet Type</label>
+            <select id="bonusWalletType" class="select-cyber"><option value="bonus">Bonus Wallet</option><option value="main">Main Wallet</option></select>
+          </div>
+          <div><label class="label">Reason</label><input type="text" id="bonusReason" class="input-cyber" placeholder="e.g. Contest winner"/></div>
+          <button onclick="addBonus()" class="btn-approve w-full">✓ ADD BONUS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Audit Log -->
+    <div class="lg:col-span-2">
+      <div class="glass-card overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between flex-wrap gap-3">
+          <h3 class="font-rajdhani font-bold text-lg" style="color:#00d4ff;">TRANSACTION AUDIT LOG</h3>
+          <div class="flex gap-2">
+            <select id="txTypeFilter" class="select-cyber" style="width:auto;" onchange="loadAuditLog()">
+              <option value="">All Types</option>
+              <option value="deposit">Deposits</option>
+              <option value="withdrawal">Withdrawals</option>
+              <option value="prize">Prizes</option>
+              <option value="bonus">Bonuses</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Wallet</th><th>Description</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="auditBody"><tr><td colspan="7" class="text-center py-10 text-gray-500">Loading transactions...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="p-4 border-t border-white/5 text-xs text-gray-400" id="auditInfo">—</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/supabase.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/admin/users-wallet.js"></script>
+<script>
+lucide.createIcons();
+let selectedUser=null, selectedWallet=null;
+function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
+
+let searchTimer;
+function searchUsers(q){
+  clearTimeout(searchTimer);
+  if(!q||q.length<2){document.getElementById('searchResults').innerHTML='';return;}
+  searchTimer=setTimeout(async()=>{
+    try{
+      const{data}=await window.GenBSupabase.db.from('profiles').select('id,username,email').or(`username.ilike.%${q}%,email.ilike.%${q}%`).limit(8);
+      document.getElementById('searchResults').innerHTML=(data||[]).map(u=>`
+        <div onclick="selectUser('${u.id}')" class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors hover:bg-cyan-900/20">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background:linear-gradient(135deg,#00d4ff,#b14aed);">${(u.username||'?')[0].toUpperCase()}</div>
+          <div><div class="text-xs font-semibold text-white">${u.username}</div><div class="text-xs text-gray-500">${u.email||''}</div></div>
+        </div>`).join('')||'<div class="text-xs text-gray-500 p-2">No users found</div>';
+    }catch(e){}
+  },300);
+}
+
+async function selectUser(id){
+  try{
+    const{data:p}=await window.GenBSupabase.db.from('profiles').select('*').eq('id',id).single();
+    const{data:w}=await window.GenBSupabase.db.from('wallets').select('*').eq('user_id',id).single();
+    selectedUser=p; selectedWallet=w||{main_balance:0,bonus_balance:0,winning_balance:0};
+    document.getElementById('selAvatar').textContent=(p.username||'?')[0].toUpperCase();
+    document.getElementById('selUsername').textContent=p.username||'—';
+    document.getElementById('selEmail').textContent=p.email||'—';
+    document.getElementById('selMain').textContent='₹'+(selectedWallet.main_balance||0).toFixed(2);
+    document.getElementById('selBonus').textContent='₹'+(selectedWallet.bonus_balance||0).toFixed(2);
+    document.getElementById('selWinning').textContent='₹'+(selectedWallet.winning_balance||0).toFixed(2);
+    document.getElementById('selectedUserPanel').style.display='block';
+    document.getElementById('bonusUserDisplay').value=p.username;
+    document.getElementById('searchResults').innerHTML='';
+    document.getElementById('userSearch').value='';
+    loadAuditLog();
+  }catch(e){showToast('Load error','error');}
+}
+
+async function saveUserWallet(){
+  if(!selectedUser){showToast('Select a user first','error');return;}
+  const type=document.getElementById('editWalletType').value;
+  const balance=parseFloat(document.getElementById('editWalletBalance').value);
+  if(isNaN(balance)||balance<0){showToast('Enter valid balance','error');return;}
+  try{
+    const update={};update[type+'_balance']=balance;
+    await window.GenBSupabase.db.from('wallets').upsert({user_id:selectedUser.id,...update},{onConflict:'user_id'});
+    await window.GenBSupabase.db.from('transactions').insert({user_id:selectedUser.id,type:'admin_edit',amount:balance,wallet_type:type,description:document.getElementById('editWalletNote').value||'Admin balance edit',status:'approved'});
+    showToast('Wallet updated!','success'); selectUser(selectedUser.id);
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function addBonus(){
+  if(!selectedUser){showToast('Select a user first','error');return;}
+  const amount=parseFloat(document.getElementById('bonusAmount').value);
+  const wtype=document.getElementById('bonusWalletType').value;
+  const reason=document.getElementById('bonusReason').value.trim();
+  if(!amount||amount<=0){showToast('Enter valid amount','error');return;}
+  try{
+    const{data:w}=await window.GenBSupabase.db.from('wallets').select('*').eq('user_id',selectedUser.id).single();
+    const cur=(w||{})[wtype+'_balance']||0;
+    await window.GenBSupabase.db.from('wallets').upsert({user_id:selectedUser.id,[wtype+'_balance']:cur+amount},{onConflict:'user_id'});
+    await window.GenBSupabase.db.from('transactions').insert({user_id:selectedUser.id,type:'bonus',amount,wallet_type:wtype,description:reason||'Admin bonus credit',status:'approved'});
+    showToast(`₹${amount} bonus added!`,'success'); selectUser(selectedUser.id); document.getElementById('bonusAmount').value=''; document.getElementById('bonusReason').value='';
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function loadAuditLog(){
+  const typeFilter=document.getElementById('txTypeFilter').value;
+  try{
+    let q=window.GenBSupabase.db.from('transactions').select('*,profiles(username)').order('created_at',{ascending:false}).limit(60);
+    if(selectedUser) q=q.eq('user_id',selectedUser.id);
+    if(typeFilter) q=q.eq('type',typeFilter);
+    const{data}=await q;
+    const typeIcon={deposit:'💰',withdrawal:'📤',prize:'🏆',entry_fee:'🎮',bonus:'🎁',admin_edit:'⚙️',referral:'👥'};
+    const typeColor={deposit:'#00d4ff',withdrawal:'#ff2d78',prize:'#ffd700',bonus:'#00ff88',admin_edit:'#b14aed'};
+    document.getElementById('auditInfo').textContent=(data||[]).length+' transactions';
+    document.getElementById('auditBody').innerHTML=(data||[]).map(t=>`
+      <tr>
+        <td class="text-sm">${t.profiles?.username||'—'}</td>
+        <td><span class="text-base">${typeIcon[t.type]||'💳'}</span> <span class="text-xs font-rajdhani font-bold" style="color:${typeColor[t.type]||'#94a3b8'}">${t.type}</span></td>
+        <td><span class="font-rajdhani font-bold" style="color:${t.amount>=0?'#00ff88':'#ff2d78'}">${t.amount>=0?'+':''}₹${Math.abs(t.amount)}</span></td>
+        <td class="text-xs text-gray-400">${t.wallet_type||'—'}</td>
+        <td class="text-xs text-gray-400 max-w-xs truncate">${t.description||'—'}</td>
+        <td class="text-xs text-gray-400">${new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})}</td>
+        <td><span class="status-pill ${t.status==='approved'?'pill-approved':t.status==='pending'?'pill-pending':'pill-rejected'}">${t.status}</span></td>
+      </tr>`).join('')||'<tr><td colspan="7" class="text-center py-8 text-gray-500">No transactions</td></tr>';
+    lucide.createIcons();
+  }catch(e){}
+}
+
+async function init(){
+  try{
+    const{user,profile}=await window.GenBSupabase.getCurrentUser();
+    if(!user||!['admin','super_admin','moderator'].includes(profile?.role)){window.location.href='../login.html';return;}
+    await loadAuditLog();
+  }catch(e){window.location.href='../login.html';}
+  lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>

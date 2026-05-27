@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create your Gen B Tournaments account — Show Your Skill And Earn Real Cash" />
+  <meta property="og:title" content="Create Account | Gen B Tournaments" />
+  <meta property="og:description" content="Join Gen B Tournaments and start competing today." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#050510" />
+  <title>Create Account | Gen B Tournaments</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --neon-blue:   #00d4ff;
+      --neon-purple: #b14aed;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-green:  #00ff88;
+      --bg-dark:     #050510;
+      --card-bg:     rgba(255,255,255,0.04);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas ── */
+    #particles-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ── Orbs ── */
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.18; pointer-events: none; z-index: 0; }
+    .orb-1 { width: 420px; height: 420px; background: var(--neon-purple); top: -100px; right: -100px; animation: orbFloat1 13s ease-in-out infinite; }
+    .orb-2 { width: 340px; height: 340px; background: var(--neon-blue); bottom: -80px; left: -80px; animation: orbFloat2 16s ease-in-out infinite; }
+    .orb-3 { width: 180px; height: 180px; background: var(--neon-pink); top: 40%; right: 10%; animation: orbFloat3 9s ease-in-out infinite; }
+    @keyframes orbFloat1 { 0%,100%{transform:translate(0,0) scale(1);} 40%{transform:translate(-50px,50px) scale(1.1);} }
+    @keyframes orbFloat2 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(40px,-40px) scale(1.08);} }
+    @keyframes orbFloat3 { 0%,100%{transform:scale(1);opacity:0.18;} 50%{transform:scale(1.4);opacity:0.08;} }
+
+    /* ── Glass Card ── */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 1.25rem;
+      box-shadow: 0 0 40px rgba(0,212,255,0.08), 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ── Logo ── */
+    .logo-glow {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 10px rgba(0,212,255,0.5));
+    }
+    .logo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      color: #050510;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .page-heading {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 0.12em;
+      color: var(--neon-purple);
+      text-shadow: 0 0 20px rgba(177,74,237,0.5);
+    }
+
+    /* ── Input ── */
+    .input-cyber {
+      width: 100%;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 0.625rem;
+      color: #e2e8f0;
+      padding: 0.7rem 1rem 0.7rem 2.6rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      caret-color: var(--neon-blue);
+    }
+    .input-cyber::placeholder { color: rgba(226,232,240,0.3); }
+    .input-cyber:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 3px rgba(0,212,255,0.12), 0 0 14px rgba(0,212,255,0.12); }
+    .input-cyber.error { border-color: var(--neon-pink); box-shadow: 0 0 0 3px rgba(255,45,120,0.12); }
+    .input-cyber.valid { border-color: var(--neon-green); }
+    .input-wrapper { position: relative; }
+    .input-icon { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: rgba(0,212,255,0.5); pointer-events: none; width: 15px; height: 15px; }
+    .input-end-icon { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; pointer-events: none; }
+
+    /* ── Select ── */
+    .select-cyber {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 0.625rem;
+      color: #e2e8f0;
+      padding: 0.7rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      transition: border-color 0.25s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(0,212,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+    .select-cyber:focus { border-color: var(--neon-blue); }
+    .select-cyber option { background: #0a0a1a; color: #e2e8f0; }
+
+    /* ── Password strength ── */
+    .strength-bar-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+    .strength-bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease, background 0.4s ease; width: 0; }
+    .strength-label { font-size: 0.72rem; margin-top: 4px; }
+    .strength-0 .strength-bar-fill { width: 0; background: transparent; }
+    .strength-1 .strength-bar-fill { width: 25%; background: var(--neon-pink); }
+    .strength-2 .strength-bar-fill { width: 50%; background: var(--neon-gold); }
+    .strength-3 .strength-bar-fill { width: 75%; background: #7eff8b; }
+    .strength-4 .strength-bar-fill { width: 100%; background: var(--neon-green); }
+    .strength-0 .strength-label { color: transparent; }
+    .strength-1 .strength-label { color: var(--neon-pink); }
+    .strength-2 .strength-label { color: var(--neon-gold); }
+    .strength-3 .strength-label { color: #7eff8b; }
+    .strength-4 .strength-label { color: var(--neon-green); }
+
+    /* ── Availability indicator ── */
+    .availability-msg { font-size: 0.72rem; margin-top: 4px; display: none; }
+    .availability-msg.show { display: block; }
+    .availability-msg.checking { color: rgba(0,212,255,0.6); }
+    .availability-msg.available { color: var(--neon-green); }
+    .availability-msg.taken { color: var(--neon-pink); }
+
+    /* ── Avatar grid ── */
+    .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; }
+    .avatar-opt {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      user-select: none;
+    }
+    .avatar-opt:hover { transform: scale(1.1); }
+    .avatar-opt.selected {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 14px rgba(0,212,255,0.5);
+      transform: scale(1.12);
+    }
+    .avatar-opt .check-badge {
+      position: absolute;
+      bottom: -2px; right: -2px;
+      width: 14px; height: 14px;
+      background: var(--neon-blue);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .avatar-opt.selected .check-badge { display: flex; }
+
+    /* ── Checkbox ── */
+    .cb-cyber {
+      width: 16px; height: 16px;
+      accent-color: var(--neon-blue);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
+      color: #050510;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      padding: 0.8rem 1.5rem;
+      border-radius: 0.625rem;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, box-shadow 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 20px rgba(177,74,237,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 60%); }
+    .btn-primary:hover:not(:disabled) { opacity:0.9; box-shadow:0 0 35px rgba(177,74,237,0.5); transform:translateY(-1px); }
+    .btn-primary:active:not(:disabled) { transform:translateY(0); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+    /* ── Spinner ── */
+    .spinner { width:18px; height:18px; border:2px solid rgba(5,5,16,0.4); border-top-color:#050510; border-radius:50%; animation:spin 0.7s linear infinite; display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── Field error ── */
+    .field-err { font-size:0.72rem; color:var(--neon-pink); margin-top:3px; display:none; }
+    .field-err.show { display:block; }
+
+    /* ── Alert ── */
+    .alert-error { background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.3); border-radius:0.625rem; color:#ff6b9d; font-size:0.85rem; padding:0.75rem 1rem; display:none; align-items:center; gap:0.5rem; }
+    .alert-error.visible { display:flex; }
+    .alert-success { background:rgba(0,255,136,0.08); border:1px solid rgba(0,255,136,0.25); border-radius:0.625rem; color:#00ff88; font-size:0.85rem; padding:0.75rem 1rem; display:none; align-items:center; gap:0.5rem; }
+    .alert-success.visible { display:flex; }
+
+    /* ── Toast ── */
+    #toast-container { position:fixed; top:1.25rem; right:1.25rem; z-index:9999; display:flex; flex-direction:column; gap:0.5rem; }
+    .toast { background:rgba(10,10,26,0.95); border-left:3px solid var(--neon-blue); border-radius:0.5rem; padding:0.75rem 1rem; font-size:0.875rem; color:#e2e8f0; box-shadow:0 4px 24px rgba(0,0,0,0.5); animation:toastIn 0.3s ease; max-width:300px; }
+    .toast.error { border-left-color:var(--neon-pink); }
+    .toast.success { border-left-color:var(--neon-green); }
+    @keyframes toastIn { from{opacity:0;transform:translateX(30px);} to{opacity:1;transform:translateX(0);} }
+
+    /* ── Misc ── */
+    .neon-link { color:var(--neon-blue); text-decoration:none; transition:text-shadow 0.2s; }
+    .neon-link:hover { text-shadow:0 0 8px var(--neon-blue); }
+    .pw-toggle { position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:rgba(0,212,255,0.5); padding:0; display:flex; align-items:center; }
+    .pw-toggle:hover { color:var(--neon-blue); }
+    .section-label { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.75rem; letter-spacing:0.1em; color:rgba(0,212,255,0.7); text-transform:uppercase; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem; }
+    .section-label::after { content:''; flex:1; height:1px; background:rgba(0,212,255,0.12); }
+    .page-center { position:relative; z-index:10; min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:1.5rem; padding-top:2.5rem; padding-bottom:2.5rem; }
+
+    /* ── Step indicator ── */
+    .step-dots { display:flex; gap:0.5rem; justify-content:center; margin-bottom:1.5rem; }
+    .step-dot { width:8px; height:8px; border-radius:50%; background:rgba(0,212,255,0.2); transition:background 0.3s, width 0.3s; }
+    .step-dot.active { background:var(--neon-blue); width:24px; border-radius:999px; box-shadow:0 0 8px rgba(0,212,255,0.4); }
+    .step-dot.done { background:var(--neon-green); }
+  </style>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div id="toast-container"></div>
+
+  <main class="page-center">
+    <div class="glass-card w-full max-w-md p-8 sm:p-10">
+
+      <!-- Logo -->
+      <div class="flex flex-col items-center mb-5">
+        <div class="mb-1.5">
+          <span class="logo-glow">GEN B</span>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.6rem;color:rgba(177,74,237,0.9);letter-spacing:0.05em;"> TOURNAMENTS</span>
+        </div>
+        <span class="logo-badge">ESPORTS ARENA</span>
+      </div>
+
+      <!-- Heading -->
+      <div class="text-center mb-5">
+        <h1 class="page-heading mb-1">CREATE ACCOUNT</h1>
+        <p style="font-size:0.78rem;color:rgba(226,232,240,0.45);letter-spacing:0.04em;">Join thousands of players competing for real cash</p>
+      </div>
+
+      <!-- Step dots -->
+      <div class="step-dots">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+      </div>
+
+      <!-- Alerts -->
+      <div id="auth-error" class="alert-error mb-4" role="alert">
+        <i data-lucide="alert-circle" style="width:15px;height:15px;flex-shrink:0;"></i>
+        <span id="auth-error-msg">Something went wrong. Please try again.</span>
+      </div>
+      <div id="auth-success" class="alert-success mb-4" role="status">
+        <i data-lucide="check-circle" style="width:15px;height:15px;flex-shrink:0;"></i>
+        <span>Account created! Redirecting to your dashboard…</span>
+      </div>
+
+      <!-- Form -->
+      <form id="signup-form" novalidate>
+
+        <!-- ── SECTION 1: Account info ── -->
+        <div class="section-label">Account Info</div>
+
+        <!-- Username -->
+        <div class="mb-4">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">USERNAME</label>
+          <div class="input-wrapper">
+            <i data-lucide="at-sign" class="input-icon"></i>
+            <input id="su-username" type="text" class="input-cyber" placeholder="coolplayer99" autocomplete="username" maxlength="20" />
+            <span class="input-end-icon" id="username-status-icon" style="display:none;"></span>
+          </div>
+          <div class="availability-msg" id="username-avail"></div>
+          <span id="username-err" class="field-err">Username must be 3–20 chars (letters, numbers, underscores).</span>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">EMAIL ADDRESS</label>
+          <div class="input-wrapper">
+            <i data-lucide="mail" class="input-icon"></i>
+            <input id="su-email" type="email" class="input-cyber" placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <span id="email-err" class="field-err">Please enter a valid email address.</span>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">PASSWORD</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock" class="input-icon"></i>
+            <input id="su-password" type="password" class="input-cyber" placeholder="Min 8 characters" autocomplete="new-password" style="padding-right:2.75rem;" />
+            <button type="button" class="pw-toggle" id="pw-toggle-1">
+              <i data-lucide="eye" id="pw-icon-1" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+          <!-- Strength bar -->
+          <div class="strength-bar-track">
+            <div class="strength-bar-fill" id="strength-fill"></div>
+          </div>
+          <p class="strength-label" id="strength-label-txt"></p>
+          <span id="password-err" class="field-err">Password must be at least 8 characters.</span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-5">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">CONFIRM PASSWORD</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock" class="input-icon"></i>
+            <input id="su-confirm" type="password" class="input-cyber" placeholder="Re-enter password" autocomplete="new-password" style="padding-right:2.75rem;" />
+            <button type="button" class="pw-toggle" id="pw-toggle-2">
+              <i data-lucide="eye" id="pw-icon-2" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+          <span id="confirm-err" class="field-err">Passwords do not match.</span>
+        </div>
+
+        <!-- ── SECTION 2: Game Info ── -->
+        <div class="section-label">Game Info</div>
+
+        <!-- Game UID row -->
+        <div class="mb-5">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">GAME UID</label>
+          <div class="flex gap-2">
+            <select id="su-game" class="select-cyber" style="width:140px;flex-shrink:0;">
+              <option value="bgmi">🎮 BGMI</option>
+              <option value="freefire">🔥 Free Fire</option>
+              <option value="cod">💥 COD Mobile</option>
+            </select>
+            <div class="input-wrapper flex-1">
+              <i data-lucide="gamepad-2" class="input-icon"></i>
+              <input id="su-uid" type="text" class="input-cyber" placeholder="Your in-game UID" />
+            </div>
+          </div>
+          <span id="uid-err" class="field-err">Game UID is required.</span>
+        </div>
+
+        <!-- Referral Code -->
+        <div class="mb-5">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">
+            REFERRAL CODE <span style="color:rgba(226,232,240,0.35);font-weight:400;letter-spacing:0;">(optional)</span>
+          </label>
+          <div class="input-wrapper">
+            <i data-lucide="gift" class="input-icon"></i>
+            <input id="su-referral" type="text" class="input-cyber" placeholder="Enter referral code" maxlength="12" style="text-transform:uppercase;letter-spacing:0.08em;" />
+          </div>
+        </div>
+
+        <!-- ── SECTION 3: Avatar ── -->
+        <div class="section-label">Choose Avatar</div>
+
+        <div class="avatar-grid mb-5" id="avatar-grid">
+          <!-- Generated by JS -->
+        </div>
+        <span id="avatar-err" class="field-err mb-2">Please select an avatar.</span>
+
+        <!-- Terms -->
+        <div class="flex items-start gap-2.5 mb-6">
+          <input type="checkbox" id="terms-check" class="cb-cyber mt-0.5" />
+          <label for="terms-check" style="font-size:0.8rem;color:rgba(226,232,240,0.55);line-height:1.5;cursor:pointer;">
+            I agree to the
+            <a href="#" class="neon-link">Terms of Service</a> and
+            <a href="#" class="neon-link">Privacy Policy</a>.
+            I confirm I am 13+ years old.
+          </label>
+        </div>
+        <span id="terms-err" class="field-err mb-3">You must agree to the terms.</span>
+
+        <!-- Submit -->
+        <button type="submit" id="signup-btn" class="btn-primary mb-5">
+          <div class="spinner" id="signup-spinner"></div>
+          <i data-lucide="user-plus" id="signup-icon" style="width:16px;height:16px;"></i>
+          <span id="signup-label">CREATE ACCOUNT</span>
+        </button>
+
+      </form>
+
+      <!-- Login link -->
+      <p class="text-center" style="font-size:0.85rem;color:rgba(226,232,240,0.5);">
+        Already have an account?
+        <a href="login.html" class="neon-link font-semibold ml-1">Login</a>
+      </p>
+
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="assets/js/supabase.js" onerror="console.warn('supabase.js not found')"></script>
+  <script src="assets/js/utils.js" onerror="console.warn('utils.js not found')"></script>
+
+  <script>
+    // ─── Particles ─────────────────────────────────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H, particles = [];
+      function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+      function rand(a, b) { return Math.random() * (b - a) + a; }
+      const COLORS = ['rgba(0,212,255,', 'rgba(177,74,237,', 'rgba(255,45,120,'];
+      function newP() {
+        const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+        return { x: rand(0, W), y: rand(0, H), vx: rand(-0.3, 0.3), vy: rand(-0.5, -0.1), r: rand(1, 2.5), a: rand(0.2, 0.55), c, life: rand(80, 200), max: 200 };
+      }
+      for (let i = 0; i < 80; i++) particles.push(newP());
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach((p, i) => {
+          p.x += p.vx; p.y += p.vy; p.life--;
+          if (p.life <= 0 || p.y < -10) { particles[i] = newP(); particles[i].y = H + 5; return; }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.c + (p.a * (p.life / p.max)) + ')';
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ─── Init icons ───────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      buildAvatars();
+    });
+
+    // ─── Toast ────────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'info') {
+      if (window.GBUtils && window.GBUtils.showToast) { window.GBUtils.showToast(msg, type); return; }
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast ' + type;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    // ─── Supabase client ─────────────────────────────────────────────────────
+    function getSB() {
+      if (window.GBSupabase) return window.GBSupabase;
+      if (typeof supabase !== 'undefined' && typeof GENBCONFIG !== 'undefined')
+        return supabase.createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+      return null;
+    }
+
+    // ─── Already logged in ────────────────────────────────────────────────────
+    (async () => {
+      try {
+        const sb = getSB();
+        if (!sb) return;
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) window.location.replace('dashboard.html');
+      } catch (e) {}
+    })();
+
+    // ─── Avatars ──────────────────────────────────────────────────────────────
+    const AVATARS = [
+      { bg: 'linear-gradient(135deg,#00d4ff,#0078ff)', emoji: '⚡', label: 'Lightning' },
+      { bg: 'linear-gradient(135deg,#b14aed,#ff2d78)', emoji: '🔥', label: 'Flame' },
+      { bg: 'linear-gradient(135deg,#ff2d78,#ff6b35)', emoji: '💀', label: 'Skull' },
+      { bg: 'linear-gradient(135deg,#ffd700,#ff6b35)', emoji: '🎯', label: 'Target' },
+      { bg: 'linear-gradient(135deg,#00ff88,#00d4ff)', emoji: '🛡️', label: 'Shield' },
+      { bg: 'linear-gradient(135deg,#b14aed,#00d4ff)', emoji: '🌀', label: 'Vortex' },
+    ];
+    let selectedAvatar = null;
+
+    function buildAvatars() {
+      const grid = document.getElementById('avatar-grid');
+      AVATARS.forEach((av, idx) => {
+        const div = document.createElement('div');
+        div.className = 'avatar-opt';
+        div.style.background = av.bg;
+        div.innerHTML = `
+          <span style="font-size:1.4rem;line-height:1;">${av.emoji}</span>
+          <div class="check-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#050510" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        `;
+        div.setAttribute('title', av.label);
+        div.addEventListener('click', () => {
+          document.querySelectorAll('.avatar-opt').forEach(a => a.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedAvatar = idx;
+          document.getElementById('avatar-err').classList.remove('show');
+        });
+        grid.appendChild(div);
+      });
+    }
+
+    // ─── Step dots animation ─────────────────────────────────────────────────
+    function updateStepDots(activeFields) {
+      // Very rough progress: 1=email filled, 2=game filled, 3=avatar selected
+      const emailFilled = document.getElementById('su-email').value.trim().length > 0;
+      const gameFilled = document.getElementById('su-uid').value.trim().length > 0;
+      const d1 = document.getElementById('dot-1');
+      const d2 = document.getElementById('dot-2');
+      const d3 = document.getElementById('dot-3');
+      if (!emailFilled) { d1.className='step-dot active'; d2.className='step-dot'; d3.className='step-dot'; }
+      else if (!gameFilled) { d1.className='step-dot done'; d2.className='step-dot active'; d3.className='step-dot'; }
+      else { d1.className='step-dot done'; d2.className='step-dot done'; d3.className='step-dot active'; }
+    }
+    ['su-email','su-uid'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateStepDots);
+    });
+
+    // ─── Password strength ────────────────────────────────────────────────────
+    function measureStrength(pw) {
+      let score = 0;
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      return score;
+    }
+    const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    document.getElementById('su-password').addEventListener('input', function() {
+      const pw = this.value;
+      const score = pw.length ? measureStrength(pw) : 0;
+      const fill = document.getElementById('strength-fill');
+      const lbl = document.getElementById('strength-label-txt');
+      const widths = ['0%','25%','50%','75%','100%'];
+      const colors = ['transparent','#ff2d78','#ffd700','#7eff8b','#00ff88'];
+      fill.style.width = widths[score];
+      fill.style.background = colors[score];
+      lbl.textContent = pw.length ? STRENGTH_LABELS[score] : '';
+      lbl.style.color = colors[score];
+    });
+
+    // ─── Username availability check (debounced) ──────────────────────────────
+    let usernameTimer = null;
+    const UN_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+
+    document.getElementById('su-username').addEventListener('input', function() {
+      const val = this.value.trim();
+      const avail = document.getElementById('username-avail');
+      const errEl = document.getElementById('username-err');
+      clearTimeout(usernameTimer);
+
+      if (!val) {
+        avail.className = 'availability-msg';
+        errEl.classList.remove('show');
+        this.classList.remove('error', 'valid');
+        return;
+      }
+      if (!UN_REGEX.test(val)) {
+        errEl.classList.add('show');
+        this.classList.add('error');
+        this.classList.remove('valid');
+        avail.className = 'availability-msg';
+        return;
+      }
+      errEl.classList.remove('show');
+      this.classList.remove('error');
+      avail.className = 'availability-msg show checking';
+      avail.textContent = 'Checking availability…';
+
+      usernameTimer = setTimeout(async () => {
+        try {
+          const sb = getSB();
+          if (!sb) { avail.className = 'availability-msg'; return; }
+          const { data, error } = await sb
+            .from('profiles')
+            .select('username')
+            .eq('username', val)
+            .maybeSingle();
+
+          if (error && error.code !== 'PGRST116') throw error;
+
+          if (data) {
+            avail.className = 'availability-msg show taken';
+            avail.textContent = '✗ Username taken';
+            document.getElementById('su-username').classList.add('error');
+            document.getElementById('su-username').classList.remove('valid');
+          } else {
+            avail.className = 'availability-msg show available';
+            avail.textContent = '✓ Username available';
+            document.getElementById('su-username').classList.remove('error');
+            document.getElementById('su-username').classList.add('valid');
+          }
+        } catch (e) {
+          avail.className = 'availability-msg';
+        }
+      }, 600);
+    });
+
+    // ─── Password show/hide ───────────────────────────────────────────────────
+    function makePwToggle(btnId, iconId, inputId) {
+      let vis = false;
+      document.getElementById(btnId).addEventListener('click', () => {
+        vis = !vis;
+        document.getElementById(inputId).type = vis ? 'text' : 'password';
+        document.getElementById(iconId).setAttribute('data-lucide', vis ? 'eye-off' : 'eye');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      });
+    }
+    makePwToggle('pw-toggle-1', 'pw-icon-1', 'su-password');
+    makePwToggle('pw-toggle-2', 'pw-icon-2', 'su-confirm');
+
+    // ─── Referral code uppercase ───────────────────────────────────────────────
+    document.getElementById('su-referral').addEventListener('input', function() {
+      const pos = this.selectionStart;
+      this.value = this.value.toUpperCase();
+      this.setSelectionRange(pos, pos);
+    });
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+    function showFieldErr(id, show) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('show', show);
+    }
+    function showAuthError(msg) {
+      const box = document.getElementById('auth-error');
+      document.getElementById('auth-error-msg').textContent = msg;
+      box.classList.add('visible');
+      document.getElementById('auth-success').classList.remove('visible');
+    }
+    function hideAuthError() { document.getElementById('auth-error').classList.remove('visible'); }
+    function setLoading(on) {
+      const btn = document.getElementById('signup-btn');
+      btn.disabled = on;
+      document.getElementById('signup-spinner').style.display = on ? 'block' : 'none';
+      document.getElementById('signup-icon').style.display = on ? 'none' : '';
+      document.getElementById('signup-label').textContent = on ? 'CREATING ACCOUNT…' : 'CREATE ACCOUNT';
+    }
+
+    // ─── Form Submit ──────────────────────────────────────────────────────────
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAuthError();
+
+      const username = document.getElementById('su-username').value.trim();
+      const email    = document.getElementById('su-email').value.trim();
+      const password = document.getElementById('su-password').value;
+      const confirm  = document.getElementById('su-confirm').value;
+      const game     = document.getElementById('su-game').value;
+      const uid      = document.getElementById('su-uid').value.trim();
+      const referral = document.getElementById('su-referral').value.trim();
+      const terms    = document.getElementById('terms-check').checked;
+
+      let valid = true;
+
+      // Username
+      if (!UN_REGEX.test(username)) { showFieldErr('username-err', true); document.getElementById('su-username').classList.add('error'); valid = false; }
+      else { showFieldErr('username-err', false); }
+
+      // Email
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showFieldErr('email-err', !emailOk);
+      if (!emailOk) { document.getElementById('su-email').classList.add('error'); valid = false; }
+      else document.getElementById('su-email').classList.remove('error');
+
+      // Password length
+      if (password.length < 8) { showFieldErr('password-err', true); document.getElementById('su-password').classList.add('error'); valid = false; }
+      else { showFieldErr('password-err', false); document.getElementById('su-password').classList.remove('error'); }
+
+      // Confirm
+      if (password !== confirm) { showFieldErr('confirm-err', true); document.getElementById('su-confirm').classList.add('error'); valid = false; }
+      else { showFieldErr('confirm-err', false); document.getElementById('su-confirm').classList.remove('error'); }
+
+      // UID
+      if (!uid) { showFieldErr('uid-err', true); document.getElementById('su-uid').classList.add('error'); valid = false; }
+      else { showFieldErr('uid-err', false); document.getElementById('su-uid').classList.remove('error'); }
+
+      // Avatar
+      if (selectedAvatar === null) { showFieldErr('avatar-err', true); valid = false; }
+      else { showFieldErr('avatar-err', false); }
+
+      // Terms
+      showFieldErr('terms-err', !terms);
+      if (!terms) valid = false;
+
+      if (!valid) return;
+
+      setLoading(true);
+
+      try {
+        const sb = getSB();
+        if (!sb) throw new Error('Authentication service is not configured yet.');
+
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username,
+              game_uid: uid,
+              game_type: game,
+              avatar_index: selectedAvatar,
+              referral_code: referral || null,
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        // Insert profile row if Supabase signUp succeeded
+        if (data.user) {
+          try {
+            await sb.from('profiles').upsert({
+              id: data.user.id,
+              username,
+              email,
+              game_uid: uid,
+              game_type: game,
+              avatar_index: selectedAvatar,
+              referral_code: referral || null,
+              created_at: new Date().toISOString(),
+            }, { onConflict: 'id' });
+          } catch (profileErr) { console.warn('Profile insert failed:', profileErr); }
+        }
+
+        document.getElementById('auth-success').classList.add('visible');
+        showToast('Account created successfully! 🎉', 'success');
+        setTimeout(() => { window.location.replace('dashboard.html'); }, 1800);
+
+      } catch (err) {
+        setLoading(false);
+        const msg = err.message || 'Sign up failed. Please try again.';
+        showAuthError(msg);
+        showToast(msg, 'error');
+      }
+    });
+
+    // ─── Clear errors on input ────────────────────────────────────────────────
+    ['su-username','su-email','su-password','su-confirm','su-uid'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        hideAuthError();
+        document.getElementById(id).classList.remove('error');
+      });
+    });
+  </script>
+</body>
+</html>

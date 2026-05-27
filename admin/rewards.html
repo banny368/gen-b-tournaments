@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Rewards Control | Gen B Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/><link rel="stylesheet" href="../assets/css/animations.css"/><link rel="stylesheet" href="../assets/css/components.css"/><link rel="stylesheet" href="../assets/css/admin.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{'neon-blue':'#00d4ff','neon-purple':'#b14aed'},fontFamily:{'rajdhani':['Rajdhani','sans-serif'],'inter':['Inter','sans-serif']}}}}</script>
+  <style>
+    body{background:#030308;color:#e2e8f0;font-family:'Inter',sans-serif;}
+    .glass-card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.12);border-radius:14px;}
+    .admin-sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:rgba(3,3,8,0.98);backdrop-filter:blur(20px);border-right:1px solid rgba(0,212,255,0.1);z-index:40;overflow-y:auto;}
+    .admin-sidebar-link{display:flex;align-items:center;gap:12px;padding:11px 18px;color:#64748b;border-radius:10px;margin:2px 8px;transition:all 0.2s;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;}
+    .admin-sidebar-link:hover,.admin-sidebar-link.active{background:rgba(0,212,255,0.1);color:#00d4ff;}
+    .admin-sidebar-link.active{border-left:3px solid #00d4ff;}
+    .main-content{margin-left:280px;min-height:100vh;padding:28px;}
+    .input-cyber{background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:9px 13px;color:#e2e8f0;font-size:13px;outline:none;transition:all 0.2s;}
+    .input-cyber:focus{border-color:#00d4ff;}
+    .select-cyber{background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:9px 13px;color:#e2e8f0;font-size:13px;outline:none;}
+    .btn-primary{background:linear-gradient(135deg,#00d4ff,#b14aed);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+    .btn-primary:hover{transform:translateY(-1px);}
+    .btn-save{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:#00ff88;border-radius:8px;padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+    .day-row{display:grid;grid-template-columns:60px 1fr 1fr 80px 80px;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .prize-row{display:grid;grid-template-columns:1fr 80px 80px 100px 60px 50px;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .day-row:hover,.prize-row:hover{background:rgba(0,212,255,0.025);}
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:12px 18px;border-radius:10px;backdrop-filter:blur(20px);border:1px solid;animation:slideIn 0.3s ease;font-size:13px;min-width:220px;}
+    .toast-success{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:#00ff88;}
+    .toast-error{background:rgba(255,45,120,0.1);border-color:rgba(255,45,120,0.3);color:#ff2d78;}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:0.5px;color:#475569;text-transform:uppercase;margin-bottom:4px;display:block;}
+    .slider-row{display:flex;align-items:center;gap:16px;}
+    input[type="range"]{-webkit-appearance:none;height:6px;border-radius:3px;background:rgba(0,212,255,0.15);outline:none;cursor:pointer;}
+    input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#b14aed);cursor:pointer;}
+    #wheelPreview{border-radius:50%;box-shadow:0 0 30px rgba(177,74,237,0.4);}
+  </style>
+</head>
+<body>
+<nav class="admin-sidebar">
+  <div class="p-6 border-b border-white/5">
+    <div class="font-rajdhani font-bold text-lg" style="color:#ff2d78;letter-spacing:2px;">GEN B ADMIN</div>
+    <div class="text-xs text-gray-500 mt-1">Control Panel</div>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="admin-sidebar-link"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</a>
+    <a href="tournaments.html" class="admin-sidebar-link"><i data-lucide="trophy" class="w-4 h-4"></i>Tournaments</a>
+    <a href="users.html" class="admin-sidebar-link"><i data-lucide="users" class="w-4 h-4"></i>Users</a>
+    <a href="payments.html" class="admin-sidebar-link"><i data-lucide="credit-card" class="w-4 h-4"></i>Payments</a>
+    <a href="wallet.html" class="admin-sidebar-link"><i data-lucide="wallet" class="w-4 h-4"></i>Wallet Mgmt</a>
+    <a href="rewards.html" class="admin-sidebar-link active"><i data-lucide="gift" class="w-4 h-4"></i>Rewards</a>
+    <a href="notifications.html" class="admin-sidebar-link"><i data-lucide="bell" class="w-4 h-4"></i>Notifications</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <a href="../index.html" class="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to Site</a>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="mb-6">
+    <h1 class="font-rajdhani font-bold text-2xl" style="color:#00d4ff;letter-spacing:1px;">🎁 REWARDS CONTROL</h1>
+    <p class="text-gray-400 text-sm">Configure daily rewards, spin wheel prizes, and XP multipliers</p>
+  </div>
+
+  <!-- Daily Rewards Editor -->
+  <div class="glass-card mb-6 overflow-hidden">
+    <div class="p-5 border-b border-white/5 flex items-center justify-between">
+      <h2 class="font-rajdhani font-bold text-lg" style="color:#ffd700;">📅 DAILY LOGIN REWARDS</h2>
+      <button onclick="saveDailyRewards()" class="btn-save">💾 SAVE ALL</button>
+    </div>
+    <div class="grid grid-cols-5 gap-0 px-4 py-2 text-xs font-rajdhani font-bold tracking-widest text-gray-500 uppercase" style="grid-template-columns:60px 1fr 1fr 80px 80px;">
+      <div>Day</div><div>Label</div><div>Type</div><div>Value</div><div>Emoji</div>
+    </div>
+    <div id="dailyRewardsRows">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <!-- Spin Wheel Editor -->
+  <div class="glass-card mb-6 overflow-hidden">
+    <div class="p-5 border-b border-white/5 flex items-center justify-between flex-wrap gap-3">
+      <h2 class="font-rajdhani font-bold text-lg" style="color:#b14aed;">🎡 SPIN WHEEL PRIZES</h2>
+      <div class="flex gap-3 items-center">
+        <span class="text-xs text-gray-400">Total probability: <span id="totalProb" style="color:#00ff88;">100%</span></span>
+        <button onclick="saveSpinConfig()" class="btn-save">💾 SAVE</button>
+      </div>
+    </div>
+    <div class="flex flex-col lg:flex-row">
+      <div class="flex-1 overflow-x-auto">
+        <div class="grid gap-0 px-4 py-2 text-xs font-rajdhani font-bold tracking-widest text-gray-500 uppercase" style="grid-template-columns:1fr 80px 80px 100px 60px 50px;">
+          <div>Label</div><div>Type</div><div>Value</div><div>Probability %</div><div>Color</div><div></div>
+        </div>
+        <div id="spinPrizesRows"><!-- Generated by JS --></div>
+        <div class="p-4">
+          <button onclick="addSpinPrize()" class="btn-save text-xs">+ Add Prize</button>
+        </div>
+      </div>
+      <div class="p-6 flex flex-col items-center border-t lg:border-t-0 lg:border-l border-white/5">
+        <div class="text-xs text-gray-400 mb-3">Live Preview</div>
+        <canvas id="wheelPreview" width="200" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP Multipliers -->
+  <div class="glass-card p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-rajdhani font-bold text-lg" style="color:#00ff88;">⭐ XP MULTIPLIERS</h2>
+      <button onclick="saveXPConfig()" class="btn-save">💾 SAVE</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label class="label">Win XP Reward</label>
+        <div class="slider-row"><input type="range" id="winXP" min="10" max="500" value="100" oninput="document.getElementById('winXPVal').textContent=this.value+' XP'"/><span id="winXPVal" class="text-sm font-rajdhani font-bold" style="color:#00d4ff;min-width:60px;">100 XP</span></div>
+      </div>
+      <div>
+        <label class="label">Kill XP Reward</label>
+        <div class="slider-row"><input type="range" id="killXP" min="1" max="50" value="10" oninput="document.getElementById('killXPVal').textContent=this.value+' XP per kill'"/><span id="killXPVal" class="text-sm font-rajdhani font-bold" style="color:#ff2d78;min-width:100px;">10 XP per kill</span></div>
+      </div>
+      <div>
+        <label class="label">Participation XP</label>
+        <div class="slider-row"><input type="range" id="participationXP" min="5" max="100" value="25" oninput="document.getElementById('partXPVal').textContent=this.value+' XP'"/><span id="partXPVal" class="text-sm font-rajdhani font-bold" style="color:#ffd700;min-width:60px;">25 XP</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/supabase.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script>
+lucide.createIcons();
+function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
+
+let dailyRewards=[...GENBCONFIG.dailyRewards];
+let spinPrizes=[...GENBCONFIG.spinWheel.prizes];
+
+function renderDailyRows(){
+  document.getElementById('dailyRewardsRows').innerHTML=dailyRewards.map((d,i)=>`
+    <div class="day-row">
+      <div class="font-rajdhani font-bold text-sm" style="color:#ffd700;">Day ${d.day}</div>
+      <input type="text" class="input-cyber" value="${d.reward}" id="dr_label_${i}" style="font-size:12px;" oninput="dailyRewards[${i}].reward=this.value"/>
+      <select class="select-cyber" id="dr_type_${i}" onchange="dailyRewards[${i}].type=this.value" style="font-size:12px;">
+        <option value="cash" ${d.type==='cash'?'selected':''}>💰 Cash</option>
+        <option value="xp" ${d.type==='xp'?'selected':''}>⭐ XP</option>
+      </select>
+      <input type="number" class="input-cyber" value="${d.value}" id="dr_val_${i}" style="font-size:12px;" oninput="dailyRewards[${i}].value=parseInt(this.value)||0"/>
+      <span class="text-xl">${d.type==='cash'?'💰':'⭐'}</span>
+    </div>`).join('');
+}
+
+async function saveDailyRewards(){
+  try{
+    await window.GenBSupabase.db.from('admin_settings').upsert({key:'daily_rewards',value:JSON.stringify(dailyRewards)},{onConflict:'key'});
+    showToast('Daily rewards saved!','success');
+  }catch(e){showToast('Save failed: '+e.message,'error');}
+}
+
+function renderSpinRows(){
+  document.getElementById('spinPrizesRows').innerHTML=spinPrizes.map((p,i)=>`
+    <div class="prize-row">
+      <input type="text" class="input-cyber" value="${p.label}" style="font-size:12px;" oninput="spinPrizes[${i}].label=this.value;drawPreview()"/>
+      <select class="select-cyber" onchange="spinPrizes[${i}].type=this.value" style="font-size:12px;">
+        <option value="cash" ${p.type==='cash'?'selected':''}>Cash</option>
+        <option value="xp" ${p.type==='xp'?'selected':''}>XP</option>
+        <option value="none" ${p.type==='none'?'selected':''}>None</option>
+      </select>
+      <input type="number" class="input-cyber" value="${p.value}" style="font-size:12px;" oninput="spinPrizes[${i}].value=parseInt(this.value)||0"/>
+      <input type="number" class="input-cyber" value="${p.probability}" min="1" max="99" style="font-size:12px;" oninput="spinPrizes[${i}].probability=parseInt(this.value)||1;updateTotalProb();drawPreview()"/>
+      <input type="color" value="${p.color||'#00d4ff'}" style="height:32px;border-radius:6px;border:none;cursor:pointer;background:transparent;" oninput="spinPrizes[${i}].color=this.value;drawPreview()"/>
+      <button onclick="spinPrizes.splice(${i},1);renderSpinRows();drawPreview();updateTotalProb()" style="color:#ff2d78;background:transparent;border:none;cursor:pointer;font-size:18px;">✕</button>
+    </div>`).join('');
+  updateTotalProb();drawPreview();
+}
+
+function addSpinPrize(){spinPrizes.push({label:'New Prize',value:0,type:'none',probability:5,color:'#94a3b8'});renderSpinRows();}
+function updateTotalProb(){const t=spinPrizes.reduce((s,p)=>s+p.probability,0);const el=document.getElementById('totalProb');el.textContent=t+'%';el.style.color=t===100?'#00ff88':t>100?'#ff2d78':'#f59e0b';}
+
+async function saveSpinConfig(){
+  try{
+    await window.GenBSupabase.db.from('admin_settings').upsert({key:'spin_prizes',value:JSON.stringify(spinPrizes)},{onConflict:'key'});
+    showToast('Spin wheel config saved!','success');
+  }catch(e){showToast('Save failed','error');}
+}
+
+async function saveXPConfig(){
+  const config={win:parseInt(document.getElementById('winXP').value),kill:parseInt(document.getElementById('killXP').value),participation:parseInt(document.getElementById('participationXP').value)};
+  try{
+    await window.GenBSupabase.db.from('admin_settings').upsert({key:'xp_config',value:JSON.stringify(config)},{onConflict:'key'});
+    showToast('XP config saved!','success');
+  }catch(e){showToast('Save failed','error');}
+}
+
+function drawPreview(){
+  const canvas=document.getElementById('wheelPreview');
+  const ctx=canvas.getContext('2d');
+  const prizes=spinPrizes.filter(p=>p.probability>0);
+  if(!prizes.length)return;
+  const cx=100,cy=100,r=95;
+  const total=prizes.reduce((s,p)=>s+p.probability,0);
+  let angle=0;
+  ctx.clearRect(0,0,200,200);
+  prizes.forEach(p=>{
+    const slice=(p.probability/total)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle,angle+slice);ctx.closePath();
+    ctx.fillStyle=p.color||'#333';ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(angle+slice/2);
+    ctx.fillStyle='#fff';ctx.font='bold 9px Rajdhani,sans-serif';ctx.textAlign='right';
+    ctx.fillText(p.label.slice(0,8),r-6,3);ctx.restore();
+    angle+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.fillStyle='#050510';ctx.fill();ctx.strokeStyle='rgba(0,212,255,0.5)';ctx.lineWidth=2;ctx.stroke();
+}
+
+async function loadSavedConfig(){
+  try{
+    const{data}=await window.GenBSupabase.db.from('admin_settings').select('key,value').in('key',['daily_rewards','spin_prizes','xp_config']);
+    (data||[]).forEach(s=>{
+      if(s.key==='daily_rewards'){try{dailyRewards=JSON.parse(s.value);}catch(e){}}
+      if(s.key==='spin_prizes'){try{spinPrizes=JSON.parse(s.value);}catch(e){}}
+      if(s.key==='xp_config'){try{const c=JSON.parse(s.value);document.getElementById('winXP').value=c.win||100;document.getElementById('winXPVal').textContent=(c.win||100)+' XP';document.getElementById('killXP').value=c.kill||10;document.getElementById('killXPVal').textContent=(c.kill||10)+' XP per kill';document.getElementById('participationXP').value=c.participation||25;document.getElementById('partXPVal').textContent=(c.participation||25)+' XP';}catch(e){}}
+    });
+  }catch(e){}
+}
+
+async function init(){
+  try{
+    const{user,profile}=await window.GenBSupabase.getCurrentUser();
+    if(!user||!['admin','super_admin','moderator'].includes(profile?.role)){window.location.href='../login.html';return;}
+    await loadSavedConfig();
+    renderDailyRows();renderSpinRows();
+  }catch(e){window.location.href='../login.html';}
+  lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>

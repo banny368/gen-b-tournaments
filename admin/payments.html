@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Payment Management | Gen B Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/><link rel="stylesheet" href="../assets/css/animations.css"/><link rel="stylesheet" href="../assets/css/components.css"/><link rel="stylesheet" href="../assets/css/admin.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{'neon-blue':'#00d4ff','neon-purple':'#b14aed'},fontFamily:{'rajdhani':['Rajdhani','sans-serif'],'inter':['Inter','sans-serif']}}}}</script>
+  <style>
+    body{background:#030308;color:#e2e8f0;font-family:'Inter',sans-serif;}
+    .glass-card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.12);border-radius:14px;}
+    .admin-sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:rgba(3,3,8,0.98);backdrop-filter:blur(20px);border-right:1px solid rgba(0,212,255,0.1);z-index:40;overflow-y:auto;}
+    .admin-sidebar-link{display:flex;align-items:center;gap:12px;padding:11px 18px;color:#64748b;border-radius:10px;margin:2px 8px;transition:all 0.2s;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;}
+    .admin-sidebar-link:hover,.admin-sidebar-link.active{background:rgba(0,212,255,0.1);color:#00d4ff;}
+    .admin-sidebar-link.active{border-left:3px solid #00d4ff;}
+    .main-content{margin-left:280px;min-height:100vh;padding:28px;}
+    .input-cyber{background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:10px 14px;color:#e2e8f0;font-size:13px;outline:none;transition:all 0.2s;width:100%;}
+    .input-cyber:focus{border-color:#00d4ff;}
+    .btn-primary{background:linear-gradient(135deg,#00d4ff,#b14aed);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+    .btn-approve{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:#00ff88;border-radius:8px;padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;}
+    .btn-approve:hover{background:rgba(0,255,136,0.2);}
+    .btn-reject{background:rgba(255,45,120,0.1);border:1px solid rgba(255,45,120,0.3);color:#ff2d78;border-radius:8px;padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all 0.2s;}
+    .btn-reject:hover{background:rgba(255,45,120,0.2);}
+    .btn-edit{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:#00d4ff;border-radius:8px;padding:7px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+    .tab-btn{padding:10px 22px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;border:1px solid rgba(0,212,255,0.2);border-radius:8px;color:#64748b;background:transparent;cursor:pointer;transition:all 0.3s;}
+    .tab-btn.active{background:rgba(0,212,255,0.15);color:#00d4ff;border-color:rgba(0,212,255,0.5);}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:12px 16px;text-align:left;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;color:#475569;border-bottom:1px solid rgba(0,212,255,0.08);text-transform:uppercase;}
+    td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;vertical-align:middle;}
+    tr:hover td{background:rgba(0,212,255,0.025);}
+    .status-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;}
+    .pill-pending{background:rgba(245,158,11,0.15);color:#f59e0b;}
+    .pill-approved{background:rgba(0,255,136,0.1);color:#00ff88;}
+    .pill-rejected{background:rgba(255,45,120,0.1);color:#ff2d78;}
+    .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);}
+    .modal.hidden{display:none;}
+    .modal-box{background:#0a0a1a;border:1px solid rgba(0,212,255,0.2);border-radius:18px;padding:28px;max-width:480px;width:95%;}
+    .qr-upload-zone{border:2px dashed rgba(0,212,255,0.3);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all 0.3s;}
+    .qr-upload-zone:hover{border-color:#00d4ff;background:rgba(0,212,255,0.05);}
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:12px 18px;border-radius:10px;backdrop-filter:blur(20px);border:1px solid;animation:slideIn 0.3s ease;font-size:13px;}
+    .toast-success{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:#00ff88;}
+    .toast-error{background:rgba(255,45,120,0.1);border-color:rgba(255,45,120,0.3);color:#ff2d78;}
+    .toast-info{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:#00d4ff;}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:0.5px;color:#475569;text-transform:uppercase;margin-bottom:5px;display:block;}
+  </style>
+</head>
+<body>
+<nav class="admin-sidebar">
+  <div class="p-6 border-b border-white/5">
+    <div class="font-rajdhani font-bold text-lg" style="color:#ff2d78;letter-spacing:2px;">GEN B ADMIN</div>
+    <div class="text-xs text-gray-500 mt-1">Control Panel</div>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="admin-sidebar-link"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>Dashboard</a>
+    <a href="tournaments.html" class="admin-sidebar-link"><i data-lucide="trophy" class="w-4 h-4"></i>Tournaments</a>
+    <a href="users.html" class="admin-sidebar-link"><i data-lucide="users" class="w-4 h-4"></i>Users</a>
+    <a href="payments.html" class="admin-sidebar-link active"><i data-lucide="credit-card" class="w-4 h-4"></i>Payments</a>
+    <a href="wallet.html" class="admin-sidebar-link"><i data-lucide="wallet" class="w-4 h-4"></i>Wallet Mgmt</a>
+    <a href="rewards.html" class="admin-sidebar-link"><i data-lucide="gift" class="w-4 h-4"></i>Rewards</a>
+    <a href="notifications.html" class="admin-sidebar-link"><i data-lucide="bell" class="w-4 h-4"></i>Notifications</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <a href="../index.html" class="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to Site</a>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="mb-6">
+    <h1 class="font-rajdhani font-bold text-2xl" style="color:#00d4ff;letter-spacing:1px;">PAYMENT MANAGEMENT</h1>
+    <p class="text-gray-400 text-sm">Approve deposits, process withdrawals, manage QR codes</p>
+  </div>
+
+  <!-- QR Code Management -->
+  <div class="glass-card p-6 mb-6">
+    <h2 class="font-rajdhani font-bold text-lg mb-4" style="color:#ffd700;">📱 UPI QR CODE MANAGEMENT</h2>
+    <div class="flex flex-col md:flex-row gap-6 items-start">
+      <div class="text-center">
+        <div class="w-40 h-40 rounded-xl flex items-center justify-center mb-3" style="background:white;padding:10px;">
+          <img id="currentQR" src="" alt="QR Code" class="w-full h-full object-contain" style="display:none;"/>
+          <div id="qrPlaceholder" class="text-gray-400 text-center text-xs">
+            <i data-lucide="qr-code" class="w-12 h-12 mx-auto mb-1 opacity-30"></i>No QR
+          </div>
+        </div>
+        <div class="text-xs text-gray-400">Current QR Code</div>
+      </div>
+      <div class="flex-1">
+        <label class="qr-upload-zone block" id="qrUploadZone">
+          <input type="file" id="qrUploadInput" class="hidden" accept="image/*" onchange="uploadQR(event)"/>
+          <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto mb-2" style="color:#00d4ff;"></i>
+          <p class="text-sm text-gray-400">Click to upload new QR code</p>
+          <p class="text-xs text-gray-500 mt-1">PNG or JPG · Recommended 500x500px</p>
+        </label>
+        <div class="mt-3 flex items-center gap-3">
+          <input type="text" id="qrUrlInput" class="input-cyber flex-1" placeholder="Or paste QR image URL"/>
+          <button onclick="saveQRUrl()" class="btn-edit whitespace-nowrap">Save URL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending counts -->
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="glass-card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:rgba(177,74,237,0.15);"><i data-lucide="download" class="w-6 h-6" style="color:#b14aed;"></i></div>
+      <div><div class="font-rajdhani font-bold text-2xl text-white" id="pendingDepositsCount">—</div><div class="text-xs text-gray-400">Pending Deposits</div></div>
+    </div>
+    <div class="glass-card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:rgba(245,158,11,0.15);"><i data-lucide="upload" class="w-6 h-6" style="color:#f59e0b;"></i></div>
+      <div><div class="font-rajdhani font-bold text-2xl text-white" id="pendingWithdrawalsCount">—</div><div class="text-xs text-gray-400">Pending Withdrawals</div></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-3 mb-6">
+    <button class="tab-btn active" id="tab-deposits" onclick="switchTab('deposits')">💰 DEPOSITS</button>
+    <button class="tab-btn" id="tab-withdrawals" onclick="switchTab('withdrawals')">📤 WITHDRAWALS</button>
+  </div>
+
+  <!-- Deposits Table -->
+  <div id="depositsTab" class="glass-card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>User</th><th>Amount</th><th>UTR</th><th>Screenshot</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="depositsBody"><tr><td colspan="7" class="text-center py-10 text-gray-500">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Withdrawals Table -->
+  <div id="withdrawalsTab" class="glass-card overflow-hidden hidden">
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>User</th><th>Amount</th><th>UPI ID</th><th>Requested</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="withdrawalsBody"><tr><td colspan="6" class="text-center py-10 text-gray-500">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Reject Modal -->
+<div class="modal hidden" id="rejectModal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-rajdhani font-bold text-xl text-red-400">REJECT PAYMENT</h2>
+      <button onclick="closeModal('rejectModal')" class="text-gray-500 hover:text-white text-2xl">&times;</button>
+    </div>
+    <div class="mb-4"><label class="label">Reason for rejection</label><textarea id="rejectReason" class="input-cyber" rows="3" placeholder="e.g. Invalid UTR, duplicate submission..."></textarea></div>
+    <div class="flex gap-3">
+      <button onclick="closeModal('rejectModal')" class="btn-edit flex-1">Cancel</button>
+      <button onclick="confirmReject()" class="btn-reject flex-1">✗ REJECT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot Modal -->
+<div class="modal hidden" id="screenshotModal">
+  <div style="background:rgba(0,0,0,0.9);border-radius:16px;padding:16px;max-width:90vw;max-height:90vh;overflow:auto;">
+    <div class="flex justify-between mb-3">
+      <span class="font-rajdhani font-bold" style="color:#00d4ff;">PAYMENT SCREENSHOT</span>
+      <button onclick="closeModal('screenshotModal')" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+    </div>
+    <img id="screenshotImg" src="" alt="Screenshot" style="max-width:80vw;max-height:75vh;border-radius:12px;"/>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/supabase.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/admin/payments.js"></script>
+<script>
+lucide.createIcons();
+let pendingRejectId=null, pendingRejectType=null;
+function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function switchTab(tab){
+  ['deposits','withdrawals'].forEach(t=>{document.getElementById(t+'Tab').classList.add('hidden');document.getElementById('tab-'+t).classList.remove('active');});
+  document.getElementById(tab+'Tab').classList.remove('hidden');document.getElementById('tab-'+tab).classList.add('active');
+}
+
+async function loadQR(){
+  try{
+    const{data}=await window.GenBSupabase.db.from('admin_settings').select('value').eq('key','qr_code_url').single();
+    if(data?.value){document.getElementById('currentQR').src=data.value;document.getElementById('currentQR').style.display='block';document.getElementById('qrPlaceholder').style.display='none';document.getElementById('qrUrlInput').value=data.value;}
+  }catch(e){}
+}
+
+async function uploadQR(e){
+  const file=e.target.files[0]; if(!file)return;
+  showToast('Uploading QR...','info');
+  try{
+    const fd=new FormData(); fd.append('file',file); fd.append('upload_preset',GENBCONFIG.cloudinary.uploadPreset); fd.append('folder','admin');
+    const res=await fetch(`https://api.cloudinary.com/v1_1/${GENBCONFIG.cloudinary.cloudName}/image/upload`,{method:'POST',body:fd});
+    const d=await res.json();
+    if(!d.secure_url)throw new Error('Upload failed');
+    await saveQRToDb(d.secure_url);
+  }catch(e){showToast('Upload failed: '+e.message,'error');}
+}
+async function saveQRUrl(){const url=document.getElementById('qrUrlInput').value.trim();if(!url)return;await saveQRToDb(url);}
+async function saveQRToDb(url){
+  try{
+    await window.GenBSupabase.db.from('admin_settings').upsert({key:'qr_code_url',value:url},{onConflict:'key'});
+    document.getElementById('currentQR').src=url;document.getElementById('currentQR').style.display='block';document.getElementById('qrPlaceholder').style.display='none';
+    showToast('QR code updated!','success');
+  }catch(e){showToast('Save failed','error');}
+}
+
+async function loadDeposits(){
+  try{
+    const{data}=await window.GenBSupabase.db.from('payments').select('*,profiles(username,email)').order('created_at',{ascending:false}).limit(50);
+    const pending=(data||[]).filter(d=>d.status==='pending');
+    document.getElementById('pendingDepositsCount').textContent=pending.length;
+    document.getElementById('depositsBody').innerHTML=(data||[]).map(p=>`
+      <tr>
+        <td><div class="text-sm font-semibold">${p.profiles?.username||'?'}</div><div class="text-xs text-gray-500">${p.profiles?.email||''}</div></td>
+        <td><span class="font-rajdhani font-bold text-base" style="color:#00ff88;">₹${p.amount}</span></td>
+        <td><span class="font-mono text-xs text-cyan-400">${p.utr_number||'—'}</span></td>
+        <td>${p.screenshot_url?`<img src="${p.screenshot_url}" onclick="viewScreenshot('${p.screenshot_url}')" class="w-12 h-12 rounded-lg object-cover cursor-pointer hover:scale-110 transition-transform" alt="SS"/>`:'-'}</td>
+        <td class="text-xs text-gray-400">${new Date(p.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+        <td><span class="status-pill ${p.status==='pending'?'pill-pending':p.status==='approved'?'pill-approved':'pill-rejected'}">${p.status}</span></td>
+        <td>${p.status==='pending'?`<div class="flex gap-1"><button onclick="approveDeposit('${p.id}','${p.user_id}',${p.amount})" class="btn-approve">✓ Approve</button><button onclick="openReject('${p.id}','deposit')" class="btn-reject">✗ Reject</button></div>`:'-'}</td>
+      </tr>`).join('')||'<tr><td colspan="7" class="text-center py-8 text-gray-500">No deposits</td></tr>';
+    lucide.createIcons();
+  }catch(e){showToast('Load error','error');}
+}
+
+async function approveDeposit(paymentId,userId,amount){
+  if(!confirm(`Approve ₹${amount} deposit?`))return;
+  try{
+    // Credit wallet
+    const{data:w}=await window.GenBSupabase.db.from('wallets').select('main_balance').eq('user_id',userId).single();
+    const newBal=(w?.main_balance||0)+parseFloat(amount);
+    await window.GenBSupabase.db.from('wallets').upsert({user_id:userId,main_balance:newBal},{onConflict:'user_id'});
+    await window.GenBSupabase.db.from('payments').update({status:'approved'}).eq('id',paymentId);
+    await window.GenBSupabase.db.from('transactions').insert({user_id:userId,type:'deposit',amount:parseFloat(amount),wallet_type:'main',description:'Deposit approved by admin',status:'approved'});
+    showToast('Deposit approved & wallet credited!','success'); loadDeposits();
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function loadWithdrawals(){
+  try{
+    const{data}=await window.GenBSupabase.db.from('withdrawals').select('*,profiles(username,email)').order('created_at',{ascending:false}).limit(50);
+    const pending=(data||[]).filter(d=>d.status==='pending');
+    document.getElementById('pendingWithdrawalsCount').textContent=pending.length;
+    document.getElementById('withdrawalsBody').innerHTML=(data||[]).map(w=>`
+      <tr>
+        <td><div class="text-sm font-semibold">${w.profiles?.username||'?'}</div><div class="text-xs text-gray-500">${w.profiles?.email||''}</div></td>
+        <td><span class="font-rajdhani font-bold text-base" style="color:#ffd700;">₹${w.amount}</span></td>
+        <td class="font-mono text-xs text-cyan-400">${w.upi_id||'—'}</td>
+        <td class="text-xs text-gray-400">${new Date(w.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</td>
+        <td><span class="status-pill ${w.status==='pending'?'pill-pending':w.status==='paid'?'pill-approved':'pill-rejected'}">${w.status}</span></td>
+        <td>${w.status==='pending'?`<div class="flex gap-1"><button onclick="approveWithdrawal('${w.id}')" class="btn-approve">✓ Mark Paid</button><button onclick="openReject('${w.id}','withdrawal')" class="btn-reject">✗ Reject</button></div>`:'-'}</td>
+      </tr>`).join('')||'<tr><td colspan="6" class="text-center py-8 text-gray-500">No withdrawals</td></tr>';
+    lucide.createIcons();
+  }catch(e){showToast('Load error','error');}
+}
+
+async function approveWithdrawal(id){
+  if(!confirm('Mark this withdrawal as paid?'))return;
+  try{await window.GenBSupabase.db.from('withdrawals').update({status:'paid'}).eq('id',id);showToast('Marked as paid!','success');loadWithdrawals();}
+  catch(e){showToast('Error','error');}
+}
+
+function openReject(id,type){pendingRejectId=id;pendingRejectType=type;document.getElementById('rejectReason').value='';document.getElementById('rejectModal').classList.remove('hidden');}
+async function confirmReject(){
+  const reason=document.getElementById('rejectReason').value.trim();
+  if(!reason){showToast('Enter reason','error');return;}
+  try{
+    const table=pendingRejectType==='deposit'?'payments':'withdrawals';
+    await window.GenBSupabase.db.from(table).update({status:'rejected',admin_note:reason}).eq('id',pendingRejectId);
+    showToast('Rejected','info'); closeModal('rejectModal');
+    pendingRejectType==='deposit'?loadDeposits():loadWithdrawals();
+  }catch(e){showToast('Error','error');}
+}
+
+function viewScreenshot(url){document.getElementById('screenshotImg').src=url;document.getElementById('screenshotModal').classList.remove('hidden');}
+
+async function init(){
+  try{
+    const{user,profile}=await window.GenBSupabase.getCurrentUser();
+    if(!user||!['admin','super_admin','moderator'].includes(profile?.role)){window.location.href='../login.html';return;}
+    await loadQR();await loadDeposits();await loadWithdrawals();
+  }catch(e){window.location.href='../login.html';}
+  lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>

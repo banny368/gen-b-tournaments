@@ -1,0 +1,38 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/admin",              "destination": "/admin/index.html" },
+    { "source": "/admin/tournaments",  "destination": "/admin/tournaments.html" },
+    { "source": "/admin/users",        "destination": "/admin/users.html" },
+    { "source": "/admin/payments",     "destination": "/admin/payments.html" },
+    { "source": "/admin/wallet",       "destination": "/admin/wallet.html" },
+    { "source": "/admin/rewards",      "destination": "/admin/rewards.html" },
+    { "source": "/admin/notifications","destination": "/admin/notifications.html" },
+    { "source": "/admin/:path*",       "destination": "/admin/:path*.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options",            "value": "nosniff" },
+        { "key": "X-Frame-Options",                    "value": "DENY" },
+        { "key": "X-XSS-Protection",                   "value": "1; mode=block" },
+        { "key": "Referrer-Policy",                    "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",                 "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    }
+  ]
+}

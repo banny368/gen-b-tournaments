@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Clan System | Gen B Tournaments</title>
+  <meta name="description" content="Create or join a clan, compete together and climb the clan leaderboard on Gen B Tournaments."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/main.css"/>
+  <link rel="stylesheet" href="assets/css/animations.css"/>
+  <link rel="stylesheet" href="assets/css/components.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{'neon-blue':'#00d4ff','neon-purple':'#b14aed','neon-pink':'#ff2d78','neon-gold':'#ffd700'},fontFamily:{'rajdhani':['Rajdhani','sans-serif'],'inter':['Inter','sans-serif']}}}}</script>
+  <style>
+    body{background:#050510;color:#e2e8f0;font-family:'Inter',sans-serif;}
+    .glass-card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.15);border-radius:16px;}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:rgba(5,5,16,0.95);backdrop-filter:blur(20px);border-right:1px solid rgba(0,212,255,0.1);z-index:40;overflow-y:auto;}
+    .sidebar-link{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#94a3b8;border-radius:10px;margin:2px 8px;transition:all 0.2s;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px;letter-spacing:0.5px;}
+    .sidebar-link:hover,.sidebar-link.active{background:rgba(0,212,255,0.1);color:#00d4ff;}
+    .sidebar-link.active{border-left:3px solid #00d4ff;}
+    .main-content{margin-left:260px;min-height:100vh;padding:24px;}
+    .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(5,5,16,0.98);backdrop-filter:blur(20px);border-top:1px solid rgba(0,212,255,0.15);z-index:50;padding:8px 0;}
+    .mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;padding:6px 4px;color:#64748b;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:600;text-decoration:none;transition:color 0.2s;}
+    .mobile-nav-item.active,.mobile-nav-item:hover{color:#00d4ff;}
+    @media(max-width:768px){.sidebar{display:none;}.main-content{margin-left:0;padding:16px 16px 90px;}.mobile-nav{display:flex;}}
+    .btn-primary{background:linear-gradient(135deg,#00d4ff,#b14aed);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;cursor:pointer;transition:all 0.3s;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,212,255,0.4);}
+    .btn-ghost{background:transparent;color:#00d4ff;border:1px solid rgba(0,212,255,0.4);border-radius:10px;padding:10px 24px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.3s;}
+    .btn-ghost:hover{background:rgba(0,212,255,0.1);}
+    .input-cyber{background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:12px 16px;color:#e2e8f0;font-size:14px;width:100%;outline:none;transition:all 0.3s;}
+    .input-cyber:focus{border-color:#00d4ff;box-shadow:0 0 15px rgba(0,212,255,0.2);}
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+    .toast{padding:14px 20px;border-radius:12px;backdrop-filter:blur(20px);border:1px solid;animation:slideIn 0.3s ease;font-size:14px;min-width:260px;}
+    .toast-success{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:#00ff88;}
+    .toast-error{background:rgba(255,45,120,0.1);border-color:rgba(255,45,120,0.3);color:#ff2d78;}
+    .toast-info{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.3);color:#00d4ff;}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .member-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.2s;}
+    .member-row:hover{background:rgba(0,212,255,0.04);}
+    .clan-banner{background:linear-gradient(135deg,#0a0a2a,#1a0a3a);border:1px solid rgba(177,74,237,0.3);border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+    .clan-banner::before{content:'';position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:radial-gradient(circle,rgba(177,74,237,0.15),transparent);border-radius:50%;}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:12px 16px;text-align:left;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;color:#475569;border-bottom:1px solid rgba(0,212,255,0.1);text-transform:uppercase;}
+    td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;}
+  </style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="p-6 border-b border-white/5">
+    <a href="index.html"><div class="font-rajdhani font-bold text-xl" style="color:#00d4ff;letter-spacing:2px;text-shadow:0 0 20px rgba(0,212,255,0.6);">GEN B</div><div class="font-rajdhani text-xs text-gray-500 tracking-widest">TOURNAMENTS</div></a>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="sidebar-link"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="dashboard.html" class="sidebar-link"><i data-lucide="layout-dashboard" class="w-5 h-5"></i>Dashboard</a>
+    <a href="tournaments.html" class="sidebar-link"><i data-lucide="trophy" class="w-5 h-5"></i>Tournaments</a>
+    <a href="wallet.html" class="sidebar-link"><i data-lucide="wallet" class="w-5 h-5"></i>Wallet</a>
+    <a href="leaderboard.html" class="sidebar-link"><i data-lucide="bar-chart-2" class="w-5 h-5"></i>Leaderboard</a>
+    <a href="rewards.html" class="sidebar-link"><i data-lucide="gift" class="w-5 h-5"></i>Rewards</a>
+    <a href="referral.html" class="sidebar-link"><i data-lucide="users" class="w-5 h-5"></i>Referral</a>
+    <a href="clan.html" class="sidebar-link active"><i data-lucide="shield" class="w-5 h-5"></i>Clan</a>
+    <a href="chat.html" class="sidebar-link"><i data-lucide="message-circle" class="w-5 h-5"></i>Chat</a>
+    <a href="profile.html" class="sidebar-link"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style="background:linear-gradient(135deg,#00d4ff,#b14aed);" id="sidebarAvatar">U</div>
+      <div><div class="text-sm font-semibold text-white" id="sidebarUsername">Loading...</div><div class="text-xs text-gray-500">Player</div></div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="mb-6">
+    <h1 class="font-rajdhani font-bold text-3xl" style="color:#b14aed;letter-spacing:2px;">🛡️ CLAN SYSTEM</h1>
+    <p class="text-gray-400 text-sm mt-1">Team up, dominate tournaments, climb the clan leaderboard</p>
+  </div>
+
+  <!-- Loading state -->
+  <div id="clanLoading" class="text-center py-16">
+    <i data-lucide="loader" class="w-10 h-10 mx-auto animate-spin" style="color:#00d4ff;"></i>
+    <p class="text-gray-500 mt-3">Loading clan data...</p>
+  </div>
+
+  <!-- No Clan State -->
+  <div id="noClanView" class="hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl">
+      <!-- Create Clan -->
+      <div class="glass-card p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(0,212,255,0.15);">⚔️</div>
+          <div><div class="font-rajdhani font-bold text-lg" style="color:#00d4ff;">CREATE CLAN</div><div class="text-xs text-gray-400">Be the leader</div></div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-gray-400 mb-1 block">CLAN NAME</label>
+            <input type="text" id="createClanName" class="input-cyber" placeholder="e.g. Dragon Warriors" maxlength="30"/>
+          </div>
+          <div>
+            <label class="text-xs text-gray-400 mb-1 block">CLAN TAG (2-5 chars)</label>
+            <input type="text" id="createClanTag" class="input-cyber" placeholder="e.g. DW" maxlength="5" style="text-transform:uppercase;"/>
+          </div>
+          <div>
+            <label class="text-xs text-gray-400 mb-1 block">DESCRIPTION</label>
+            <textarea id="createClanDesc" class="input-cyber" rows="3" placeholder="What's your clan about?"></textarea>
+          </div>
+          <button onclick="createClan()" class="btn-primary w-full">⚔️ CREATE CLAN</button>
+        </div>
+      </div>
+      <!-- Join Clan -->
+      <div class="glass-card p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(177,74,237,0.15);">🤝</div>
+          <div><div class="font-rajdhani font-bold text-lg" style="color:#b14aed;">JOIN CLAN</div><div class="text-xs text-gray-400">Join your squad</div></div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-gray-400 mb-1 block">CLAN CODE</label>
+            <input type="text" id="joinClanCode" class="input-cyber" placeholder="Enter clan code" maxlength="8" style="text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:4px;"/>
+          </div>
+          <p class="text-xs text-gray-500">Get the code from your clan leader</p>
+          <button onclick="joinClan()" class="w-full py-3 rounded-xl font-rajdhani font-bold text-sm tracking-widest cursor-pointer transition-all" style="background:linear-gradient(135deg,#b14aed,#ff2d78);color:#fff;border:none;">🤝 JOIN CLAN</button>
+        </div>
+        <!-- Popular clans -->
+        <div class="mt-6 pt-4 border-t border-white/5">
+          <div class="text-xs text-gray-400 mb-3">🔥 Top Open Clans</div>
+          <div id="openClansList" class="space-y-2">
+            <div class="text-xs text-gray-600 text-center py-2">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Has Clan State -->
+  <div id="hasClanView" class="hidden">
+    <!-- Clan Banner -->
+    <div class="clan-banner mb-6">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-5">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center font-rajdhani font-bold text-2xl" style="background:linear-gradient(135deg,#b14aed,#ff2d78);color:white;" id="clanTagDisplay">[TAG]</div>
+          <div>
+            <h2 class="font-rajdhani font-bold text-2xl text-white" id="clanNameDisplay">Clan Name</h2>
+            <p class="text-sm text-gray-400" id="clanDescDisplay">Description</p>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-xs px-2 py-1 rounded-full" style="background:rgba(0,212,255,0.1);color:#00d4ff;" id="clanRoleDisplay">Member</span>
+              <span class="text-xs text-gray-500">Code: <span class="font-rajdhani font-bold text-white cursor-pointer" id="clanCodeDisplay" onclick="copyClanCode()">——</span> <i data-lucide="copy" class="w-3 h-3 inline"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-6 text-center">
+          <div><div class="font-rajdhani font-bold text-2xl" style="color:#00d4ff;" id="clanMembersCount">0</div><div class="text-xs text-gray-400">Members</div></div>
+          <div><div class="font-rajdhani font-bold text-2xl" style="color:#ffd700;" id="clanWinsCount">0</div><div class="text-xs text-gray-400">Wins</div></div>
+          <div><div class="font-rajdhani font-bold text-2xl" style="color:#00ff88;" id="clanRankDisplay">#—</div><div class="text-xs text-gray-400">Clan Rank</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Members List -->
+      <div class="glass-card overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between">
+          <h3 class="font-rajdhani font-bold text-lg" style="color:#00d4ff;">👥 MEMBERS</h3>
+          <span class="text-xs text-gray-400" id="memberCountLabel">Loading...</span>
+        </div>
+        <div id="membersList">
+          <div class="p-8 text-center text-gray-500"><i data-lucide="loader" class="w-6 h-6 mx-auto animate-spin mb-2" style="color:#00d4ff;"></i>Loading members...</div>
+        </div>
+        <div class="p-4 border-t border-white/5">
+          <button id="leaveClanBtn" onclick="leaveClan()" class="text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Leave Clan
+          </button>
+        </div>
+      </div>
+
+      <!-- Clan Leaderboard -->
+      <div class="glass-card overflow-hidden">
+        <div class="p-5 border-b border-white/5">
+          <h3 class="font-rajdhani font-bold text-lg" style="color:#ffd700;">🏆 CLAN LEADERBOARD</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr><th>Rank</th><th>Clan</th><th>Members</th><th>Wins</th></tr></thead>
+            <tbody id="clanLeaderboardBody">
+              <tr><td colspan="4" class="text-center py-8 text-gray-500">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<nav class="mobile-nav">
+  <a href="index.html" class="mobile-nav-item"><i data-lucide="home" class="w-5 h-5"></i><span>Home</span></a>
+  <a href="tournaments.html" class="mobile-nav-item"><i data-lucide="trophy" class="w-5 h-5"></i><span>Play</span></a>
+  <a href="wallet.html" class="mobile-nav-item"><i data-lucide="wallet" class="w-5 h-5"></i><span>Wallet</span></a>
+  <a href="leaderboard.html" class="mobile-nav-item"><i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Ranks</span></a>
+  <a href="profile.html" class="mobile-nav-item"><i data-lucide="user" class="w-5 h-5"></i><span>Profile</span></a>
+</nav>
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/clan.js"></script>
+<script>
+lucide.createIcons();
+let currentUser=null, userClan=null, userClanMembership=null;
+function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+
+async function createClan(){
+  const name=document.getElementById('createClanName').value.trim();
+  const tag=document.getElementById('createClanTag').value.trim().toUpperCase();
+  const desc=document.getElementById('createClanDesc').value.trim();
+  if(!name||name.length<3){showToast('Clan name must be at least 3 characters','error');return;}
+  if(!tag||tag.length<2||tag.length>5){showToast('Tag must be 2-5 characters','error');return;}
+  try{
+    const code=Math.random().toString(36).substr(2,6).toUpperCase();
+    const{data:clan,error}=await window.GenBSupabase.db.from('clans').insert({name,tag,description:desc,leader_id:currentUser.id,code,total_members:1,total_wins:0}).select().single();
+    if(error)throw error;
+    await window.GenBSupabase.db.from('clan_members').insert({clan_id:clan.id,user_id:currentUser.id,role:'leader'});
+    showToast('Clan created! Code: '+code,'success');
+    setTimeout(()=>window.location.reload(),1500);
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function joinClan(){
+  const code=document.getElementById('joinClanCode').value.trim().toUpperCase();
+  if(!code||code.length<4){showToast('Enter a valid clan code','error');return;}
+  try{
+    const{data:clan,error}=await window.GenBSupabase.db.from('clans').select('*').eq('code',code).single();
+    if(error||!clan){showToast('Clan not found','error');return;}
+    const{data:existing}=await window.GenBSupabase.db.from('clan_members').select('id').eq('user_id',currentUser.id);
+    if(existing&&existing.length>0){showToast('Already in a clan','error');return;}
+    await window.GenBSupabase.db.from('clan_members').insert({clan_id:clan.id,user_id:currentUser.id,role:'member'});
+    await window.GenBSupabase.db.from('clans').update({total_members:clan.total_members+1}).eq('id',clan.id);
+    showToast('Joined '+clan.name+'!','success');
+    setTimeout(()=>window.location.reload(),1500);
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function leaveClan(){
+  if(!confirm('Are you sure you want to leave the clan?'))return;
+  try{
+    await window.GenBSupabase.db.from('clan_members').delete().eq('user_id',currentUser.id);
+    if(userClan){await window.GenBSupabase.db.from('clans').update({total_members:Math.max(0,(userClan.total_members||1)-1)}).eq('id',userClan.id);}
+    showToast('Left clan','info');
+    setTimeout(()=>window.location.reload(),1200);
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+function copyClanCode(){
+  const code=document.getElementById('clanCodeDisplay').textContent;
+  navigator.clipboard.writeText(code).then(()=>showToast('Code copied!','success'));
+}
+
+async function renderMembers(clanId){
+  try{
+    const{data:members}=await window.GenBSupabase.db.from('clan_members').select('*,profiles(username,avatar_url,level,xp)').eq('clan_id',clanId);
+    document.getElementById('memberCountLabel').textContent=(members||[]).length+'/50 members';
+    document.getElementById('membersList').innerHTML=(members||[]).map(m=>{
+      const p=m.profiles||{}; const initials=(p.username||'?')[0].toUpperCase();
+      return`<div class="member-row">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style="background:linear-gradient(135deg,#00d4ff,#b14aed);">${initials}</div>
+        <div class="flex-1"><div class="text-sm font-semibold text-white">${p.username||'Player'}</div><div class="text-xs text-gray-500">Lv ${p.level||1}</div></div>
+        <span class="text-xs px-2 py-1 rounded-full ${m.role==='leader'?'text-yellow-400':'text-gray-400'}" style="${m.role==='leader'?'background:rgba(255,215,0,0.1);':'background:rgba(255,255,255,0.05);'}">${m.role}</span>
+      </div>`;
+    }).join('')||'<div class="p-6 text-center text-gray-500 text-sm">No members yet</div>';
+    lucide.createIcons();
+  }catch(e){console.error(e);}
+}
+
+async function renderClanLeaderboard(){
+  try{
+    const{data:clans}=await window.GenBSupabase.db.from('clans').select('name,tag,total_members,total_wins').order('total_wins',{ascending:false}).limit(15);
+    const rankColors=['#ffd700','#c0c0c0','#cd7f32'];
+    document.getElementById('clanLeaderboardBody').innerHTML=(clans||[]).map((c,i)=>`
+      <tr class="${userClan&&c.name===userClan.name?'bg-cyan-900/10':''}">
+        <td><span class="font-rajdhani font-bold text-lg" style="color:${rankColors[i]||'#94a3b8'}">#${i+1}</span></td>
+        <td><span class="font-rajdhani font-bold" style="color:#b14aed;">[${c.tag}]</span> <span class="text-white">${c.name}</span></td>
+        <td class="text-gray-400">${c.total_members}</td>
+        <td class="font-rajdhani font-bold" style="color:#ffd700;">${c.total_wins}</td>
+      </tr>`).join('')||'<tr><td colspan="4" class="text-center py-6 text-gray-500">No clans yet</td></tr>';
+  }catch(e){console.error(e);}
+}
+
+async function loadOpenClans(){
+  try{
+    const{data:clans}=await window.GenBSupabase.db.from('clans').select('name,tag,total_members,code').order('total_members',{ascending:false}).limit(3);
+    document.getElementById('openClansList').innerHTML=(clans||[]).map(c=>`
+      <div class="flex items-center justify-between p-2 rounded-lg" style="background:rgba(255,255,255,0.03);">
+        <div><span class="text-xs font-rajdhani font-bold" style="color:#b14aed;">[${c.tag}]</span> <span class="text-xs text-white">${c.name}</span></div>
+        <button onclick="document.getElementById('joinClanCode').value='${c.code}'" class="text-xs px-2 py-1 rounded" style="background:rgba(0,212,255,0.1);color:#00d4ff;">Join</button>
+      </div>`).join('')||'<div class="text-xs text-gray-600 text-center py-2">No open clans</div>';
+  }catch(e){}
+}
+
+async function init(){
+  try{
+    const{user,profile}=await window.GenBSupabase.getCurrentUser();
+    if(!user){window.location.href='login.html';return;}
+    currentUser=user;
+    document.getElementById('sidebarUsername').textContent=profile?.username||user.email?.split('@')[0]||'Player';
+    document.getElementById('sidebarAvatar').textContent=(profile?.username||'U')[0].toUpperCase();
+    // Check clan membership
+    const{data:membership}=await window.GenBSupabase.db.from('clan_members').select('*,clans(*)').eq('user_id',user.id).single();
+    document.getElementById('clanLoading').classList.add('hidden');
+    if(!membership){
+      document.getElementById('noClanView').classList.remove('hidden');
+      loadOpenClans();
+    } else {
+      userClanMembership=membership; userClan=membership.clans;
+      document.getElementById('hasClanView').classList.remove('hidden');
+      document.getElementById('clanTagDisplay').textContent=userClan.tag||'?';
+      document.getElementById('clanNameDisplay').textContent=userClan.name;
+      document.getElementById('clanDescDisplay').textContent=userClan.description||'No description';
+      document.getElementById('clanRoleDisplay').textContent=membership.role;
+      document.getElementById('clanCodeDisplay').textContent=userClan.code||'——';
+      document.getElementById('clanMembersCount').textContent=userClan.total_members||0;
+      document.getElementById('clanWinsCount').textContent=userClan.total_wins||0;
+      if(membership.role==='leader') document.getElementById('leaveClanBtn').textContent='⚠️ Disband Clan';
+      await renderMembers(userClan.id);
+      await renderClanLeaderboard();
+      // Get rank
+      const{data:allClans}=await window.GenBSupabase.db.from('clans').select('id').order('total_wins',{ascending:false});
+      const rank=(allClans||[]).findIndex(c=>c.id===userClan.id)+1;
+      document.getElementById('clanRankDisplay').textContent='#'+(rank||'—');
+    }
+  }catch(e){console.error(e);document.getElementById('clanLoading').classList.add('hidden');document.getElementById('noClanView').classList.remove('hidden');loadOpenClans();}
+  lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>

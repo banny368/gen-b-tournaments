@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournaments — Gen B Tournaments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'neon-blue':   '#00d4ff',
+            'neon-purple': '#b14aed',
+            'neon-pink':   '#ff2d78',
+            'neon-gold':   '#ffd700',
+            'neon-green':  '#00ff88',
+            'dark-bg':     '#050510',
+            'card-bg':     '#0a0a1a',
+          },
+          fontFamily: {
+            rajdhani: ['Rajdhani', 'sans-serif'],
+            inter:    ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --neon-blue:   #00d4ff;
+      --neon-purple: #b14aed;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-green:  #00ff88;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #050510;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #0a0a1a; }
+    ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 240px; height: 100vh;
+      background: rgba(10,10,26,0.97);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(0,212,255,0.15);
+      z-index: 100;
+      display: flex; flex-direction: column;
+      padding: 1.5rem 0;
+      transition: transform .3s ease;
+    }
+    .sidebar-logo {
+      padding: 0 1.5rem 1.5rem;
+      border-bottom: 1px solid rgba(0,212,255,0.1);
+      margin-bottom: 1rem;
+    }
+    .sidebar-logo .logo-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .7rem 1.5rem;
+      color: #94a3b8; font-size: .9rem;
+      text-decoration: none; transition: all .2s;
+      border-left: 3px solid transparent;
+    }
+    .nav-link:hover { color: var(--neon-blue); background: rgba(0,212,255,0.05); }
+    .nav-link.active {
+      color: var(--neon-blue);
+      border-left-color: var(--neon-blue);
+      background: rgba(0,212,255,0.08);
+    }
+    .nav-link i { width: 18px; height: 18px; }
+
+    /* ── Main layout ── */
+    .main-content {
+      margin-left: 240px;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── Glass card ── */
+    .glass-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 16px;
+    }
+
+    /* ── Tournament card ── */
+    .tournament-card {
+      background: rgba(10,10,26,0.9);
+      border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .tournament-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 30px rgba(0,212,255,0.25), 0 20px 40px rgba(0,0,0,0.4);
+      border-color: rgba(0,212,255,0.45);
+    }
+    .card-banner {
+      width: 100%; height: 140px;
+      object-fit: cover; display: block;
+      position: relative;
+    }
+    .card-banner-bg {
+      width: 100%; height: 140px;
+      position: relative; overflow: hidden;
+    }
+
+    /* ── Status badges ── */
+    .badge-live {
+      background: rgba(255,45,120,0.2);
+      border: 1px solid var(--neon-pink);
+      color: var(--neon-pink);
+      padding: 3px 10px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700;
+      letter-spacing: .1em;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .badge-live::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--neon-pink);
+      border-radius: 50%;
+      animation: pulse-dot 1.4s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(1.4); }
+    }
+    .badge-upcoming {
+      background: rgba(0,212,255,0.15);
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      padding: 3px 10px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    }
+    .badge-completed {
+      background: rgba(148,163,184,0.1);
+      border: 1px solid #475569;
+      color: #94a3b8;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+    }
+    .badge-game {
+      padding: 3px 10px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .05em;
+    }
+    .badge-free {
+      background: rgba(0,255,136,0.15);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      padding: 3px 10px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700;
+    }
+    .badge-paid {
+      background: rgba(255,215,0,0.15);
+      border: 1px solid var(--neon-gold);
+      color: var(--neon-gold);
+      padding: 3px 10px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700;
+    }
+
+    /* ── Slot progress ── */
+    .slot-bar-track {
+      width: 100%; height: 5px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px; overflow: hidden;
+    }
+    .slot-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      transition: width .5s ease;
+    }
+    .slot-bar-fill.full { background: linear-gradient(90deg, var(--neon-pink), #ff6b6b); }
+
+    /* ── Buttons ── */
+    .btn-join {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      color: #fff; border: none;
+      padding: .55rem 1rem; border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .9rem; font-weight: 700; letter-spacing: .1em;
+      cursor: pointer; width: 100%;
+      transition: all .2s;
+      box-shadow: 0 0 15px rgba(0,212,255,0.2);
+    }
+    .btn-join:hover { box-shadow: 0 0 25px rgba(0,212,255,0.5); transform: scale(1.02); }
+    .btn-full {
+      background: rgba(255,255,255,0.05);
+      color: #64748b; border: 1px solid #334155;
+      padding: .55rem 1rem; border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .9rem; font-weight: 700; letter-spacing: .1em;
+      cursor: not-allowed; width: 100%;
+    }
+    .btn-view {
+      background: rgba(255,215,0,0.1);
+      color: var(--neon-gold); border: 1px solid rgba(255,215,0,0.3);
+      padding: .55rem 1rem; border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .9rem; font-weight: 700; letter-spacing: .1em;
+      cursor: pointer; width: 100%;
+      transition: all .2s;
+    }
+    .btn-view:hover { background: rgba(255,215,0,0.2); }
+
+    /* ── Filter tabs ── */
+    .filter-tab {
+      padding: .45rem 1.1rem; border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #94a3b8; font-size: .85rem; font-weight: 500;
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .filter-tab:hover { border-color: rgba(0,212,255,0.3); color: var(--neon-blue); }
+    .filter-tab.active {
+      background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(177,74,237,0.2));
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      box-shadow: 0 0 12px rgba(0,212,255,0.2);
+    }
+
+    /* ── Search ── */
+    .search-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,212,255,0.2);
+      color: #e2e8f0; border-radius: 10px;
+      padding: .6rem 1rem .6rem 2.5rem;
+      font-size: .9rem; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-input:focus {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 15px rgba(0,212,255,0.15);
+    }
+    .search-input::placeholder { color: #475569; }
+
+    .select-filter {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,212,255,0.2);
+      color: #e2e8f0; border-radius: 10px;
+      padding: .6rem 1rem;
+      font-size: .85rem; outline: none;
+      cursor: pointer;
+    }
+    .select-filter:focus { border-color: var(--neon-blue); }
+    .select-filter option { background: #0a0a1a; }
+
+    /* ── Skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ── Countdown ── */
+    .countdown-seg { font-family: 'Rajdhani', sans-serif; font-size: .8rem; font-weight: 700; color: var(--neon-blue); }
+
+    /* ── Mobile bottom nav ── */
+    .bottom-nav {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(10,10,26,0.97);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0,212,255,0.15);
+      z-index: 100;
+      padding: .5rem 0 .75rem;
+    }
+    .bottom-nav-item {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+      flex: 1; color: #64748b;
+      text-decoration: none; font-size: .65rem;
+      font-weight: 500; transition: color .2s;
+    }
+    .bottom-nav-item.active { color: var(--neon-blue); }
+    .bottom-nav-item i { width: 20px; height: 20px; }
+
+    /* ── Neon heading ── */
+    .neon-heading {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Toast ── */
+    #toast-container {
+      position: fixed; top: 1.25rem; right: 1.25rem;
+      z-index: 9999; display: flex; flex-direction: column; gap: .5rem;
+    }
+    .toast {
+      background: rgba(10,10,26,0.97);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 12px;
+      padding: .85rem 1.25rem;
+      color: #e2e8f0; font-size: .875rem;
+      max-width: 320px;
+      backdrop-filter: blur(20px);
+      display: flex; align-items: center; gap: .75rem;
+      animation: slideIn .3s ease;
+      box-shadow: 0 0 20px rgba(0,212,255,0.15);
+    }
+    .toast.success { border-color: rgba(0,255,136,0.4); }
+    .toast.error   { border-color: rgba(255,45,120,0.4); }
+    .toast.info    { border-color: rgba(0,212,255,0.4); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0);   opacity: 1; }
+    }
+
+    /* ── Coming soon banner ── */
+    .coming-soon-banner {
+      border: 1px solid rgba(255,215,0,0.3);
+      background: rgba(255,215,0,0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    /* ── Load more ── */
+    .btn-load-more {
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.3);
+      color: var(--neon-blue);
+      padding: .75rem 2.5rem; border-radius: 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; letter-spacing: .1em;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-load-more:hover { background: rgba(0,212,255,0.15); box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .bottom-nav { display: flex; }
+    }
+    @media (max-width: 640px) {
+      .filter-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .5rem; }
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(177,74,237,0.05));
+      border-bottom: 1px solid rgba(0,212,255,0.1);
+      padding: 1.75rem 2rem;
+    }
+    @media (max-width: 640px) { .page-header { padding: 1.25rem 1rem; } }
+
+    /* ── Particle background ── */
+    #particles-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+      opacity: .3;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particle canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ════════════════════ SIDEBAR ════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;">⚡</div>
+      <span class="logo-text">GEN B</span>
+    </div>
+    <div style="color:#64748b;font-size:.75rem;margin-top:.25rem;">Tournaments Platform</div>
+  </div>
+
+  <nav style="flex:1;overflow-y:auto;">
+    <a href="index.html" class="nav-link">
+      <i data-lucide="home"></i> Home
+    </a>
+    <a href="tournaments.html" class="nav-link active">
+      <i data-lucide="trophy"></i> Tournaments
+    </a>
+    <a href="wallet.html" class="nav-link">
+      <i data-lucide="wallet"></i> Wallet
+    </a>
+    <a href="leaderboard.html" class="nav-link">
+      <i data-lucide="bar-chart-2"></i> Leaderboard
+    </a>
+    <a href="profile.html" class="nav-link">
+      <i data-lucide="user"></i> Profile
+    </a>
+  </nav>
+
+  <div style="padding:1rem 1.5rem;border-top:1px solid rgba(0,212,255,0.1);">
+    <div id="sidebar-user" style="display:flex;align-items:center;gap:.75rem;">
+      <div id="sidebar-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:#fff;font-size:.9rem;flex-shrink:0;">?</div>
+      <div style="overflow:hidden;">
+        <div id="sidebar-name" style="font-size:.85rem;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading…</div>
+        <div id="sidebar-bal" style="font-size:.75rem;color:var(--neon-gold);">₹0.00</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════ MAIN CONTENT ════════════════════ -->
+<main class="main-content" style="position:relative;z-index:1;">
+
+  <!-- Page header -->
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <!-- Mobile hamburger -->
+      <button onclick="toggleSidebar()" class="lg:hidden" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:.5rem;color:var(--neon-blue);cursor:pointer;display:none;" id="hamburger-btn">
+        <i data-lucide="menu" style="width:20px;height:20px;"></i>
+      </button>
+      <div>
+        <h1 class="neon-heading" style="font-size:1.75rem;font-weight:700;">TOURNAMENTS</h1>
+        <p style="color:#64748b;font-size:.85rem;">Find your next battle and win real cash</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <div id="live-count-badge" style="display:none;background:rgba(255,45,120,0.15);border:1px solid var(--neon-pink);color:var(--neon-pink);padding:.35rem .9rem;border-radius:999px;font-size:.8rem;font-weight:700;">
+        <span id="live-count">0</span> LIVE
+      </div>
+      <div style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--neon-green);padding:.35rem .9rem;border-radius:999px;font-size:.8rem;font-weight:700;" id="total-count-badge">
+        — Tournaments
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters section -->
+  <div style="padding:1.25rem 2rem;border-bottom:1px solid rgba(0,212,255,0.07);background:rgba(0,0,0,0.2);" class="filters-section">
+
+    <!-- Search -->
+    <div style="position:relative;margin-bottom:1rem;">
+      <i data-lucide="search" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#64748b;"></i>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Search tournaments..."
+        class="search-input"
+        style="width:100%;padding-left:2.5rem;"
+        oninput="handleSearch()"
+      />
+    </div>
+
+    <!-- Status filter -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;" class="filter-row" id="status-tabs">
+      <button class="filter-tab active" data-status="all">All</button>
+      <button class="filter-tab" data-status="live">🔴 Live</button>
+      <button class="filter-tab" data-status="upcoming">⏰ Upcoming</button>
+      <button class="filter-tab" data-status="completed">✅ Completed</button>
+    </div>
+
+    <!-- Game + Type + Sort row -->
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+      <!-- Game filter -->
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="game-tabs">
+        <button class="filter-tab active" data-game="all">🎮 All Games</button>
+        <button class="filter-tab" data-game="bgmi">🎮 BGMI</button>
+        <button class="filter-tab" data-game="freefire">🔥 Free Fire</button>
+        <button class="filter-tab" data-game="cod">💥 COD</button>
+      </div>
+
+      <!-- Type select -->
+      <select id="type-select" class="select-filter" onchange="applyFilters()">
+        <option value="all">All Types</option>
+        <option value="free">Free Entry</option>
+        <option value="paid">Paid Entry</option>
+        <option value="1v1">1v1</option>
+        <option value="squad">Squad</option>
+        <option value="br">Battle Royale</option>
+      </select>
+
+      <!-- Sort select -->
+      <select id="sort-select" class="select-filter" onchange="applyFilters()">
+        <option value="date">Sort: Date</option>
+        <option value="prize">Sort: Prize Pool</option>
+        <option value="fee_asc">Sort: Fee ↑</option>
+        <option value="fee_desc">Sort: Fee ↓</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tournaments grid -->
+  <div style="padding:1.5rem 2rem;">
+
+    <!-- Skeleton loading -->
+    <div id="skeleton-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;">
+      <!-- 6 skeleton cards -->
+      <div class="tournament-card" style="padding:0;overflow:hidden;" id="sk1">
+        <div class="skeleton" style="height:140px;border-radius:0;"></div>
+        <div style="padding:1rem;">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:80%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:14px;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:5px;width:100%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:36px;margin-top:1rem;border-radius:8px;"></div>
+        </div>
+      </div>
+      <div class="tournament-card" style="padding:0;overflow:hidden;" id="sk2">
+        <div class="skeleton" style="height:140px;border-radius:0;"></div>
+        <div style="padding:1rem;">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:80%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:14px;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:5px;width:100%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:36px;margin-top:1rem;border-radius:8px;"></div>
+        </div>
+      </div>
+      <div class="tournament-card" style="padding:0;overflow:hidden;" id="sk3">
+        <div class="skeleton" style="height:140px;border-radius:0;"></div>
+        <div style="padding:1rem;">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:80%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:14px;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:5px;width:100%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:36px;margin-top:1rem;border-radius:8px;"></div>
+        </div>
+      </div>
+      <div class="tournament-card" style="padding:0;overflow:hidden;" id="sk4">
+        <div class="skeleton" style="height:140px;border-radius:0;"></div>
+        <div style="padding:1rem;">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:80%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:14px;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:5px;width:100%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:36px;margin-top:1rem;border-radius:8px;"></div>
+        </div>
+      </div>
+      <div class="tournament-card" style="padding:0;overflow:hidden;" id="sk5">
+        <div class="skeleton" style="height:140px;border-radius:0;"></div>
+        <div style="padding:1rem;">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:80%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:14px;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:5px;width:100%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:36px;margin-top:1rem;border-radius:8px;"></div>
+        </div>
+      </div>
+      <div class="tournament-card" style="padding:0;overflow:hidden;" id="sk6">
+        <div class="skeleton" style="height:140px;border-radius:0;"></div>
+        <div style="padding:1rem;">
+          <div class="skeleton" style="height:14px;width:60%;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:20px;width:80%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:14px;width:40%;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:5px;width:100%;margin-bottom:.5rem;"></div>
+          <div class="skeleton" style="height:36px;margin-top:1rem;border-radius:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live tournaments coming-soon banner -->
+    <div id="no-live-banner" style="display:none;margin-bottom:1.5rem;" class="coming-soon-banner">
+      <div style="font-size:2.5rem;margin-bottom:.5rem;">🏆</div>
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--neon-gold);font-weight:700;margin-bottom:.5rem;">No Live Tournaments Right Now</h3>
+      <p style="color:#94a3b8;font-size:.875rem;">Stay tuned! New battles are coming soon. Follow us on Telegram for instant alerts.</p>
+      <a href="https://t.me/genbtournaments" target="_blank" style="display:inline-block;margin-top:1rem;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:var(--neon-gold);padding:.5rem 1.25rem;border-radius:8px;font-size:.85rem;text-decoration:none;font-weight:600;">Join Telegram 📢</a>
+    </div>
+
+    <!-- Actual grid -->
+    <div id="tournaments-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;"></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" style="display:none;text-align:center;padding:3rem 1rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;color:#64748b;margin-bottom:.5rem;">No Tournaments Found</h3>
+      <p style="color:#475569;font-size:.875rem;">Try adjusting your filters or check back later.</p>
+      <button onclick="resetFilters()" style="margin-top:1rem;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--neon-blue);padding:.6rem 1.5rem;border-radius:8px;cursor:pointer;font-weight:600;">Reset Filters</button>
+    </div>
+
+    <!-- Load more -->
+    <div id="load-more-wrapper" style="display:none;text-align:center;margin-top:2rem;">
+      <button class="btn-load-more" onclick="loadMore()" id="load-more-btn">
+        LOAD MORE <i data-lucide="chevron-down" style="display:inline;width:16px;height:16px;vertical-align:middle;margin-left:.25rem;"></i>
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- ════════════════════ MOBILE BOTTOM NAV ════════════════════ -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bottom-nav-item">
+    <i data-lucide="home"></i> Home
+  </a>
+  <a href="tournaments.html" class="bottom-nav-item active">
+    <i data-lucide="trophy"></i> Play
+  </a>
+  <a href="wallet.html" class="bottom-nav-item">
+    <i data-lucide="wallet"></i> Wallet
+  </a>
+  <a href="leaderboard.html" class="bottom-nav-item">
+    <i data-lucide="bar-chart-2"></i> Ranks
+  </a>
+  <a href="profile.html" class="bottom-nav-item">
+    <i data-lucide="user"></i> Profile
+  </a>
+</nav>
+
+<!-- ════════════════════ TOAST ════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ════════════════════ SIDEBAR OVERLAY ════════════════════ -->
+<div id="sidebar-overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;backdrop-filter:blur(2px);"></div>
+
+<!-- ════════════════════ SCRIPTS ════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="assets/js/config.js"></script>
+
+<script>
+// ── Supabase init ──────────────────────────────────────────
+const _supabase = supabase.createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+
+// ── State ──────────────────────────────────────────────────
+let allTournaments   = [];
+let filteredTournaments = [];
+let currentPage      = 1;
+const PAGE_SIZE      = 12;
+let currentUser      = null;
+
+let activeStatus = 'all';
+let activeGame   = 'all';
+let countdownIntervals = {};
+
+// ── Lucide icons ──────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  showHamburger();
+  init();
+});
+
+function showHamburger() {
+  const btn = document.getElementById('hamburger-btn');
+  if (window.innerWidth <= 1024 && btn) btn.style.display = 'flex';
+}
+window.addEventListener('resize', showHamburger);
+
+// ── Sidebar toggle ─────────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg, type = 'info', dur = 3500) {
+  const tc = document.getElementById('toast-container');
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(), 350); }, dur);
+}
+
+// ── Init ──────────────────────────────────────────────────
+async function init() {
+  const { data: { user } } = await _supabase.auth.getUser();
+  currentUser = user;
+  updateSidebarUser(user);
+  await fetchTournaments();
+}
+
+async function updateSidebarUser(user) {
+  if (!user) {
+    document.getElementById('sidebar-name').textContent = 'Guest';
+    document.getElementById('sidebar-avatar').textContent = 'G';
+    return;
+  }
+  const { data: profile } = await _supabase.from('profiles').select('username,wallet_balance').eq('id', user.id).single();
+  if (profile) {
+    document.getElementById('sidebar-name').textContent = profile.username || user.email;
+    document.getElementById('sidebar-avatar').textContent = (profile.username||user.email||'?')[0].toUpperCase();
+    document.getElementById('sidebar-bal').textContent = `₹${(profile.wallet_balance||0).toFixed(2)}`;
+  }
+}
+
+// ── Fetch tournaments ─────────────────────────────────────
+async function fetchTournaments() {
+  try {
+    const { data, error } = await _supabase
+      .from('tournaments')
+      .select('*')
+      .order('start_time', { ascending: true });
+
+    if (error) throw error;
+
+    allTournaments = data || [];
+    currentPage = 1;
+    applyFilters();
+    hideSkeleton();
+
+    // live count
+    const liveCount = allTournaments.filter(t => getStatus(t) === 'live').length;
+    if (liveCount > 0) {
+      document.getElementById('live-count').textContent = liveCount;
+      document.getElementById('live-count-badge').style.display = 'block';
+    }
+    document.getElementById('total-count-badge').textContent = `${allTournaments.length} Tournaments`;
+
+  } catch (err) {
+    console.error(err);
+    hideSkeleton();
+    // show demo data if supabase not configured
+    allTournaments = getDemoTournaments();
+    applyFilters();
+    const liveCount = allTournaments.filter(t => getStatus(t) === 'live').length;
+    if (liveCount > 0) {
+      document.getElementById('live-count').textContent = liveCount;
+      document.getElementById('live-count-badge').style.display = 'block';
+    }
+    document.getElementById('total-count-badge').textContent = `${allTournaments.length} Tournaments`;
+  }
+}
+
+function hideSkeleton() {
+  document.getElementById('skeleton-grid').style.display = 'none';
+  document.getElementById('tournaments-grid').style.display = 'grid';
+}
+
+// ── Demo data ─────────────────────────────────────────────
+function getDemoTournaments() {
+  const now = Date.now();
+  return [
+    { id:1, name:'BGMI Grand Prix', game:'bgmi', format:'br', entry_fee:50, prize_pool:5000, max_slots:100, filled_slots:78, start_time:new Date(now+3600000).toISOString(), status:'upcoming', banner_url:null },
+    { id:2, name:'Free Fire Blitz', game:'freefire', format:'squad', entry_fee:0, prize_pool:1000, max_slots:50, filled_slots:50, start_time:new Date(now-600000).toISOString(), status:'live', banner_url:null },
+    { id:3, name:'COD 1v1 Showdown', game:'cod', format:'1v1', entry_fee:100, prize_pool:2000, max_slots:32, filled_slots:20, start_time:new Date(now+86400000).toISOString(), status:'upcoming', banner_url:null },
+    { id:4, name:'BGMI Squad Wars', game:'bgmi', format:'squad', entry_fee:200, prize_pool:10000, max_slots:80, filled_slots:80, start_time:new Date(now-7200000).toISOString(), status:'live', banner_url:null },
+    { id:5, name:'Free Fire Daily', game:'freefire', format:'br', entry_fee:0, prize_pool:500, max_slots:60, filled_slots:42, start_time:new Date(now+7200000).toISOString(), status:'upcoming', banner_url:null },
+    { id:6, name:'COD Battle Pass', game:'cod', format:'squad', entry_fee:150, prize_pool:3000, max_slots:40, filled_slots:40, start_time:new Date(now-86400000*2).toISOString(), status:'completed', banner_url:null },
+    { id:7, name:'BGMI Pro League', game:'bgmi', format:'squad', entry_fee:500, prize_pool:25000, max_slots:100, filled_slots:65, start_time:new Date(now+172800000).toISOString(), status:'upcoming', banner_url:null },
+    { id:8, name:'Free Fire Sunday Cup', game:'freefire', format:'squad', entry_fee:50, prize_pool:2000, max_slots:50, filled_slots:18, start_time:new Date(now+259200000).toISOString(), status:'upcoming', banner_url:null },
+    { id:9, name:'COD Rapid Fire', game:'cod', format:'1v1', entry_fee:75, prize_pool:750, max_slots:16, filled_slots:16, start_time:new Date(now-3600000).toISOString(), status:'completed', banner_url:null },
+  ];
+}
+
+// ── Status helper ─────────────────────────────────────────
+function getStatus(t) {
+  if (t.status) return t.status;
+  const now = Date.now();
+  const start = new Date(t.start_time).getTime();
+  const end = t.end_time ? new Date(t.end_time).getTime() : start + 7200000;
+  if (now < start) return 'upcoming';
+  if (now >= start && now <= end) return 'live';
+  return 'completed';
+}
+
+// ── Filters ───────────────────────────────────────────────
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const type   = document.getElementById('type-select').value;
+  const sort   = document.getElementById('sort-select').value;
+
+  let arr = [...allTournaments];
+
+  // Status
+  if (activeStatus !== 'all') arr = arr.filter(t => getStatus(t) === activeStatus);
+
+  // Game
+  if (activeGame !== 'all') arr = arr.filter(t => t.game === activeGame);
+
+  // Type
+  if (type !== 'all') {
+    if (type === 'free')  arr = arr.filter(t => !t.entry_fee || t.entry_fee === 0);
+    else if (type === 'paid')  arr = arr.filter(t => t.entry_fee > 0);
+    else arr = arr.filter(t => t.format === type);
+  }
+
+  // Search
+  if (search) arr = arr.filter(t => t.name.toLowerCase().includes(search));
+
+  // Sort
+  if (sort === 'prize') arr.sort((a,b)=>(b.prize_pool||0)-(a.prize_pool||0));
+  else if (sort === 'fee_asc') arr.sort((a,b)=>(a.entry_fee||0)-(b.entry_fee||0));
+  else if (sort === 'fee_desc') arr.sort((a,b)=>(b.entry_fee||0)-(a.entry_fee||0));
+  else arr.sort((a,b)=>new Date(a.start_time)-new Date(b.start_time));
+
+  filteredTournaments = arr;
+  currentPage = 1;
+  renderGrid();
+}
+
+function handleSearch() { applyFilters(); }
+
+function resetFilters() {
+  activeStatus = 'all';
+  activeGame   = 'all';
+  document.getElementById('type-select').value = 'all';
+  document.getElementById('sort-select').value = 'date';
+  document.getElementById('search-input').value = '';
+  document.querySelectorAll('#status-tabs .filter-tab').forEach(b => b.classList.toggle('active', b.dataset.status==='all'));
+  document.querySelectorAll('#game-tabs .filter-tab').forEach(b => b.classList.toggle('active', b.dataset.game==='all'));
+  applyFilters();
+}
+
+// ── Status tab clicks ─────────────────────────────────────
+document.getElementById('status-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  activeStatus = btn.dataset.status;
+  document.querySelectorAll('#status-tabs .filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+});
+
+document.getElementById('game-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  activeGame = btn.dataset.game;
+  document.querySelectorAll('#game-tabs .filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+});
+
+// ── Render grid ───────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('tournaments-grid');
+  const empty = document.getElementById('empty-state');
+  const lmw   = document.getElementById('load-more-wrapper');
+  const noLive = document.getElementById('no-live-banner');
+
+  // Clear intervals
+  Object.values(countdownIntervals).forEach(clearInterval);
+  countdownIntervals = {};
+
+  const slice = filteredTournaments.slice(0, currentPage * PAGE_SIZE);
+
+  if (filteredTournaments.length === 0) {
+    grid.innerHTML = '';
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    lmw.style.display  = 'none';
+    noLive.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.style.display  = 'grid';
+
+  // Check if showing "live" filter but no live
+  if (activeStatus === 'live' && filteredTournaments.length === 0) {
+    noLive.style.display = 'block';
+  } else {
+    noLive.style.display = 'none';
+  }
+
+  grid.innerHTML = slice.map(t => buildCard(t)).join('');
+
+  // Start countdowns
+  slice.forEach(t => {
+    if (getStatus(t) === 'upcoming') {
+      startCountdown(t.id, t.start_time);
+    }
+  });
+
+  lucide.createIcons();
+
+  lmw.style.display = filteredTournaments.length > currentPage * PAGE_SIZE ? 'block' : 'none';
+}
+
+function loadMore() {
+  currentPage++;
+  renderGrid();
+}
+
+// ── Build card HTML ───────────────────────────────────────
+function buildCard(t) {
+  const status = getStatus(t);
+  const isFull = t.filled_slots >= t.max_slots;
+  const fillPct = Math.min(100, Math.round((t.filled_slots / t.max_slots) * 100));
+  const gameInfo = GENBCONFIG.games.find(g => g.id === t.game) || { name: t.game, icon: '🎮', color: '#00d4ff' };
+  const bannerGradient = getBannerGradient(t.game);
+
+  // Status badge
+  let statusBadge = '';
+  if (status === 'live') statusBadge = `<span class="badge-live">LIVE</span>`;
+  else if (status === 'upcoming') statusBadge = `<span class="badge-upcoming">UPCOMING</span>`;
+  else statusBadge = `<span class="badge-completed">ENDED</span>`;
+
+  // Entry badge
+  const entryBadge = (!t.entry_fee || t.entry_fee === 0)
+    ? `<span class="badge-free">FREE</span>`
+    : `<span class="badge-paid">₹${t.entry_fee}</span>`;
+
+  // Format badge
+  const fmtColors = { br:'#b14aed', squad:'#00d4ff', '1v1':'#ff2d78' };
+  const fmtNames  = { br:'Battle Royale', squad:'Squad', '1v1':'1v1' };
+  const fmtColor  = fmtColors[t.format] || '#64748b';
+  const fmtName   = fmtNames[t.format]  || t.format;
+  const formatBadge = `<span style="background:${fmtColor}22;border:1px solid ${fmtColor}55;color:${fmtColor};padding:3px 9px;border-radius:999px;font-size:.68rem;font-weight:700;">${fmtName}</span>`;
+
+  // Countdown or time
+  const timeDisplay = status === 'upcoming'
+    ? `<div id="countdown-${t.id}" style="font-family:'Rajdhani',sans-serif;font-size:.78rem;color:var(--neon-blue);font-weight:600;">--:--:--</div>`
+    : status === 'live'
+    ? `<div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;color:var(--neon-pink);font-weight:600;">IN PROGRESS</div>`
+    : `<div style="font-family:'Rajdhani',sans-serif;font-size:.78rem;color:#64748b;font-weight:600;">${formatDate(t.start_time)}</div>`;
+
+  // Action button
+  let actionBtn = '';
+  if (status === 'completed') {
+    actionBtn = `<button class="btn-view" onclick="viewTournament(${t.id})">VIEW RESULTS</button>`;
+  } else if (isFull) {
+    actionBtn = `<button class="btn-full" disabled>FULL</button>`;
+  } else {
+    actionBtn = `<button class="btn-join" onclick="joinTournament(${t.id})">JOIN NOW ⚡</button>`;
+  }
+
+  return `
+    <div class="tournament-card" onclick="void(0)">
+      <!-- Banner -->
+      <div style="height:140px;position:relative;background:${bannerGradient};overflow:hidden;">
+        ${t.banner_url ? `<img src="${t.banner_url}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />` : ''}
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,16,.2),rgba(5,5,16,.7));"></div>
+
+        <!-- Badges top row -->
+        <div style="position:absolute;top:.75rem;left:.75rem;right:.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem;">
+          <span class="badge-game" style="background:${gameInfo.color}22;border:1px solid ${gameInfo.color}55;color:${gameInfo.color};">
+            ${gameInfo.icon} ${gameInfo.name}
+          </span>
+          ${statusBadge}
+        </div>
+
+        <!-- Prize pool overlay -->
+        <div style="position:absolute;bottom:.75rem;left:.75rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.7rem;color:rgba(255,215,0,.7);letter-spacing:.1em;">PRIZE POOL</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--neon-gold);text-shadow:0 0 10px rgba(255,215,0,.5);">₹${(t.prize_pool||0).toLocaleString()}</div>
+        </div>
+
+        <!-- Time display overlay -->
+        <div style="position:absolute;bottom:.75rem;right:.75rem;">${timeDisplay}</div>
+      </div>
+
+      <!-- Card body -->
+      <div style="padding:1rem;">
+        <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:.5rem;line-height:1.2;">${t.name}</h3>
+
+        <!-- Badges row -->
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem;">
+          ${entryBadge}
+          ${formatBadge}
+        </div>
+
+        <!-- Slot progress -->
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;">
+            <span style="font-size:.75rem;color:#64748b;">Slots</span>
+            <span style="font-size:.75rem;font-weight:600;color:${isFull ? 'var(--neon-pink)' : '#94a3b8'};">${t.filled_slots}/${t.max_slots}</span>
+          </div>
+          <div class="slot-bar-track">
+            <div class="slot-bar-fill ${isFull ? 'full' : ''}" style="width:${fillPct}%;"></div>
+          </div>
+        </div>
+
+        ${actionBtn}
+      </div>
+    </div>
+  `;
+}
+
+function getBannerGradient(game) {
+  const g = {
+    bgmi:     'linear-gradient(135deg, #1a0a00, #ff6b3520)',
+    freefire: 'linear-gradient(135deg, #1a0010, #ff2d7820)',
+    cod:      'linear-gradient(135deg, #000a1a, #00d4ff20)',
+  };
+  return g[game] || 'linear-gradient(135deg, #0a0a1a, #1a1a2e)';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+// ── Countdown ─────────────────────────────────────────────
+function startCountdown(id, startTime) {
+  function tick() {
+    const el = document.getElementById(`countdown-${id}`);
+    if (!el) { clearInterval(countdownIntervals[id]); return; }
+    const diff = new Date(startTime).getTime() - Date.now();
+    if (diff <= 0) { el.textContent = 'STARTING'; return; }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.textContent = `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+  }
+  tick();
+  countdownIntervals[id] = setInterval(tick, 1000);
+}
+
+// ── Actions ───────────────────────────────────────────────
+function joinTournament(id) {
+  if (!currentUser) {
+    showToast('Please login to join tournaments', 'error');
+    setTimeout(() => window.location.href = 'login.html', 1500);
+    return;
+  }
+  window.location.href = `tournament-detail.html?id=${id}`;
+}
+
+function viewTournament(id) {
+  window.location.href = `tournament-detail.html?id=${id}`;
+}
+
+// ── Particle background ───────────────────────────────────
+(function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 1.5 + .3,
+      dx: (Math.random() - .5) * .3,
+      dy: (Math.random() - .5) * .3,
+      alpha: Math.random() * .5 + .1,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,255,${p.alpha})`;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > W) p.dx *= -1;
+      if (p.y < 0 || p.y > H) p.dy *= -1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournament Detail — Gen B Tournaments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'neon-blue':   '#00d4ff',
+            'neon-purple': '#b14aed',
+            'neon-pink':   '#ff2d78',
+            'neon-gold':   '#ffd700',
+            'neon-green':  '#00ff88',
+          },
+          fontFamily: {
+            rajdhani: ['Rajdhani', 'sans-serif'],
+            inter:    ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --neon-blue:   #00d4ff;
+      --neon-purple: #b14aed;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-green:  #00ff88;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #050510; color: #e2e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #0a0a1a; }
+    ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 240px; height: 100vh;
+      background: rgba(10,10,26,0.97);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(0,212,255,0.15);
+      z-index: 100; display: flex; flex-direction: column;
+      padding: 1.5rem 0; transition: transform .3s ease;
+    }
+    .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid rgba(0,212,255,0.1); margin-bottom: 1rem; }
+    .sidebar-logo .logo-text { font-family: 'Rajdhani',sans-serif; font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-link { display: flex; align-items: center; gap: .75rem; padding: .7rem 1.5rem; color: #94a3b8; font-size: .9rem; text-decoration: none; transition: all .2s; border-left: 3px solid transparent; }
+    .nav-link:hover { color: var(--neon-blue); background: rgba(0,212,255,0.05); }
+    .nav-link.active { color: var(--neon-blue); border-left-color: var(--neon-blue); background: rgba(0,212,255,0.08); }
+    .nav-link i { width: 18px; height: 18px; }
+
+    /* ── Main ── */
+    .main-content { margin-left: 240px; min-height: 100vh; padding-bottom: 100px; }
+
+    /* ── Glass card ── */
+    .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(0,212,255,0.15); border-radius: 16px; }
+
+    /* ── Hero ── */
+    .hero-section {
+      position: relative; width: 100%; min-height: 320px;
+      display: flex; align-items: flex-end;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #0a0a1a, #1a0a30);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(5,5,16,1) 10%, rgba(5,5,16,0.5) 60%, rgba(5,5,16,0.2) 100%);
+    }
+    .hero-content { position: relative; z-index: 2; padding: 2rem; width: 100%; }
+
+    /* ── Digital clock countdown ── */
+    .clock-segment {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 10px;
+      padding: .6rem .9rem;
+      text-align: center;
+      min-width: 60px;
+    }
+    .clock-segment .val { font-family: 'Rajdhani',sans-serif; font-size: 1.75rem; font-weight: 700; color: var(--neon-blue); line-height: 1; }
+    .clock-segment .lbl { font-size: .6rem; color: #64748b; letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+    .clock-sep { font-family: 'Rajdhani',sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--neon-blue); opacity: .7; align-self: center; padding: 0 .15rem; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100% { opacity:.7; } 50% { opacity:.15; } }
+
+    /* ── Status pills ── */
+    .pill-live { background: rgba(255,45,120,.2); border: 1px solid var(--neon-pink); color: var(--neon-pink); padding: .35rem 1rem; border-radius: 999px; font-size: .8rem; font-weight: 700; letter-spacing: .1em; display: inline-flex; align-items: center; gap: 6px; }
+    .pill-live::before { content:''; width:8px; height:8px; background:var(--neon-pink); border-radius:50%; animation:pulseDot 1.4s infinite; }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(1.5);} }
+    .pill-upcoming { background: rgba(0,212,255,.15); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: .35rem 1rem; border-radius: 999px; font-size: .8rem; font-weight: 700; letter-spacing: .1em; display: inline-block; }
+    .pill-ended { background: rgba(148,163,184,.1); border: 1px solid #475569; color: #94a3b8; padding: .35rem 1rem; border-radius: 999px; font-size: .8rem; font-weight: 700; letter-spacing: .1em; display: inline-block; }
+
+    /* ── Info grid ── */
+    .info-grid { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; padding: 1.5rem 2rem; }
+    @media (max-width: 1100px) { .info-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px)  { .info-grid { padding: 1rem; } }
+
+    /* ── Accordion ── */
+    .accordion-item { border: 1px solid rgba(0,212,255,0.12); border-radius: 12px; overflow: hidden; margin-bottom: .5rem; }
+    .accordion-header { display: flex; justify-content: space-between; align-items: center; padding: .85rem 1.1rem; cursor: pointer; background: rgba(255,255,255,0.02); transition: background .2s; }
+    .accordion-header:hover { background: rgba(0,212,255,0.05); }
+    .accordion-header h4 { font-family: 'Rajdhani',sans-serif; font-weight: 700; font-size: 1rem; color: #e2e8f0; }
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+    .accordion-body.open { max-height: 600px; }
+    .accordion-content { padding: 1rem 1.1rem; color: #94a3b8; font-size: .875rem; line-height: 1.7; }
+
+    /* ── Prize table ── */
+    .prize-row { display: flex; justify-content: space-between; align-items: center; padding: .6rem .75rem; border-radius: 8px; margin-bottom: .3rem; }
+    .prize-row:nth-child(1) { background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2); }
+    .prize-row:nth-child(2) { background: rgba(148,163,184,0.06); border: 1px solid rgba(148,163,184,0.15); }
+    .prize-row:nth-child(3) { background: rgba(205,127,50,0.07); border: 1px solid rgba(205,127,50,0.2); }
+    .prize-row:nth-child(n+4) { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── Slot bar ── */
+    .slot-track { width:100%; height:8px; background:rgba(255,255,255,0.07); border-radius:4px; overflow:hidden; }
+    .slot-fill  { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple)); transition:width .5s ease; }
+    .slot-fill.full { background:linear-gradient(90deg,var(--neon-pink),#ff6b6b); }
+
+    /* ── JOIN button ── */
+    .btn-join-big {
+      width: 100%; padding: .85rem 1.5rem;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      border: none; border-radius: 12px;
+      font-family: 'Rajdhani',sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: .12em;
+      color: #fff; cursor: pointer; transition: all .25s;
+      box-shadow: 0 0 20px rgba(0,212,255,0.25);
+    }
+    .btn-join-big:hover { box-shadow: 0 0 35px rgba(0,212,255,0.55); transform: translateY(-2px); }
+    .btn-join-big:disabled { background: rgba(255,255,255,0.05); color: #64748b; cursor: not-allowed; box-shadow: none; transform: none; }
+
+    /* ── Room details ── */
+    .room-card { background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.25); border-radius: 12px; padding: 1rem; }
+    .room-field { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .room-field:last-child { border-bottom: none; }
+    .copy-btn { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--neon-blue); padding: .25rem .6rem; border-radius: 6px; font-size: .75rem; cursor: pointer; transition: all .2s; }
+    .copy-btn:hover { background: rgba(0,212,255,0.2); }
+
+    /* ── Player avatar grid ── */
+    .player-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg,var(--neon-blue),var(--neon-purple));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Rajdhani',sans-serif; font-weight: 700; color: #fff; font-size: 1.1rem;
+      border: 2px solid rgba(0,212,255,0.2);
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(5,5,16,0.85);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-box {
+      background: #0a0a1a;
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 20px;
+      width: 100%; max-width: 460px;
+      padding: 2rem;
+      box-shadow: 0 0 60px rgba(0,212,255,0.15);
+      animation: modalIn .3s ease;
+    }
+    @keyframes modalIn { from { transform: scale(.9); opacity:0; } to { transform: scale(1); opacity:1; } }
+
+    /* ── Toast ── */
+    #toast-container { position:fixed; top:1.25rem; right:1.25rem; z-index:9999; display:flex; flex-direction:column; gap:.5rem; }
+    .toast { background:rgba(10,10,26,0.97); border:1px solid rgba(0,212,255,0.3); border-radius:12px; padding:.85rem 1.25rem; color:#e2e8f0; font-size:.875rem; max-width:320px; backdrop-filter:blur(20px); display:flex; align-items:center; gap:.75rem; animation:slideIn .3s ease; box-shadow:0 0 20px rgba(0,212,255,0.15); }
+    .toast.success { border-color:rgba(0,255,136,0.4); }
+    .toast.error   { border-color:rgba(255,45,120,0.4); }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+
+    /* ── Buttons generic ── */
+    .btn-outline { background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.25); color:var(--neon-blue); padding:.5rem 1.25rem; border-radius:9px; cursor:pointer; font-weight:600; font-size:.875rem; transition:all .2s; }
+    .btn-outline:hover { background:rgba(0,212,255,0.12); }
+    .btn-ghost  { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#94a3b8; padding:.5rem 1.25rem; border-radius:9px; cursor:pointer; font-size:.875rem; transition:all .2s; }
+    .btn-ghost:hover { background:rgba(255,255,255,0.08); }
+
+    /* ── Bottom nav ── */
+    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,26,0.97); backdrop-filter:blur(20px); border-top:1px solid rgba(0,212,255,0.15); z-index:100; padding:.5rem 0 .75rem; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; color:#64748b; text-decoration:none; font-size:.65rem; font-weight:500; transition:color .2s; }
+    .bottom-nav-item.active { color:var(--neon-blue); }
+    .bottom-nav-item i { width:20px; height:20px; }
+
+    /* ── Neon heading ── */
+    .neon-heading { font-family:'Rajdhani',sans-serif; background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+    /* ── Skeleton ── */
+    .skeleton { background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0.03) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
+    @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+    /* ── Particle bg ── */
+    #particles-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:.25; }
+
+    @media (max-width:1024px) { .sidebar{transform:translateX(-100%);} .sidebar.open{transform:translateX(0);} .main-content{margin-left:0;} .bottom-nav{display:flex;} }
+    @media (max-width:640px) { .hero-content{padding:1.25rem;} }
+
+    /* ── Schedule table ── */
+    .sched-row { display:flex; gap:.75rem; align-items:flex-start; padding:.6rem 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .sched-row:last-child { border-bottom:none; }
+    .sched-time { min-width:80px; font-size:.8rem; color:var(--neon-blue); font-weight:600; }
+    .sched-label { font-size:.85rem; color:#e2e8f0; }
+    .sched-sub { font-size:.75rem; color:#64748b; }
+  </style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- ════════════════════ SIDEBAR ════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;">⚡</div>
+      <span class="logo-text">GEN B</span>
+    </div>
+    <div style="color:#64748b;font-size:.75rem;margin-top:.25rem;">Tournaments Platform</div>
+  </div>
+  <nav style="flex:1;overflow-y:auto;">
+    <a href="index.html"       class="nav-link"><i data-lucide="home"></i> Home</a>
+    <a href="tournaments.html" class="nav-link active"><i data-lucide="trophy"></i> Tournaments</a>
+    <a href="wallet.html"      class="nav-link"><i data-lucide="wallet"></i> Wallet</a>
+    <a href="leaderboard.html" class="nav-link"><i data-lucide="bar-chart-2"></i> Leaderboard</a>
+    <a href="profile.html"     class="nav-link"><i data-lucide="user"></i> Profile</a>
+  </nav>
+  <div style="padding:1rem 1.5rem;border-top:1px solid rgba(0,212,255,0.1);">
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <div id="sidebar-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:#fff;font-size:.9rem;flex-shrink:0;">?</div>
+      <div style="overflow:hidden;">
+        <div id="sidebar-name" style="font-size:.85rem;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading…</div>
+        <div id="sidebar-bal" style="font-size:.75rem;color:var(--neon-gold);">₹0.00</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════ MAIN ════════════════════ -->
+<main class="main-content" style="position:relative;z-index:1;">
+
+  <!-- Back button -->
+  <div style="padding:1rem 2rem;border-bottom:1px solid rgba(0,212,255,0.07);">
+    <a href="tournaments.html" style="display:inline-flex;align-items:center;gap:.5rem;color:#64748b;text-decoration:none;font-size:.875rem;transition:color .2s;" onmouseover="this.style.color='var(--neon-blue)'" onmouseout="this.style.color='#64748b'">
+      <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+      Back to Tournaments
+    </a>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div id="detail-skeleton" style="padding:1.5rem 2rem;">
+    <div class="skeleton" style="height:320px;border-radius:16px;margin-bottom:1.5rem;"></div>
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:1.5rem;">
+      <div>
+        <div class="skeleton" style="height:200px;border-radius:12px;margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:120px;border-radius:12px;"></div>
+      </div>
+      <div>
+        <div class="skeleton" style="height:320px;border-radius:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main detail (hidden until loaded) -->
+  <div id="detail-content" style="display:none;">
+
+    <!-- ── Hero ── -->
+    <div class="hero-section" id="hero-section">
+      <div class="hero-bg" id="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <!-- Breadcrumb badges -->
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <span id="hero-game-badge" style="padding:3px 12px;border-radius:999px;font-size:.78rem;font-weight:700;"></span>
+          <span id="hero-format-badge" style="padding:3px 12px;border-radius:999px;font-size:.78rem;font-weight:700;background:rgba(177,74,237,0.2);border:1px solid rgba(177,74,237,0.4);color:var(--neon-purple);"></span>
+          <span id="hero-status-pill"></span>
+        </div>
+
+        <!-- Title -->
+        <h1 id="hero-title" style="font-family:'Rajdhani',sans-serif;font-size:clamp(1.75rem,4vw,2.75rem);font-weight:700;color:#fff;text-shadow:0 0 30px rgba(0,212,255,0.4);margin-bottom:.5rem;line-height:1.1;"></h1>
+
+        <!-- Date -->
+        <p id="hero-date" style="color:#94a3b8;font-size:.875rem;margin-bottom:1.25rem;"></p>
+
+        <!-- Countdown or ENDED -->
+        <div id="hero-countdown-wrap">
+          <div style="font-size:.75rem;color:#64748b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;" id="countdown-label">Starts In</div>
+          <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;" id="clock-display">
+            <div class="clock-segment"><div class="val" id="cd-d">00</div><div class="lbl">Days</div></div>
+            <span class="clock-sep">:</span>
+            <div class="clock-segment"><div class="val" id="cd-h">00</div><div class="lbl">Hours</div></div>
+            <span class="clock-sep">:</span>
+            <div class="clock-segment"><div class="val" id="cd-m">00</div><div class="lbl">Mins</div></div>
+            <span class="clock-sep">:</span>
+            <div class="clock-segment"><div class="val" id="cd-s">00</div><div class="lbl">Secs</div></div>
+          </div>
+        </div>
+
+        <!-- Prize pool big display -->
+        <div style="margin-top:1.25rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:.7rem;color:rgba(255,215,0,.7);letter-spacing:.15em;text-transform:uppercase;">Total Prize Pool</div>
+            <div id="hero-prize" style="font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--neon-gold);text-shadow:0 0 20px rgba(255,215,0,.4);">₹0</div>
+          </div>
+          <div style="width:1px;height:48px;background:rgba(255,255,255,0.1);"></div>
+          <div>
+            <div style="font-size:.7rem;color:#64748b;letter-spacing:.15em;text-transform:uppercase;">Entry Fee</div>
+            <div id="hero-fee" style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--neon-green);">FREE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Info grid ── -->
+    <div class="info-grid">
+
+      <!-- LEFT column -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <!-- Prize distribution -->
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+            <i data-lucide="award" style="width:18px;height:18px;color:var(--neon-gold);"></i> Prize Distribution
+          </h3>
+          <div id="prize-table">
+            <div style="color:#64748b;font-size:.875rem;">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Rules accordion -->
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+            <i data-lucide="book-open" style="width:18px;height:18px;color:var(--neon-blue);"></i> Rules & Information
+          </h3>
+          <div id="rules-accordion">
+            <div class="accordion-item">
+              <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h4>General Rules</h4>
+                <i data-lucide="chevron-down" style="width:16px;height:16px;color:#64748b;transition:transform .3s;"></i>
+              </div>
+              <div class="accordion-body">
+                <div class="accordion-content" id="rules-general">Loading rules…</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h4>Fair Play Policy</h4>
+                <i data-lucide="chevron-down" style="width:16px;height:16px;color:#64748b;transition:transform .3s;"></i>
+              </div>
+              <div class="accordion-body">
+                <div class="accordion-content">
+                  No emulators. No hacks or cheats. Any suspicious activity will result in immediate disqualification and permanent ban.
+                  Screenshots / gameplay recordings may be requested for verification.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h4>Payment Policy</h4>
+                <i data-lucide="chevron-down" style="width:16px;height:16px;color:#64748b;transition:transform .3s;"></i>
+              </div>
+              <div class="accordion-body">
+                <div class="accordion-content">
+                  Prize money is credited to your Winning Wallet within 24 hours of tournament completion. Withdrawal is subject to KYC verification.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Match Schedule -->
+        <div class="glass-card" style="padding:1.5rem;">
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+            <i data-lucide="calendar" style="width:18px;height:18px;color:var(--neon-purple);"></i> Match Schedule
+          </h3>
+          <div id="match-schedule">
+            <div style="color:#64748b;font-size:.875rem;">Loading schedule…</div>
+          </div>
+        </div>
+
+        <!-- Registered players -->
+        <div class="glass-card" style="padding:1.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;display:flex;align-items:center;gap:.5rem;">
+              <i data-lucide="users" style="width:18px;height:18px;color:var(--neon-green);"></i> Registered Players
+            </h3>
+            <span id="players-count-badge" style="font-size:.8rem;color:#64748b;"></span>
+          </div>
+          <div id="players-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.75rem;">
+            <div style="color:#64748b;font-size:.875rem;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT column -->
+      <div>
+        <div class="glass-card" style="padding:1.5rem;position:sticky;top:1.5rem;">
+          <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:1.25rem;">Entry Details</h3>
+
+          <!-- Fee row -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;padding:.75rem;background:rgba(255,255,255,0.03);border-radius:10px;">
+            <span style="font-size:.875rem;color:#94a3b8;">Entry Fee</span>
+            <span id="entry-fee-display" style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--neon-green);">FREE</span>
+          </div>
+
+          <!-- Slots -->
+          <div style="margin-bottom:1rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;">
+              <span style="font-size:.875rem;color:#94a3b8;">Slots</span>
+              <span id="slots-display" style="font-size:.875rem;font-weight:600;color:#e2e8f0;">0/0</span>
+            </div>
+            <div class="slot-track"><div class="slot-fill" id="entry-slot-fill" style="width:0%;"></div></div>
+          </div>
+
+          <!-- Wallet balance (if logged in) -->
+          <div id="wallet-balance-row" style="display:none;padding:.75rem;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:10px;margin-bottom:1rem;">
+            <div style="font-size:.75rem;color:#64748b;margin-bottom:.25rem;">Your Main Wallet Balance</div>
+            <div id="wallet-balance-display" style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--neon-blue);">₹0.00</div>
+          </div>
+
+          <!-- Already joined state -->
+          <div id="already-joined-state" style="display:none;padding:.85rem;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.25);border-radius:10px;margin-bottom:1rem;text-align:center;">
+            <div style="font-size:1.1rem;margin-bottom:.25rem;">✅</div>
+            <div style="color:var(--neon-green);font-weight:600;font-size:.9rem;">You've joined this tournament!</div>
+          </div>
+
+          <!-- Room details (shown post-join when admin publishes) -->
+          <div id="room-details-section" style="display:none;margin-bottom:1rem;">
+            <h4 style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--neon-green);margin-bottom:.75rem;">🔐 Room Details</h4>
+            <div class="room-card">
+              <div class="room-field">
+                <div>
+                  <div style="font-size:.7rem;color:#64748b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;">Room ID</div>
+                  <div id="room-id-val" style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;">–</div>
+                </div>
+                <button class="copy-btn" onclick="copyText('room-id-val')"><i data-lucide="copy" style="width:12px;height:12px;display:inline;"></i> Copy</button>
+              </div>
+              <div class="room-field">
+                <div>
+                  <div style="font-size:.7rem;color:#64748b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;">Password</div>
+                  <div id="room-pass-val" style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:#e2e8f0;">–</div>
+                </div>
+                <button class="copy-btn" onclick="copyText('room-pass-val')"><i data-lucide="copy" style="width:12px;height:12px;display:inline;"></i> Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Join button -->
+          <button id="main-join-btn" class="btn-join-big" onclick="openJoinModal()">
+            JOIN NOW ⚡
+          </button>
+
+          <!-- Notes -->
+          <div style="margin-top:1rem;padding:.75rem;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:8px;">
+            <p style="font-size:.78rem;color:#94a3b8;line-height:1.6;">
+              💡 Entry fee will be deducted from your main wallet. Room details are shared by the admin before the match starts.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ════════════════════ JOIN MODAL ════════════════════ -->
+<div id="join-modal" style="display:none;" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:#e2e8f0;">Confirm Registration</h2>
+      <button onclick="closeJoinModal()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#64748b;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+
+    <!-- Tournament info -->
+    <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1rem;margin-bottom:1.25rem;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:#e2e8f0;margin-bottom:.5rem;" id="modal-tour-name">–</div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <span style="font-size:.8rem;color:#94a3b8;">Game: <span id="modal-game" style="color:var(--neon-blue);font-weight:600;">–</span></span>
+        <span style="font-size:.8rem;color:#94a3b8;">Format: <span id="modal-format" style="color:var(--neon-purple);font-weight:600;">–</span></span>
+        <span style="font-size:.8rem;color:#94a3b8;">Date: <span id="modal-date" style="color:#e2e8f0;font-weight:600;">–</span></span>
+      </div>
+    </div>
+
+    <!-- Fee & balance -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.85rem;text-align:center;">
+        <div style="font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem;">Entry Fee</div>
+        <div id="modal-fee-display" style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--neon-green);">FREE</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:.85rem;text-align:center;">
+        <div style="font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem;">Your Balance</div>
+        <div id="modal-balance-display" style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--neon-blue);">₹0</div>
+      </div>
+    </div>
+
+    <!-- In-game name input -->
+    <div style="margin-bottom:1rem;">
+      <label style="font-size:.8rem;color:#94a3b8;display:block;margin-bottom:.4rem;">In-Game Name (IGN) <span style="color:var(--neon-pink);">*</span></label>
+      <input id="modal-ign" type="text" placeholder="Enter your in-game username" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.2);color:#e2e8f0;border-radius:10px;padding:.65rem 1rem;font-size:.9rem;outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='var(--neon-blue)'" onblur="this.style.borderColor='rgba(0,212,255,0.2)'" />
+    </div>
+
+    <!-- Warning if insufficient balance -->
+    <div id="modal-warning" style="display:none;padding:.75rem;background:rgba(255,45,120,0.08);border:1px solid rgba(255,45,120,0.25);border-radius:8px;margin-bottom:1rem;">
+      <p style="font-size:.8rem;color:var(--neon-pink);">⚠️ Insufficient wallet balance. <a href="wallet.html" style="color:var(--neon-blue);text-decoration:underline;">Add funds</a></p>
+    </div>
+
+    <!-- CTA buttons -->
+    <div style="display:flex;gap:.75rem;">
+      <button onclick="closeJoinModal()" class="btn-ghost" style="flex:1;">Cancel</button>
+      <button onclick="confirmJoin()" id="confirm-join-btn" style="flex:2;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border:none;color:#fff;padding:.75rem;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,0.25);transition:all .2s;">
+        CONFIRM &amp; JOIN ⚡
+      </button>
+    </div>
+
+    <p style="text-align:center;font-size:.75rem;color:#475569;margin-top:.75rem;">
+      By joining, you agree to the tournament rules and fair play policy.
+    </p>
+  </div>
+</div>
+
+<!-- ════════════════════ MOBILE BOTTOM NAV ════════════════════ -->
+<nav class="bottom-nav">
+  <a href="index.html"       class="bottom-nav-item"><i data-lucide="home"></i> Home</a>
+  <a href="tournaments.html" class="bottom-nav-item active"><i data-lucide="trophy"></i> Play</a>
+  <a href="wallet.html"      class="bottom-nav-item"><i data-lucide="wallet"></i> Wallet</a>
+  <a href="leaderboard.html" class="bottom-nav-item"><i data-lucide="bar-chart-2"></i> Ranks</a>
+  <a href="profile.html"     class="bottom-nav-item"><i data-lucide="user"></i> Profile</a>
+</nav>
+
+<!-- ════════════════════ TOAST ════════════════════ -->
+<div id="toast-container"></div>
+<div id="sidebar-overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;backdrop-filter:blur(2px);"></div>
+
+<!-- ════════════════════ SCRIPTS ════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="assets/js/config.js"></script>
+
+<script>
+// ── Init ──────────────────────────────────────────
+const _supabase = supabase.createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+
+let currentUser      = null;
+let userProfile      = null;
+let tournament       = null;
+let hasJoined        = false;
+let countdownInterval = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  lucide.createIcons();
+  adjustLayout();
+  window.addEventListener('resize', adjustLayout);
+  await authCheck();
+  await loadTournament();
+});
+
+function adjustLayout() {
+  const btn = document.getElementById('hamburger-btn');
+  if (window.innerWidth <= 1024 && btn) btn.style.display = 'flex';
+}
+
+// ── Auth ──────────────────────────────────────────
+async function authCheck() {
+  const { data: { user } } = await _supabase.auth.getUser();
+  if (!user) {
+    showToast('Login required to join tournaments', 'info');
+    setTimeout(() => window.location.href = 'login.html', 2000);
+    return;
+  }
+  currentUser = user;
+
+  const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+  userProfile = profile;
+
+  if (profile) {
+    document.getElementById('sidebar-name').textContent = profile.username || user.email;
+    document.getElementById('sidebar-avatar').textContent = (profile.username||user.email||'?')[0].toUpperCase();
+    document.getElementById('sidebar-bal').textContent = `₹${(profile.wallet_balance||0).toFixed(2)}`;
+
+    // Show balance in entry card
+    document.getElementById('wallet-balance-row').style.display = 'block';
+    document.getElementById('wallet-balance-display').textContent = `₹${(profile.wallet_balance||0).toFixed(2)}`;
+  }
+}
+
+// ── Load tournament ───────────────────────────────
+async function loadTournament() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+
+  if (!id) {
+    showToast('No tournament specified', 'error');
+    setTimeout(() => window.location.href = 'tournaments.html', 1500);
+    return;
+  }
+
+  try {
+    // Try Supabase
+    const { data, error } = await _supabase
+      .from('tournaments')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) throw new Error('Not found');
+
+    tournament = data;
+    await checkIfJoined(id);
+    await loadRegisteredPlayers(id);
+
+  } catch (e) {
+    // Demo fallback
+    tournament = getDemoTournament(parseInt(id));
+    if (!tournament) {
+      showToast('Tournament not found', 'error');
+      setTimeout(() => window.location.href = 'tournaments.html', 1500);
+      return;
+    }
+  }
+
+  renderDetail();
+  document.getElementById('detail-skeleton').style.display = 'none';
+  document.getElementById('detail-content').style.display  = 'block';
+  lucide.createIcons();
+}
+
+function getDemoTournament(id) {
+  const now = Date.now();
+  const map = {
+    1: { id:1, name:'BGMI Grand Prix', game:'bgmi', format:'br', entry_fee:50, prize_pool:5000, max_slots:100, filled_slots:78, start_time:new Date(now+3600000).toISOString(), status:'upcoming', rules:'No team killing. Squad of 4 players. Match starts at scheduled time. All participants must be in the room 10 minutes before start.', prize_distribution:[{pos:'1st',prize:'₹2,500'},{pos:'2nd',prize:'₹1,500'},{pos:'3rd',prize:'₹500'},{pos:'4th-5th',prize:'₹250 each'}] },
+    2: { id:2, name:'Free Fire Blitz',  game:'freefire', format:'squad', entry_fee:0, prize_pool:1000, max_slots:50, filled_slots:50, start_time:new Date(now-600000).toISOString(), status:'live', rules:'4v4 Squad mode. Last team standing wins.', prize_distribution:[{pos:'1st',prize:'₹600'},{pos:'2nd',prize:'₹250'},{pos:'3rd',prize:'₹150'}] },
+    3: { id:3, name:'COD 1v1 Showdown', game:'cod', format:'1v1', entry_fee:100, prize_pool:2000, max_slots:32, filled_slots:20, start_time:new Date(now+86400000).toISOString(), status:'upcoming', rules:'Best of 3. Maps chosen by coin flip. No camping.', prize_distribution:[{pos:'1st',prize:'₹1,400'},{pos:'2nd',prize:'₹400'},{pos:'3rd',prize:'₹200'}] },
+    4: { id:4, name:'BGMI Squad Wars', game:'bgmi', format:'squad', entry_fee:200, prize_pool:10000, max_slots:80, filled_slots:80, start_time:new Date(now-7200000).toISOString(), status:'live', room_id:'BGMI1234', room_password:'GENb@123', rules:'Erangel only. Top 5 squads win prizes. VPN not allowed.', prize_distribution:[{pos:'1st',prize:'₹5,000'},{pos:'2nd',prize:'₹2,500'},{pos:'3rd',prize:'₹1,500'},{pos:'4th',prize:'₹750'},{pos:'5th',prize:'₹250'}] },
+  };
+  return map[id] || null;
+}
+
+// ── Check if user already joined ──────────────────
+async function checkIfJoined(id) {
+  if (!currentUser) return;
+  try {
+    const { data } = await _supabase
+      .from('tournament_registrations')
+      .select('id')
+      .eq('tournament_id', id)
+      .eq('user_id', currentUser.id)
+      .single();
+    hasJoined = !!data;
+  } catch { hasJoined = false; }
+}
+
+// ── Load registered players ───────────────────────
+async function loadRegisteredPlayers(id) {
+  try {
+    const { data } = await _supabase
+      .from('tournament_registrations')
+      .select('ign, profiles(username)')
+      .eq('tournament_id', id)
+      .limit(40);
+
+    if (data && data.length > 0) {
+      renderPlayers(data.map(r => r.ign || r.profiles?.username || 'Player'));
+    } else {
+      renderPlayers([]);
+    }
+  } catch {
+    renderPlayers([]); // fallback
+  }
+}
+
+function renderPlayers(players) {
+  const grid = document.getElementById('players-grid');
+  const count = players.length;
+  const total = tournament?.max_slots || 0;
+  document.getElementById('players-count-badge').textContent = `${count}/${total} joined`;
+
+  if (count === 0) {
+    grid.innerHTML = `<div style="color:#64748b;font-size:.875rem;grid-column:1/-1;">No players yet. Be the first!</div>`;
+    return;
+  }
+
+  grid.innerHTML = players.map(name => `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;">
+      <div class="player-avatar">${name[0].toUpperCase()}</div>
+      <span style="font-size:.7rem;color:#94a3b8;text-align:center;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>
+    </div>
+  `).join('');
+}
+
+// ── Render detail ─────────────────────────────────
+function renderDetail() {
+  const t = tournament;
+  const status = getStatus(t);
+  const gameInfo = GENBCONFIG.games.find(g => g.id === t.game) || { name: t.game, icon: '🎮', color: '#00d4ff' };
+
+  // Hero BG
+  const gradients = {
+    bgmi:     'linear-gradient(135deg, #0a0500 0%, #2d1a00 40%, #1a0a20 100%)',
+    freefire: 'linear-gradient(135deg, #0a0010 0%, #2d0020 40%, #1a0010 100%)',
+    cod:      'linear-gradient(135deg, #000a1a 0%, #001a2d 40%, #0a0a1a 100%)',
+  };
+  document.getElementById('hero-bg').style.background = gradients[t.game] || gradients.cod;
+
+  // Game badge
+  const hgb = document.getElementById('hero-game-badge');
+  hgb.textContent = `${gameInfo.icon} ${gameInfo.name}`;
+  hgb.style.cssText += `;background:${gameInfo.color}22;border:1px solid ${gameInfo.color}55;color:${gameInfo.color};`;
+
+  // Format badge
+  const fmtNames = { br:'Battle Royale', squad:'Squad', '1v1':'1v1' };
+  document.getElementById('hero-format-badge').textContent = fmtNames[t.format] || t.format;
+
+  // Status pill
+  const sp = document.getElementById('hero-status-pill');
+  if (status === 'live') sp.className = 'pill-live'; else if (status === 'upcoming') sp.className = 'pill-upcoming'; else sp.className = 'pill-ended';
+  sp.textContent = status.toUpperCase();
+
+  // Title
+  document.getElementById('hero-title').textContent = t.name;
+  document.getElementById('hero-date').textContent = `📅 ${formatDate(t.start_time)}`;
+
+  // Prize + fee
+  document.getElementById('hero-prize').textContent = `₹${(t.prize_pool||0).toLocaleString()}`;
+  const fee = t.entry_fee;
+  const feeEl = document.getElementById('hero-fee');
+  if (!fee || fee === 0) { feeEl.textContent = 'FREE'; feeEl.style.color = 'var(--neon-green)'; }
+  else { feeEl.textContent = `₹${fee}`; feeEl.style.color = 'var(--neon-gold)'; }
+
+  // Countdown
+  if (status === 'live') {
+    document.getElementById('countdown-label').textContent = 'Match Is Live!';
+    document.getElementById('clock-display').innerHTML = `<span style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--neon-pink);">🔴 IN PROGRESS</span>`;
+  } else if (status === 'completed') {
+    document.getElementById('hero-countdown-wrap').style.display = 'none';
+  } else {
+    startDetailCountdown(t.start_time);
+  }
+
+  // Entry card
+  document.getElementById('entry-fee-display').textContent = (!fee || fee===0) ? 'FREE' : `₹${fee}`;
+  document.getElementById('entry-fee-display').style.color = (!fee || fee===0) ? 'var(--neon-green)' : 'var(--neon-gold)';
+  const filled = t.filled_slots||0, max = t.max_slots||100;
+  const pct = Math.min(100, Math.round(filled/max*100));
+  document.getElementById('slots-display').textContent = `${filled}/${max}`;
+  const sf = document.getElementById('entry-slot-fill');
+  sf.style.width = `${pct}%`;
+  if (filled >= max) sf.classList.add('full');
+
+  // Join button state
+  const btn = document.getElementById('main-join-btn');
+  if (status === 'completed') {
+    btn.textContent = 'Tournament Ended'; btn.disabled = true;
+  } else if (filled >= max) {
+    btn.textContent = 'TOURNAMENT FULL'; btn.disabled = true;
+  } else if (hasJoined) {
+    btn.style.display = 'none';
+    document.getElementById('already-joined-state').style.display = 'block';
+    // Show room if available
+    if (t.room_id) {
+      document.getElementById('room-details-section').style.display = 'block';
+      document.getElementById('room-id-val').textContent   = t.room_id       || 'Not published yet';
+      document.getElementById('room-pass-val').textContent = t.room_password || 'Not published yet';
+    }
+  }
+
+  // Prize distribution
+  renderPrizeTable(t);
+
+  // Rules
+  const rules = t.rules || 'Standard tournament rules apply. Play fair and have fun!';
+  document.getElementById('rules-general').textContent = rules;
+
+  // Schedule
+  renderSchedule(t);
+}
+
+function renderPrizeTable(t) {
+  const el = document.getElementById('prize-table');
+  const medals = ['🥇','🥈','🥉','🏅','🏅','🏅'];
+
+  if (t.prize_distribution && Array.isArray(t.prize_distribution)) {
+    el.innerHTML = t.prize_distribution.map((p,i) => `
+      <div class="prize-row">
+        <span style="font-size:.9rem;font-weight:600;color:#e2e8f0;">${medals[i]||'🏅'} ${p.pos}</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--neon-gold);">${p.prize}</span>
+      </div>
+    `).join('');
+  } else {
+    // Auto-generate from prize pool
+    const pool = t.prize_pool || 0;
+    const dist = [
+      { pos:'🥇 1st Place', pct:.5 },
+      { pos:'🥈 2nd Place', pct:.3 },
+      { pos:'🥉 3rd Place', pct:.15 },
+      { pos:'🏅 4th Place', pct:.05 },
+    ];
+    el.innerHTML = dist.map(d => `
+      <div class="prize-row">
+        <span style="font-size:.9rem;font-weight:600;color:#e2e8f0;">${d.pos}</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--neon-gold);">₹${Math.floor(pool*d.pct).toLocaleString()}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function renderSchedule(t) {
+  const el = document.getElementById('match-schedule');
+  const start = new Date(t.start_time);
+  const scheduleItems = [
+    { time: new Date(start.getTime()-600000), label: 'Room Opens', sub: 'Join the room 10 minutes before' },
+    { time: start, label: 'Match Starts', sub: 'Game begins — be ready!' },
+    { time: new Date(start.getTime()+5400000), label: 'Results Announced', sub: 'Winners declared & prizes credited' },
+  ];
+
+  el.innerHTML = scheduleItems.map(item => `
+    <div class="sched-row">
+      <div class="sched-time">${item.time.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+      <div>
+        <div class="sched-label">${item.label}</div>
+        <div class="sched-sub">${item.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Countdown ─────────────────────────────────────
+function startDetailCountdown(startTime) {
+  function tick() {
+    const diff = new Date(startTime).getTime() - Date.now();
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      document.getElementById('countdown-label').textContent = 'Match Started!';
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hrs  = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000)  / 60000);
+    const secs = Math.floor((diff % 60000)    / 1000);
+    document.getElementById('cd-d').textContent = String(days).padStart(2,'0');
+    document.getElementById('cd-h').textContent = String(hrs).padStart(2,'0');
+    document.getElementById('cd-m').textContent = String(mins).padStart(2,'0');
+    document.getElementById('cd-s').textContent = String(secs).padStart(2,'0');
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+function getStatus(t) {
+  if (t.status) return t.status;
+  const now = Date.now(), start = new Date(t.start_time).getTime();
+  const end = t.end_time ? new Date(t.end_time).getTime() : start + 7200000;
+  if (now < start) return 'upcoming';
+  if (now >= start && now <= end) return 'live';
+  return 'completed';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-IN',{ weekday:'short', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ── Accordion ─────────────────────────────────────
+function toggleAccordion(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('i[data-lucide="chevron-down"]');
+  const isOpen = body.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.accordion-header i').forEach(i => i.style.transform = '');
+  // Open clicked if was closed
+  if (!isOpen) {
+    body.classList.add('open');
+    if (icon) icon.style.transform = 'rotate(180deg)';
+  }
+}
+
+// ── Join modal ────────────────────────────────────
+function openJoinModal() {
+  if (!currentUser) {
+    showToast('Please login first', 'error');
+    setTimeout(() => window.location.href='login.html', 1500);
+    return;
+  }
+  const t = tournament;
+  document.getElementById('modal-tour-name').textContent  = t.name;
+  document.getElementById('modal-game').textContent       = (GENBCONFIG.games.find(g=>g.id===t.game)||{name:t.game}).name;
+  document.getElementById('modal-format').textContent     = t.format?.toUpperCase() || '–';
+  document.getElementById('modal-date').textContent       = formatDate(t.start_time);
+  const fee = t.entry_fee || 0;
+  document.getElementById('modal-fee-display').textContent    = fee === 0 ? 'FREE' : `₹${fee}`;
+  document.getElementById('modal-fee-display').style.color    = fee === 0 ? 'var(--neon-green)' : 'var(--neon-gold)';
+  const balance = userProfile?.wallet_balance || 0;
+  document.getElementById('modal-balance-display').textContent = `₹${balance.toFixed(2)}`;
+  document.getElementById('modal-balance-display').style.color = balance < fee ? 'var(--neon-pink)' : 'var(--neon-blue)';
+
+  // Warn if insufficient
+  const warn = document.getElementById('modal-warning');
+  const confirmBtn = document.getElementById('confirm-join-btn');
+  if (fee > 0 && balance < fee) {
+    warn.style.display = 'block';
+    confirmBtn.disabled = true;
+    confirmBtn.style.opacity = '.5';
+  } else {
+    warn.style.display = 'none';
+    confirmBtn.disabled = false;
+    confirmBtn.style.opacity = '1';
+  }
+
+  // Pre-fill IGN from profile
+  if (userProfile?.ign) {
+    document.getElementById('modal-ign').value = userProfile.ign;
+  }
+
+  document.getElementById('join-modal').style.display = 'flex';
+}
+
+function closeJoinModal() {
+  document.getElementById('join-modal').style.display = 'none';
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target.id === 'join-modal') closeJoinModal();
+}
+
+async function confirmJoin() {
+  const ign = document.getElementById('modal-ign').value.trim();
+  if (!ign) { showToast('Please enter your in-game name', 'error'); return; }
+
+  const btn = document.getElementById('confirm-join-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  try {
+    const t = tournament;
+    const fee = t.entry_fee || 0;
+
+    // Check balance
+    if (fee > 0) {
+      const { data: freshProfile } = await _supabase.from('profiles').select('wallet_balance').eq('id', currentUser.id).single();
+      const balance = freshProfile?.wallet_balance || 0;
+      if (balance < fee) {
+        showToast('Insufficient balance. Please add funds.', 'error');
+        btn.disabled = false; btn.textContent = 'CONFIRM & JOIN ⚡';
+        return;
+      }
+    }
+
+    // Insert registration
+    const { error: regError } = await _supabase.from('tournament_registrations').insert({
+      tournament_id: t.id,
+      user_id: currentUser.id,
+      ign: ign,
+      registered_at: new Date().toISOString(),
+    });
+    if (regError) throw regError;
+
+    // Deduct entry fee
+    if (fee > 0) {
+      await _supabase.rpc('deduct_wallet_balance', { user_id: currentUser.id, amount: fee });
+      // Fallback: manual update
+      const { data: p } = await _supabase.from('profiles').select('wallet_balance').eq('id', currentUser.id).single();
+      await _supabase.from('profiles').update({ wallet_balance: (p?.wallet_balance||0) - fee }).eq('id', currentUser.id);
+
+      // Log transaction
+      await _supabase.from('transactions').insert({
+        user_id: currentUser.id, type: 'entry_fee',
+        amount: -fee, description: `Entry fee: ${t.name}`,
+        status: 'approved', created_at: new Date().toISOString(),
+      });
+    }
+
+    // Update filled_slots
+    await _supabase.from('tournaments').update({ filled_slots: (t.filled_slots||0)+1 }).eq('id', t.id);
+
+    hasJoined = true;
+    closeJoinModal();
+    showToast('🎉 Successfully registered! Good luck!', 'success');
+
+    // Refresh UI
+    document.getElementById('main-join-btn').style.display = 'none';
+    document.getElementById('already-joined-state').style.display = 'block';
+    tournament.filled_slots = (tournament.filled_slots||0)+1;
+    const newPct = Math.min(100, Math.round(tournament.filled_slots/tournament.max_slots*100));
+    document.getElementById('entry-slot-fill').style.width = `${newPct}%`;
+    document.getElementById('slots-display').textContent = `${tournament.filled_slots}/${tournament.max_slots}`;
+
+    // Update balance display
+    if (fee > 0 && userProfile) {
+      userProfile.wallet_balance = (userProfile.wallet_balance||0) - fee;
+      document.getElementById('wallet-balance-display').textContent = `₹${userProfile.wallet_balance.toFixed(2)}`;
+      document.getElementById('sidebar-bal').textContent = `₹${userProfile.wallet_balance.toFixed(2)}`;
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Registration failed. Try again.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'CONFIRM & JOIN ⚡';
+  }
+}
+
+// ── Copy helper ───────────────────────────────────
+function copyText(elId) {
+  const txt = document.getElementById(elId)?.textContent;
+  if (!txt || txt === '–') return;
+  navigator.clipboard.writeText(txt).then(() => showToast('Copied!', 'success', 1500));
+}
+
+// ── Sidebar ───────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+}
+
+// ── Toast ─────────────────────────────────────────
+function showToast(msg, type='info', dur=3500) {
+  const tc = document.getElementById('toast-container');
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),350); }, dur);
+}
+
+// ── Particles ─────────────────────────────────────
+(function() {
+  const c = document.getElementById('particles-canvas');
+  const ctx = c.getContext('2d');
+  let W, H, p = [];
+  function resize() { W=c.width=innerWidth; H=c.height=innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for (let i=0;i<50;i++) p.push({ x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:Math.random()*1.5+.3, dx:(Math.random()-.5)*.3, dy:(Math.random()-.5)*.3, a:Math.random()*.4+.1 });
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    p.forEach(pt=>{ ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2); ctx.fillStyle=`rgba(0,212,255,${pt.a})`; ctx.fill(); pt.x+=pt.dx; pt.y+=pt.dy; if(pt.x<0||pt.x>W)pt.dx*=-1; if(pt.y<0||pt.y>H)pt.dy*=-1; });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

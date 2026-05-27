@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet | Gen B Tournaments</title>
+  <meta name="description" content="Manage your Gen B Tournaments wallet. Deposit, withdraw, and track all your transactions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'neon-blue': '#00d4ff',
+            'neon-purple': '#b14aed',
+            'neon-pink': '#ff2d78',
+            'neon-gold': '#ffd700',
+            'neon-green': '#00ff88',
+            'dark-bg': '#050510',
+            'dark-card': '#0a0a1a',
+          },
+          fontFamily: {
+            'rajdhani': ['Rajdhani', 'sans-serif'],
+            'inter': ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #050510; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+    .glass-card { background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); border: 1px solid rgba(0,212,255,0.15); border-radius: 16px; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; background: rgba(5,5,16,0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(0,212,255,0.1); z-index: 40; overflow-y: auto; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #94a3b8; border-radius: 10px; margin: 2px 8px; transition: all 0.2s; text-decoration: none; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.5px; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(0,212,255,0.1); color: #00d4ff; box-shadow: inset 0 0 20px rgba(0,212,255,0.05); }
+    .sidebar-link.active { border-left: 3px solid #00d4ff; }
+    .main-content { margin-left: 260px; min-height: 100vh; padding: 24px; }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(5,5,16,0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,212,255,0.15); z-index: 50; padding: 8px 0 env(safe-area-inset-bottom); }
+    .mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; padding: 6px 4px; color: #64748b; font-size: 10px; font-family: 'Rajdhani', sans-serif; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+    .mobile-nav-item.active, .mobile-nav-item:hover { color: #00d4ff; }
+    @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 16px 16px 90px; } .mobile-nav { display: flex; } }
+    .wallet-card-main { background: linear-gradient(135deg, #003d5c 0%, #006494 50%, #00d4ff22 100%); border: 1px solid rgba(0,212,255,0.4); }
+    .wallet-card-bonus { background: linear-gradient(135deg, #2d0a4e 0%, #6b21a8 50%, #b14aed22 100%); border: 1px solid rgba(177,74,237,0.4); }
+    .wallet-card-winning { background: linear-gradient(135deg, #3d2800 0%, #854d0e 50%, #ffd70022 100%); border: 1px solid rgba(255,215,0,0.4); }
+    .btn-primary { background: linear-gradient(135deg, #00d4ff, #b14aed); color: #fff; border: none; border-radius: 10px; padding: 12px 28px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,212,255,0.4); }
+    .btn-ghost { background: transparent; color: #00d4ff; border: 1px solid rgba(0,212,255,0.4); border-radius: 10px; padding: 10px 24px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+    .btn-ghost:hover { background: rgba(0,212,255,0.1); box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+    .input-cyber { background: rgba(255,255,255,0.05); border: 1px solid rgba(0,212,255,0.2); border-radius: 10px; padding: 12px 16px; color: #e2e8f0; font-family: 'Inter', sans-serif; font-size: 14px; width: 100%; transition: all 0.3s; outline: none; }
+    .input-cyber:focus { border-color: #00d4ff; box-shadow: 0 0 15px rgba(0,212,255,0.2); background: rgba(0,212,255,0.05); }
+    .tab-btn { padding: 10px 24px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; border: 1px solid rgba(0,212,255,0.2); border-radius: 8px; color: #64748b; background: transparent; cursor: pointer; transition: all 0.3s; }
+    .tab-btn.active { background: rgba(0,212,255,0.15); color: #00d4ff; border-color: rgba(0,212,255,0.5); box-shadow: 0 0 15px rgba(0,212,255,0.15); }
+    .amount-btn { background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px; padding: 8px 16px; color: #94a3b8; font-family: 'Rajdhani', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .amount-btn:hover, .amount-btn.selected { background: rgba(0,212,255,0.2); color: #00d4ff; border-color: #00d4ff; }
+    .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; position: relative; }
+    .step::after { content: ''; position: absolute; top: 16px; left: 60%; width: 80%; height: 2px; background: rgba(0,212,255,0.15); }
+    .step:last-child::after { display: none; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,212,255,0.08); border: 2px solid rgba(0,212,255,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px; color: #64748b; transition: all 0.3s; }
+    .step.active .step-num { background: rgba(0,212,255,0.2); border-color: #00d4ff; color: #00d4ff; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+    .step.done .step-num { background: rgba(0,212,255,0.3); border-color: #00d4ff; color: #00d4ff; }
+    .step-label { font-size: 11px; font-family: 'Rajdhani', sans-serif; font-weight: 600; color: #475569; letter-spacing: 0.5px; }
+    .step.active .step-label { color: #00d4ff; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 100px; font-size: 11px; font-family: 'Rajdhani', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
+    .badge-pending { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-approved { background: rgba(0,255,136,0.1); color: #00ff88; border: 1px solid rgba(0,255,136,0.3); }
+    .badge-rejected { background: rgba(255,45,120,0.1); color: #ff2d78; border: 1px solid rgba(255,45,120,0.3); }
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { padding: 14px 20px; border-radius: 12px; backdrop-filter: blur(20px); border: 1px solid; animation: slideInRight 0.3s ease; font-family: 'Inter', sans-serif; font-size: 14px; min-width: 280px; max-width: 380px; }
+    .toast-success { background: rgba(0,255,136,0.1); border-color: rgba(0,255,136,0.3); color: #00ff88; }
+    .toast-error { background: rgba(255,45,120,0.1); border-color: rgba(255,45,120,0.3); color: #ff2d78; }
+    .toast-info { background: rgba(0,212,255,0.1); border-color: rgba(0,212,255,0.3); color: #00d4ff; }
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .qr-container { border: 2px solid rgba(0,212,255,0.3); border-radius: 16px; padding: 16px; background: white; display: inline-block; }
+    .screenshot-label { border: 2px dashed rgba(0,212,255,0.3); border-radius: 12px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.3s; }
+    .screenshot-label:hover { border-color: #00d4ff; background: rgba(0,212,255,0.05); }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 16px; text-align: left; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1px; color: #475569; border-bottom: 1px solid rgba(0,212,255,0.1); text-transform: uppercase; }
+    td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+    tr:hover td { background: rgba(0,212,255,0.03); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="p-6 border-b border-white/5">
+    <a href="index.html" class="block">
+      <div class="font-rajdhani font-bold text-xl" style="color:#00d4ff; text-shadow: 0 0 20px rgba(0,212,255,0.6); letter-spacing:2px;">GEN B</div>
+      <div class="font-rajdhani text-xs text-gray-500 tracking-widest">TOURNAMENTS</div>
+    </a>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="sidebar-link"><i data-lucide="home" class="w-5 h-5"></i> Home</a>
+    <a href="dashboard.html" class="sidebar-link"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</a>
+    <a href="tournaments.html" class="sidebar-link"><i data-lucide="trophy" class="w-5 h-5"></i> Tournaments</a>
+    <a href="wallet.html" class="sidebar-link active"><i data-lucide="wallet" class="w-5 h-5"></i> Wallet</a>
+    <a href="leaderboard.html" class="sidebar-link"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Leaderboard</a>
+    <a href="rewards.html" class="sidebar-link"><i data-lucide="gift" class="w-5 h-5"></i> Rewards</a>
+    <a href="referral.html" class="sidebar-link"><i data-lucide="users" class="w-5 h-5"></i> Referral</a>
+    <a href="clan.html" class="sidebar-link"><i data-lucide="shield" class="w-5 h-5"></i> Clan</a>
+    <a href="chat.html" class="sidebar-link"><i data-lucide="message-circle" class="w-5 h-5"></i> Chat</a>
+    <a href="profile.html" class="sidebar-link"><i data-lucide="user" class="w-5 h-5"></i> Profile</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <div id="sidebarUser" class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style="background:linear-gradient(135deg,#00d4ff,#b14aed);">U</div>
+      <div><div class="text-sm font-semibold text-white" id="sidebarUsername">Loading...</div><div class="text-xs text-gray-500">Player</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  <div class="mb-6">
+    <h1 class="font-rajdhani font-bold text-3xl" style="color:#00d4ff; letter-spacing:2px;">WALLET</h1>
+    <p class="text-gray-400 text-sm mt-1">Manage your deposits, withdrawals and transaction history</p>
+  </div>
+
+  <!-- Three Wallet Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+    <!-- Main Wallet -->
+    <div class="wallet-card-main rounded-2xl p-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style="background:radial-gradient(#00d4ff,transparent); transform:translate(30%,-30%);"></div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2"><i data-lucide="wallet" class="w-5 h-5" style="color:#00d4ff;"></i><span class="font-rajdhani font-bold text-sm tracking-widest" style="color:#00d4ff;">MAIN WALLET</span></div>
+        <span class="text-xs text-cyan-300/60">Deposit funds</span>
+      </div>
+      <div class="font-rajdhani font-bold text-4xl text-white mb-1" id="mainBalance">₹0.00</div>
+      <div class="text-xs text-gray-400 mb-4">Available for tournaments</div>
+      <button onclick="switchTab('deposit')" class="btn-ghost w-full text-sm py-2">+ DEPOSIT</button>
+    </div>
+    <!-- Bonus Wallet -->
+    <div class="wallet-card-bonus rounded-2xl p-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style="background:radial-gradient(#b14aed,transparent); transform:translate(30%,-30%);"></div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2"><i data-lucide="gift" class="w-5 h-5" style="color:#b14aed;"></i><span class="font-rajdhani font-bold text-sm tracking-widest" style="color:#b14aed;">BONUS WALLET</span></div>
+        <span class="text-xs text-purple-300/60">From rewards</span>
+      </div>
+      <div class="font-rajdhani font-bold text-4xl text-white mb-1" id="bonusBalance">₹0.00</div>
+      <div class="text-xs text-gray-400 mb-4">Use in free tournaments only</div>
+      <div class="text-xs text-purple-300/50 text-center">🎁 Earn via rewards & referrals</div>
+    </div>
+    <!-- Winning Wallet -->
+    <div class="wallet-card-winning rounded-2xl p-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style="background:radial-gradient(#ffd700,transparent); transform:translate(30%,-30%);"></div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2"><i data-lucide="trophy" class="w-5 h-5" style="color:#ffd700;"></i><span class="font-rajdhani font-bold text-sm tracking-widest" style="color:#ffd700;">WINNING WALLET</span></div>
+        <span class="text-xs text-yellow-300/60">Prize money</span>
+      </div>
+      <div class="font-rajdhani font-bold text-4xl text-white mb-1" id="winningBalance">₹0.00</div>
+      <div class="text-xs text-gray-400 mb-4">Withdrawable earnings</div>
+      <button onclick="switchTab('withdraw')" class="w-full py-2 rounded-xl font-rajdhani font-bold text-sm tracking-widest cursor-pointer transition-all" style="background:linear-gradient(135deg,#ffd700,#f59e0b);color:#000;">WITHDRAW</button>
+    </div>
+  </div>
+
+  <!-- Tab System -->
+  <div class="glass-card p-6">
+    <div class="flex gap-3 mb-8 flex-wrap">
+      <button class="tab-btn active" id="tab-deposit" onclick="switchTab('deposit')">💰 DEPOSIT</button>
+      <button class="tab-btn" id="tab-withdraw" onclick="switchTab('withdraw')">📤 WITHDRAW</button>
+      <button class="tab-btn" id="tab-history" onclick="switchTab('history')">📋 HISTORY</button>
+    </div>
+
+    <!-- DEPOSIT TAB -->
+    <div id="depositTab">
+      <div class="step-indicator">
+        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">AMOUNT</div></div>
+        <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">SCAN QR</div></div>
+        <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">SUBMIT</div></div>
+      </div>
+
+      <!-- Step 1: Amount -->
+      <div id="depositStep1">
+        <h3 class="font-rajdhani font-bold text-xl mb-4" style="color:#00d4ff;">Enter Deposit Amount</h3>
+        <div class="mb-4">
+          <label class="text-sm text-gray-400 mb-2 block">Quick Select</label>
+          <div class="flex gap-3 flex-wrap">
+            <button class="amount-btn" onclick="selectAmount(100)">₹100</button>
+            <button class="amount-btn" onclick="selectAmount(200)">₹200</button>
+            <button class="amount-btn" onclick="selectAmount(500)">₹500</button>
+            <button class="amount-btn" onclick="selectAmount(1000)">₹1,000</button>
+            <button class="amount-btn" onclick="selectAmount(2000)">₹2,000</button>
+            <button class="amount-btn" onclick="selectAmount(5000)">₹5,000</button>
+          </div>
+        </div>
+        <div class="mb-6 max-w-xs">
+          <label class="text-sm text-gray-400 mb-2 block">Or enter custom amount (Min ₹50, Max ₹50,000)</label>
+          <input type="number" id="depositAmount" class="input-cyber" placeholder="Enter amount" min="50" max="50000" />
+        </div>
+        <button onclick="goToStep2()" class="btn-primary">NEXT: SCAN QR →</button>
+      </div>
+
+      <!-- Step 2: QR Code -->
+      <div id="depositStep2" class="hidden">
+        <h3 class="font-rajdhani font-bold text-xl mb-4" style="color:#00d4ff;">Scan & Pay</h3>
+        <div class="flex flex-col md:flex-row gap-8 items-start">
+          <div class="text-center">
+            <div class="qr-container mb-3">
+              <img id="qrCodeImage" src="" alt="QR Code" class="w-48 h-48 object-contain" style="display:none;" />
+              <div id="qrPlaceholder" class="w-48 h-48 flex items-center justify-center text-gray-400 text-sm">
+                <div class="text-center"><i data-lucide="qr-code" class="w-16 h-16 mx-auto mb-2 opacity-30"></i><p>Loading QR...</p></div>
+              </div>
+            </div>
+            <div class="glass-card inline-block px-4 py-2 rounded-lg">
+              <span class="text-xs text-gray-400">Amount to Pay:</span>
+              <span class="font-rajdhani font-bold text-lg ml-2" style="color:#00d4ff;" id="qrAmount">₹0</span>
+            </div>
+          </div>
+          <div class="flex-1">
+            <div class="glass-card p-4 rounded-xl mb-4">
+              <h4 class="font-rajdhani font-bold text-sm mb-3" style="color:#ffd700;">⚠️ IMPORTANT INSTRUCTIONS</h4>
+              <ol class="text-sm text-gray-400 space-y-2 list-decimal list-inside">
+                <li>Scan the QR code using any UPI app</li>
+                <li>Pay exactly <strong class="text-white" id="exactAmount">₹0</strong></li>
+                <li>Note the UTR/Transaction ID after payment</li>
+                <li>Take a screenshot of your payment confirmation</li>
+                <li>Submit in the next step</li>
+              </ol>
+            </div>
+            <div class="flex gap-3">
+              <button onclick="goToStep1()" class="btn-ghost">← BACK</button>
+              <button onclick="goToStep3()" class="btn-primary">NEXT: SUBMIT PROOF →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Submit UTR -->
+      <div id="depositStep3" class="hidden max-w-lg">
+        <h3 class="font-rajdhani font-bold text-xl mb-4" style="color:#00d4ff;">Submit Payment Proof</h3>
+        <div class="space-y-5">
+          <div>
+            <label class="text-sm text-gray-400 mb-2 block">UTR / Transaction ID *</label>
+            <input type="text" id="utrInput" class="input-cyber" placeholder="e.g. 123456789012" maxlength="20" />
+            <p class="text-xs text-gray-500 mt-1">12-digit UTR number from your payment app</p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-2 block">Payment Screenshot *</label>
+            <label class="screenshot-label block" id="screenshotLabel">
+              <input type="file" id="screenshotInput" class="hidden" accept="image/*" onchange="previewScreenshot(event)" />
+              <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto mb-2" style="color:#00d4ff;"></i>
+              <p class="text-sm text-gray-400">Click to upload screenshot</p>
+              <p class="text-xs text-gray-500 mt-1">JPG, PNG (Max 5MB)</p>
+            </label>
+            <img id="screenshotPreview" class="hidden mt-3 rounded-xl max-h-40 object-contain" />
+          </div>
+          <div class="flex gap-3">
+            <button onclick="goToStep2()" class="btn-ghost">← BACK</button>
+            <button onclick="submitDeposit()" id="submitDepositBtn" class="btn-primary">✓ SUBMIT DEPOSIT</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success State -->
+      <div id="depositSuccess" class="hidden text-center py-8">
+        <div class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl" style="background:rgba(0,255,136,0.15); border: 2px solid rgba(0,255,136,0.4);">✓</div>
+        <h3 class="font-rajdhani font-bold text-2xl mb-2" style="color:#00ff88;">DEPOSIT SUBMITTED!</h3>
+        <p class="text-gray-400 mb-2">Your deposit request has been submitted successfully.</p>
+        <p class="text-sm text-gray-500">Approval within <strong class="text-white">24 hours</strong>. Check transaction history for status.</p>
+        <button onclick="resetDeposit()" class="btn-ghost mt-6">Make Another Deposit</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW TAB -->
+    <div id="withdrawTab" class="hidden max-w-lg">
+      <h3 class="font-rajdhani font-bold text-xl mb-6" style="color:#ffd700;">Withdraw Winnings</h3>
+      <div class="glass-card p-4 rounded-xl mb-6 flex items-center justify-between">
+        <div><div class="text-xs text-gray-400 mb-1">Available in Winning Wallet</div><div class="font-rajdhani font-bold text-2xl" style="color:#ffd700;" id="withdrawAvailable">₹0.00</div></div>
+        <i data-lucide="trophy" class="w-8 h-8" style="color:#ffd700; opacity:0.5;"></i>
+      </div>
+      <div class="space-y-5">
+        <div>
+          <label class="text-sm text-gray-400 mb-2 block">UPI ID *</label>
+          <input type="text" id="upiInput" class="input-cyber" placeholder="yourname@upi" />
+          <p class="text-xs text-gray-500 mt-1">Enter your UPI ID for withdrawal</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-400 mb-2 block">Withdrawal Amount *</label>
+          <input type="number" id="withdrawAmount" class="input-cyber" placeholder="Min ₹100, Max ₹10,000" min="100" max="10000" />
+          <div class="flex gap-2 mt-2">
+            <button class="amount-btn text-xs py-1 px-3" onclick="setWithdrawAmount(200)">₹200</button>
+            <button class="amount-btn text-xs py-1 px-3" onclick="setWithdrawAmount(500)">₹500</button>
+            <button class="amount-btn text-xs py-1 px-3" onclick="setWithdrawAmount(1000)">₹1,000</button>
+            <button class="amount-btn text-xs py-1 px-3" id="withdrawAllBtn">All</button>
+          </div>
+        </div>
+        <div class="glass-card p-4 rounded-xl text-sm text-gray-400 space-y-1">
+          <div>⏱️ Processing time: <strong class="text-white">24 hours</strong></div>
+          <div>💳 Withdrawal only from Winning Wallet</div>
+          <div>📋 Min: ₹100 | Max: ₹10,000 per request</div>
+        </div>
+        <button onclick="submitWithdrawal()" id="submitWithdrawBtn" class="btn-primary w-full">REQUEST WITHDRAWAL</button>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="historyTab" class="hidden">
+      <div class="flex flex-wrap gap-3 mb-6 items-center justify-between">
+        <div class="flex gap-2 flex-wrap">
+          <button class="tab-btn active text-xs py-2 px-3" id="hf-all" onclick="filterHistory('all')">All</button>
+          <button class="tab-btn text-xs py-2 px-3" id="hf-deposit" onclick="filterHistory('deposit')">Deposits</button>
+          <button class="tab-btn text-xs py-2 px-3" id="hf-withdraw" onclick="filterHistory('withdraw')">Withdrawals</button>
+          <button class="tab-btn text-xs py-2 px-3" id="hf-win" onclick="filterHistory('win')">Winnings</button>
+        </div>
+        <div class="text-xs text-gray-500" id="txCount">Loading transactions...</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody">
+            <tr><td colspan="5" class="text-center py-12 text-gray-500">
+              <i data-lucide="loader" class="w-6 h-6 mx-auto mb-2 animate-spin" style="color:#00d4ff;"></i>
+              <p>Loading transactions...</p>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="txPagination" class="flex justify-center gap-3 mt-6"></div>
+    </div>
+  </div>
+</main>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav">
+  <a href="index.html" class="mobile-nav-item"><i data-lucide="home" class="w-5 h-5"></i><span>Home</span></a>
+  <a href="tournaments.html" class="mobile-nav-item"><i data-lucide="trophy" class="w-5 h-5"></i><span>Play</span></a>
+  <a href="wallet.html" class="mobile-nav-item active"><i data-lucide="wallet" class="w-5 h-5"></i><span>Wallet</span></a>
+  <a href="leaderboard.html" class="mobile-nav-item"><i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Ranks</span></a>
+  <a href="profile.html" class="mobile-nav-item"><i data-lucide="user" class="w-5 h-5"></i><span>Profile</span></a>
+</nav>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/wallet.js"></script>
+<script>
+  lucide.createIcons();
+
+  let currentUser = null;
+  let walletData = null;
+  let allTransactions = [];
+  let depositScreenshotUrl = null;
+  let currentFilter = 'all';
+  let currentDepositStep = 1;
+
+  function showToast(msg, type='info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  function switchTab(tab) {
+    ['deposit','withdraw','history'].forEach(t => {
+      document.getElementById(t+'Tab').classList.add('hidden');
+      document.getElementById('tab-'+t).classList.remove('active');
+    });
+    document.getElementById(tab+'Tab').classList.remove('hidden');
+    document.getElementById('tab-'+tab).classList.add('active');
+  }
+
+  function selectAmount(a) {
+    document.getElementById('depositAmount').value = a;
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+    event.target.classList.add('selected');
+  }
+
+  function goToStep1() {
+    document.getElementById('depositStep1').classList.remove('hidden');
+    document.getElementById('depositStep2').classList.add('hidden');
+    document.getElementById('step1').classList.add('active'); document.getElementById('step2').classList.remove('active','done');
+  }
+
+  async function goToStep2() {
+    const amt = parseInt(document.getElementById('depositAmount').value);
+    if (!amt || amt < 50 || amt > 50000) { showToast('Enter valid amount (₹50 - ₹50,000)', 'error'); return; }
+    document.getElementById('depositStep1').classList.add('hidden');
+    document.getElementById('depositStep2').classList.remove('hidden');
+    document.getElementById('qrAmount').textContent = '₹' + amt.toLocaleString('en-IN');
+    document.getElementById('exactAmount').textContent = '₹' + amt.toLocaleString('en-IN');
+    document.getElementById('step1').classList.remove('active'); document.getElementById('step1').classList.add('done');
+    document.getElementById('step2').classList.add('active');
+    // Load QR from admin settings
+    try {
+      const { data } = await window.GenBSupabase.db.from('admin_settings').select('value').eq('key','qr_code_url').single();
+      if (data?.value) {
+        document.getElementById('qrCodeImage').src = data.value;
+        document.getElementById('qrCodeImage').style.display = 'block';
+        document.getElementById('qrPlaceholder').style.display = 'none';
+      }
+    } catch(e) { console.warn('QR not loaded:', e); }
+    lucide.createIcons();
+  }
+
+  function goToStep3() {
+    document.getElementById('depositStep2').classList.add('hidden');
+    document.getElementById('depositStep3').classList.remove('hidden');
+    document.getElementById('step2').classList.remove('active'); document.getElementById('step2').classList.add('done');
+    document.getElementById('step3').classList.add('active');
+  }
+
+  function previewScreenshot(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('screenshotPreview').src = ev.target.result;
+      document.getElementById('screenshotPreview').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function submitDeposit() {
+    const amount = parseInt(document.getElementById('depositAmount').value);
+    const utr = document.getElementById('utrInput').value.trim();
+    const file = document.getElementById('screenshotInput').files[0];
+    if (!utr || utr.length < 10) { showToast('Enter valid UTR number', 'error'); return; }
+    if (!file) { showToast('Upload payment screenshot', 'error'); return; }
+    const btn = document.getElementById('submitDepositBtn');
+    btn.textContent = 'UPLOADING...'; btn.disabled = true;
+    try {
+      // Check duplicate UTR
+      const { data: existing } = await window.GenBSupabase.db.from('payments').select('id').eq('utr_number', utr);
+      if (existing && existing.length > 0) { showToast('This UTR has already been submitted', 'error'); btn.textContent='SUBMIT DEPOSIT'; btn.disabled=false; return; }
+      // Upload screenshot to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', GENBCONFIG.cloudinary.uploadPreset);
+      formData.append('folder', 'payments');
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${GENBCONFIG.cloudinary.cloudName}/image/upload`, { method:'POST', body:formData });
+      const uploadData = await res.json();
+      const screenshotUrl = uploadData.secure_url || '';
+      // Submit payment request
+      await window.GenBSupabase.db.from('payments').insert({
+        user_id: currentUser.id, amount, utr_number: utr, screenshot_url: screenshotUrl, status: 'pending'
+      });
+      // Log transaction
+      await window.GenBSupabase.db.from('transactions').insert({
+        user_id: currentUser.id, type: 'deposit', amount, wallet_type: 'main', description: `Deposit via UPI (UTR: ${utr})`, status: 'pending'
+      });
+      document.getElementById('depositStep3').classList.add('hidden');
+      document.getElementById('depositSuccess').classList.remove('hidden');
+      showToast('Deposit submitted! Awaiting approval.', 'success');
+    } catch(e) { showToast('Error: ' + e.message, 'error'); btn.textContent='SUBMIT DEPOSIT'; btn.disabled=false; }
+  }
+
+  function resetDeposit() {
+    document.getElementById('depositSuccess').classList.add('hidden');
+    document.getElementById('depositStep1').classList.remove('hidden');
+    document.getElementById('depositAmount').value = '';
+    document.getElementById('utrInput').value = '';
+    document.getElementById('screenshotInput').value = '';
+    document.getElementById('screenshotPreview').classList.add('hidden');
+    goToStep1();
+  }
+
+  async function submitWithdrawal() {
+    const upi = document.getElementById('upiInput').value.trim();
+    const amount = parseInt(document.getElementById('withdrawAmount').value);
+    const available = walletData?.winning_balance || 0;
+    if (!upi || !/^[\w.\-]{2,256}@[a-z]{2,64}$/i.test(upi)) { showToast('Enter valid UPI ID', 'error'); return; }
+    if (!amount || amount < 100) { showToast('Minimum withdrawal is ₹100', 'error'); return; }
+    if (amount > 10000) { showToast('Maximum withdrawal is ₹10,000', 'error'); return; }
+    if (amount > available) { showToast('Insufficient winning wallet balance', 'error'); return; }
+    const btn = document.getElementById('submitWithdrawBtn');
+    btn.textContent = 'PROCESSING...'; btn.disabled = true;
+    try {
+      // Deduct from winning wallet
+      await window.GenBSupabase.db.from('wallets').update({ winning_balance: available - amount }).eq('user_id', currentUser.id);
+      // Create withdrawal request
+      await window.GenBSupabase.db.from('withdrawals').insert({ user_id: currentUser.id, amount, upi_id: upi, status: 'pending' });
+      // Log transaction
+      await window.GenBSupabase.db.from('transactions').insert({
+        user_id: currentUser.id, type: 'withdrawal', amount: -amount, wallet_type: 'winning', description: `Withdrawal to UPI: ${upi}`, status: 'pending'
+      });
+      showToast(`Withdrawal of ₹${amount} requested! Processed in 24 hours.`, 'success');
+      document.getElementById('upiInput').value = '';
+      document.getElementById('withdrawAmount').value = '';
+      await loadWallet();
+    } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    btn.textContent='REQUEST WITHDRAWAL'; btn.disabled=false;
+  }
+
+  function setWithdrawAmount(a) { document.getElementById('withdrawAmount').value = a; }
+
+  function filterHistory(type) {
+    currentFilter = type;
+    document.querySelectorAll('[id^="hf-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('hf-' + type).classList.add('active');
+    renderTransactions();
+  }
+
+  function renderTransactions() {
+    const filtered = currentFilter === 'all' ? allTransactions : allTransactions.filter(t => t.type === currentFilter || (currentFilter === 'win' && t.type === 'prize'));
+    const body = document.getElementById('txTableBody');
+    document.getElementById('txCount').textContent = `${filtered.length} transactions`;
+    if (!filtered.length) { body.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-gray-500"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-30"></i><p>No transactions found</p></td></tr>`; lucide.createIcons(); return; }
+    const typeIcon = { deposit:'💰', withdrawal:'📤', prize:'🏆', entry_fee:'🎮', bonus:'🎁', referral:'👥' };
+    const typeLabel = { deposit:'Deposit', withdrawal:'Withdrawal', prize:'Prize Won', entry_fee:'Entry Fee', bonus:'Bonus', referral:'Referral' };
+    body.innerHTML = filtered.slice(0, 30).map(tx => `
+      <tr>
+        <td><span class="text-lg mr-2">${typeIcon[tx.type]||'💳'}</span><span class="text-sm">${typeLabel[tx.type]||tx.type}</span></td>
+        <td><span class="font-rajdhani font-bold text-base ${tx.amount >= 0 ? 'text-green-400' : 'text-red-400'}">${tx.amount >= 0 ? '+' : ''}₹${Math.abs(tx.amount)}</span></td>
+        <td class="text-gray-400 text-sm max-w-xs truncate">${tx.description || '—'}</td>
+        <td class="text-gray-400 text-xs">${new Date(tx.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+        <td><span class="status-badge ${tx.status==='approved'?'badge-approved':tx.status==='rejected'?'badge-rejected':'badge-pending'}">${tx.status}</span></td>
+      </tr>`).join('');
+    lucide.createIcons();
+  }
+
+  async function loadWallet() {
+    if (!currentUser) return;
+    try {
+      const { data: wallet } = await window.GenBSupabase.db.from('wallets').select('*').eq('user_id', currentUser.id).single();
+      walletData = wallet || { main_balance: 0, bonus_balance: 0, winning_balance: 0 };
+      const fmt = n => '₹' + (n||0).toLocaleString('en-IN', {minimumFractionDigits:2});
+      document.getElementById('mainBalance').textContent = fmt(walletData.main_balance);
+      document.getElementById('bonusBalance').textContent = fmt(walletData.bonus_balance);
+      document.getElementById('winningBalance').textContent = fmt(walletData.winning_balance);
+      document.getElementById('withdrawAvailable').textContent = fmt(walletData.winning_balance);
+      document.getElementById('withdrawAllBtn').onclick = () => { document.getElementById('withdrawAmount').value = Math.min(walletData.winning_balance, 10000); };
+    } catch(e) { console.warn('Wallet load error:', e); }
+  }
+
+  async function loadTransactions() {
+    if (!currentUser) return;
+    try {
+      const { data } = await window.GenBSupabase.db.from('transactions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(100);
+      allTransactions = data || [];
+      renderTransactions();
+    } catch(e) { console.warn('Tx load error:', e); }
+  }
+
+  async function init() {
+    try {
+      const { user, profile } = await window.GenBSupabase.getCurrentUser();
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+      document.getElementById('sidebarUsername').textContent = profile?.username || user.email?.split('@')[0] || 'Player';
+      await loadWallet();
+      await loadTransactions();
+    } catch(e) { window.location.href = 'login.html'; }
+  }
+
+  init();
+</script>
+</body>
+</html>

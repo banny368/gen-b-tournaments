@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Login to Gen B Tournaments — Show Your Skill And Earn Real Cash" />
+  <meta property="og:title" content="Login | Gen B Tournaments" />
+  <meta property="og:description" content="Show Your Skill And Earn Real Cash" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#050510" />
+  <title>Login | Gen B Tournaments</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --neon-blue:   #00d4ff;
+      --neon-purple: #b14aed;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-green:  #00ff88;
+      --bg-dark:     #050510;
+      --card-bg:     rgba(255,255,255,0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Particles Canvas ── */
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Neon Orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 {
+      width: 420px; height: 420px;
+      background: var(--neon-blue);
+      top: -120px; left: -120px;
+      animation: orbFloat1 12s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 360px; height: 360px;
+      background: var(--neon-purple);
+      bottom: -100px; right: -100px;
+      animation: orbFloat2 15s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 200px; height: 200px;
+      background: var(--neon-pink);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbFloat3 10s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(60px, 40px) scale(1.08); }
+      66%       { transform: translate(-30px, 60px) scale(0.95); }
+    }
+    @keyframes orbFloat2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      40%       { transform: translate(-50px, -60px) scale(1.1); }
+      70%       { transform: translate(40px, -30px) scale(0.92); }
+    }
+    @keyframes orbFloat3 {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.18; }
+      50%       { transform: translate(-50%, -50%) scale(1.3); opacity: 0.08; }
+    }
+
+    /* ── Glass Card ── */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 1.25rem;
+      box-shadow:
+        0 0 40px rgba(0, 212, 255, 0.08),
+        0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── Logo ── */
+    .logo-glow {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      letter-spacing: 0.08em;
+      background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.5));
+    }
+
+    .logo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      color: #050510;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* ── Heading ── */
+    .page-heading {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: 0.12em;
+      color: var(--neon-blue);
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    /* ── Input ── */
+    .input-cyber {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 0.625rem;
+      color: #e2e8f0;
+      padding: 0.75rem 1rem 0.75rem 2.75rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      caret-color: var(--neon-blue);
+    }
+    .input-cyber::placeholder { color: rgba(226, 232, 240, 0.35); }
+    .input-cyber:focus {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12), 0 0 16px rgba(0, 212, 255, 0.15);
+    }
+    .input-cyber.error {
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 0 3px rgba(255, 45, 120, 0.12);
+    }
+    .input-icon {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(0, 212, 255, 0.5);
+      pointer-events: none;
+      width: 16px; height: 16px;
+    }
+    .input-wrapper { position: relative; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+      color: #050510;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      padding: 0.8rem 1.5rem;
+      border-radius: 0.625rem;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, box-shadow 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+    }
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.9;
+      box-shadow: 0 0 35px rgba(0, 212, 255, 0.5);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-google {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.625rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+    .btn-google:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(0, 212, 255, 0.4);
+      box-shadow: 0 0 14px rgba(0, 212, 255, 0.15);
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(5,5,16,0.4);
+      border-top-color: #050510;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: rgba(226,232,240,0.35);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(0,212,255,0.12);
+    }
+
+    /* ── Toggle switch ── */
+    .toggle-track {
+      width: 36px; height: 20px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 999px;
+      border: 1px solid rgba(0,212,255,0.25);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+    .toggle-track.checked {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      border-color: transparent;
+    }
+    .toggle-thumb {
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px; left: 2px;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+    .toggle-track.checked .toggle-thumb { transform: translateX(16px); }
+
+    /* ── Error / Alert ── */
+    .alert-error {
+      background: rgba(255,45,120,0.1);
+      border: 1px solid rgba(255,45,120,0.3);
+      border-radius: 0.625rem;
+      color: #ff6b9d;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .alert-error.visible { display: flex; }
+
+    /* ── Toast ── */
+    #toast-container {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      background: rgba(10,10,26,0.95);
+      border-left: 3px solid var(--neon-blue);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #e2e8f0;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      animation: toastIn 0.3s ease;
+      max-width: 300px;
+    }
+    .toast.error  { border-left-color: var(--neon-pink); }
+    .toast.success{ border-left-color: var(--neon-green); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ── Link ── */
+    .neon-link {
+      color: var(--neon-blue);
+      text-decoration: none;
+      transition: text-shadow 0.2s;
+    }
+    .neon-link:hover { text-shadow: 0 0 8px var(--neon-blue); }
+
+    /* ── Password eye toggle ── */
+    .pw-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(0,212,255,0.5);
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    .pw-toggle:hover { color: var(--neon-blue); }
+
+    /* ── Inline field error ── */
+    .field-err {
+      font-size: 0.75rem;
+      color: var(--neon-pink);
+      margin-top: 0.3rem;
+      display: none;
+    }
+    .field-err.show { display: block; }
+
+    /* ── Main layout ── */
+    .page-center {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particles -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Neon Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Main -->
+  <main class="page-center">
+    <div class="glass-card w-full max-w-md p-8 sm:p-10">
+
+      <!-- Logo -->
+      <div class="flex flex-col items-center mb-7">
+        <div class="mb-2">
+          <span class="logo-glow">GEN B</span>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.75rem;color:rgba(177,74,237,0.9);letter-spacing:0.05em;"> TOURNAMENTS</span>
+        </div>
+        <span class="logo-badge">ESPORTS ARENA</span>
+      </div>
+
+      <!-- Heading -->
+      <div class="text-center mb-6">
+        <h1 class="page-heading mb-1">PLAYER LOGIN</h1>
+        <p style="font-size:0.8rem;color:rgba(226,232,240,0.5);letter-spacing:0.04em;">Show Your Skill And Earn Real Cash</p>
+      </div>
+
+      <!-- Error Alert -->
+      <div id="auth-error" class="alert-error mb-4" role="alert">
+        <i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
+        <span id="auth-error-msg">Invalid credentials. Please try again.</span>
+      </div>
+
+      <!-- Form -->
+      <form id="login-form" novalidate>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">EMAIL ADDRESS</label>
+          <div class="input-wrapper">
+            <i data-lucide="mail" class="input-icon"></i>
+            <input
+              id="login-email"
+              type="email"
+              class="input-cyber"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          <span id="email-err" class="field-err">Please enter a valid email.</span>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="block text-xs font-medium mb-1.5" style="color:rgba(0,212,255,0.7);letter-spacing:0.06em;">PASSWORD</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock" class="input-icon"></i>
+            <input
+              id="login-password"
+              type="password"
+              class="input-cyber"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              style="padding-right:2.75rem;"
+            />
+            <button type="button" class="pw-toggle" id="pw-toggle-btn" aria-label="Toggle password visibility">
+              <i data-lucide="eye" id="pw-icon" style="width:16px;height:16px;"></i>
+            </button>
+          </div>
+          <span id="password-err" class="field-err">Password is required.</span>
+        </div>
+
+        <!-- Remember Me + Forgot -->
+        <div class="flex items-center justify-between mb-6">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <div class="toggle-track" id="remember-toggle">
+              <div class="toggle-thumb"></div>
+            </div>
+            <span style="font-size:0.82rem;color:rgba(226,232,240,0.6);">Remember me</span>
+            <input type="checkbox" id="remember-me" class="hidden" />
+          </label>
+          <a href="forgot-password.html" class="neon-link" style="font-size:0.82rem;">Forgot Password?</a>
+        </div>
+
+        <!-- Login Button -->
+        <button type="submit" id="login-btn" class="btn-primary mb-4">
+          <div class="spinner" id="login-spinner"></div>
+          <i data-lucide="zap" id="login-icon" style="width:16px;height:16px;"></i>
+          <span id="login-label">LOGIN NOW</span>
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="divider my-5">OR</div>
+
+      <!-- Google OAuth -->
+      <button id="google-btn" class="btn-google mb-6">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <!-- Sign Up Link -->
+      <p class="text-center" style="font-size:0.85rem;color:rgba(226,232,240,0.5);">
+        Don't have an account?
+        <a href="signup.html" class="neon-link font-semibold ml-1">Create Account</a>
+      </p>
+
+    </div>
+  </main>
+
+  <!-- Scripts (load order: config → supabase → utils → particles → auth) -->
+  <script src="assets/js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="assets/js/supabase.js" onerror="console.warn('supabase.js not found, using inline fallback')"></script>
+  <script src="assets/js/utils.js" onerror="console.warn('utils.js not found')"></script>
+
+  <script>
+    // ─── Particles ─────────────────────────────────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H, particles = [];
+
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function rand(min, max) { return Math.random() * (max - min) + min; }
+
+      const COLORS = ['rgba(0,212,255,', 'rgba(177,74,237,', 'rgba(255,45,120,'];
+
+      function createParticle() {
+        const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+        return {
+          x: rand(0, W), y: rand(0, H),
+          vx: rand(-0.3, 0.3), vy: rand(-0.5, -0.1),
+          radius: rand(1, 2.5),
+          alpha: rand(0.2, 0.6),
+          color: c,
+          life: rand(80, 200),
+          maxLife: 200,
+        };
+      }
+
+      for (let i = 0; i < 80; i++) particles.push(createParticle());
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach((p, i) => {
+          p.x += p.vx; p.y += p.vy; p.life--;
+          if (p.life <= 0 || p.y < -10) { particles[i] = createParticle(); particles[i].y = H + 5; return; }
+          const a = p.alpha * (p.life / p.maxLife);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + a + ')';
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ─── Lucide Icons ──────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+
+    // ─── Supabase client fallback ───────────────────────────────────────────────
+    function getSupabaseClient() {
+      if (window.GBSupabase) return window.GBSupabase;
+      if (typeof supabase !== 'undefined' && typeof GENBCONFIG !== 'undefined') {
+        return supabase.createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+      }
+      return null;
+    }
+
+    // ─── Toast helper ─────────────────────────────────────────────────────────
+    function showToast(msg, type = 'info') {
+      if (window.GBUtils && window.GBUtils.showToast) { window.GBUtils.showToast(msg, type); return; }
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast ' + type;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    // ─── Toggle remember me ───────────────────────────────────────────────────
+    const rememberToggle = document.getElementById('remember-toggle');
+    const rememberCheck  = document.getElementById('remember-me');
+    rememberToggle.addEventListener('click', () => {
+      rememberToggle.classList.toggle('checked');
+      rememberCheck.checked = rememberToggle.classList.contains('checked');
+    });
+
+    // ─── Password show/hide ───────────────────────────────────────────────────
+    const pwInput  = document.getElementById('login-password');
+    const pwToggle = document.getElementById('pw-toggle-btn');
+    const pwIcon   = document.getElementById('pw-icon');
+    let pwVisible  = false;
+    pwToggle.addEventListener('click', () => {
+      pwVisible = !pwVisible;
+      pwInput.type = pwVisible ? 'text' : 'password';
+      pwIcon.setAttribute('data-lucide', pwVisible ? 'eye-off' : 'eye');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+
+    // ─── Validation helpers ───────────────────────────────────────────────────
+    function showFieldErr(id, show) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('show', show);
+    }
+    function showAuthError(msg) {
+      const box = document.getElementById('auth-error');
+      const txt = document.getElementById('auth-error-msg');
+      txt.textContent = msg;
+      box.classList.add('visible');
+    }
+    function hideAuthError() {
+      document.getElementById('auth-error').classList.remove('visible');
+    }
+    function setLoading(on) {
+      const btn     = document.getElementById('login-btn');
+      const spinner = document.getElementById('login-spinner');
+      const icon    = document.getElementById('login-icon');
+      const label   = document.getElementById('login-label');
+      btn.disabled  = on;
+      spinner.style.display = on ? 'block' : 'none';
+      icon.style.display    = on ? 'none'  : '';
+      label.textContent     = on ? 'LOGGING IN…' : 'LOGIN NOW';
+    }
+
+    // ─── Check if already logged in ───────────────────────────────────────────
+    (async () => {
+      try {
+        const sb = getSupabaseClient();
+        if (!sb) return;
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) window.location.replace('dashboard.html');
+      } catch (e) { /* ignore */ }
+    })();
+
+    // ─── Google OAuth ─────────────────────────────────────────────────────────
+    document.getElementById('google-btn').addEventListener('click', async () => {
+      try {
+        const sb = getSupabaseClient();
+        if (!sb) { showToast('Auth service unavailable.', 'error'); return; }
+        const { error } = await sb.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin + '/dashboard.html' }
+        });
+        if (error) showAuthError(error.message);
+      } catch (err) {
+        showAuthError('Google sign-in failed. Please try again.');
+      }
+    });
+
+    // ─── Login Form Submit ────────────────────────────────────────────────────
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAuthError();
+
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      let valid = true;
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showFieldErr('email-err', !emailOk);
+      if (!emailOk) {
+        document.getElementById('login-email').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('login-email').classList.remove('error');
+      }
+
+      if (!password) {
+        showFieldErr('password-err', true);
+        document.getElementById('login-password').classList.add('error');
+        valid = false;
+      } else {
+        showFieldErr('password-err', false);
+        document.getElementById('login-password').classList.remove('error');
+      }
+
+      if (!valid) return;
+
+      setLoading(true);
+
+      try {
+        const sb = getSupabaseClient();
+        if (!sb) throw new Error('Authentication service is not configured yet.');
+
+        // Use GBAuth if available, else direct call
+        let result;
+        if (window.GBAuth && window.GBAuth.signIn) {
+          result = await window.GBAuth.signIn(email, password);
+        } else {
+          result = await sb.auth.signInWithPassword({ email, password });
+        }
+
+        const { data, error } = result;
+        if (error) throw error;
+
+        // Persist remember-me preference
+        if (rememberCheck.checked) localStorage.setItem('gb_remember', '1');
+        else                        localStorage.removeItem('gb_remember');
+
+        showToast('Welcome back! Redirecting…', 'success');
+        setTimeout(() => { window.location.replace('dashboard.html'); }, 800);
+
+      } catch (err) {
+        setLoading(false);
+        const msg = err.message || 'Login failed. Please try again.';
+        showAuthError(msg);
+        showToast(msg, 'error');
+      }
+    });
+
+    // ─── Input change: clear errors ───────────────────────────────────────────
+    ['login-email', 'login-password'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        hideAuthError();
+        document.getElementById(id).classList.remove('error');
+      });
+    });
+  </script>
+</body>
+</html>

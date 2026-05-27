@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rewards & Daily Spin | Gen B Tournaments</title>
+  <meta name="description" content="Claim daily rewards, spin the wheel, and unlock achievements on Gen B Tournaments." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { 'neon-blue':'#00d4ff','neon-purple':'#b14aed','neon-pink':'#ff2d78','neon-gold':'#ffd700','neon-green':'#00ff88' }, fontFamily: { 'rajdhani':['Rajdhani','sans-serif'],'inter':['Inter','sans-serif'] } } } }</script>
+  <style>
+    body { background: #050510; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+    .glass-card { background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); border: 1px solid rgba(0,212,255,0.15); border-radius: 16px; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; background: rgba(5,5,16,0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(0,212,255,0.1); z-index: 40; overflow-y: auto; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #94a3b8; border-radius: 10px; margin: 2px 8px; transition: all 0.2s; text-decoration: none; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.5px; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(0,212,255,0.1); color: #00d4ff; }
+    .sidebar-link.active { border-left: 3px solid #00d4ff; }
+    .main-content { margin-left: 260px; min-height: 100vh; padding: 24px; }
+    .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(5,5,16,0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,212,255,0.15); z-index: 50; padding: 8px 0; }
+    .mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; padding: 6px 4px; color: #64748b; font-size: 10px; font-family: 'Rajdhani', sans-serif; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+    .mobile-nav-item.active, .mobile-nav-item:hover { color: #00d4ff; }
+    @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 16px 16px 90px; } .mobile-nav { display: flex; } }
+    .btn-primary { background: linear-gradient(135deg,#00d4ff,#b14aed); color:#fff; border:none; border-radius:10px; padding:12px 28px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px; letter-spacing:1px; cursor:pointer; transition:all 0.3s; }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,212,255,0.4); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+    .toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; }
+    .toast { padding:14px 20px; border-radius:12px; backdrop-filter:blur(20px); border:1px solid; animation:slideInRight 0.3s ease; font-size:14px; min-width:280px; }
+    .toast-success { background:rgba(0,255,136,0.1); border-color:rgba(0,255,136,0.3); color:#00ff88; }
+    .toast-error { background:rgba(255,45,120,0.1); border-color:rgba(255,45,120,0.3); color:#ff2d78; }
+    .toast-info { background:rgba(0,212,255,0.1); border-color:rgba(0,212,255,0.3); color:#00d4ff; }
+    @keyframes slideInRight { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+    /* Daily streak cards */
+    .streak-day { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px 12px; text-align:center; transition:all 0.3s; position:relative; }
+    .streak-day.claimed { background:rgba(0,255,136,0.06); border-color:rgba(0,255,136,0.25); opacity:0.7; }
+    .streak-day.today { background:rgba(0,212,255,0.08); border-color:rgba(0,212,255,0.5); box-shadow:0 0 20px rgba(0,212,255,0.2); animation:glow-pulse 2s infinite; }
+    .streak-day.today .day-label { color:#00d4ff; }
+    @keyframes glow-pulse { 0%,100%{box-shadow:0 0 15px rgba(0,212,255,0.2)} 50%{box-shadow:0 0 30px rgba(0,212,255,0.5)} }
+    /* Spin Wheel */
+    #wheelCanvas { border-radius:50%; box-shadow:0 0 40px rgba(177,74,237,0.5), 0 0 80px rgba(0,212,255,0.2); cursor:pointer; }
+    .wheel-pointer { width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-bottom:40px solid #ffd700; filter:drop-shadow(0 0 10px rgba(255,215,0,0.8)); margin:0 auto; }
+    .spin-btn { background:linear-gradient(135deg,#b14aed,#ff2d78); color:#fff; border:none; border-radius:12px; padding:14px 40px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px; letter-spacing:2px; cursor:pointer; transition:all 0.3s; box-shadow:0 0 30px rgba(177,74,237,0.4); }
+    .spin-btn:hover:not(:disabled) { transform:scale(1.05); box-shadow:0 0 50px rgba(177,74,237,0.6); }
+    .spin-btn:disabled { opacity:0.5; cursor:not-allowed; }
+    /* Achievement cards */
+    .achievement-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px; transition:all 0.3s; }
+    .achievement-card.completed { border-color:rgba(255,215,0,0.3); background:rgba(255,215,0,0.04); }
+    .achievement-card:hover { transform:translateY(-2px); border-color:rgba(0,212,255,0.3); }
+    .progress-bar { height:6px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,#00d4ff,#b14aed); border-radius:100px; transition:width 0.8s ease; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="p-6 border-b border-white/5">
+    <a href="index.html"><div class="font-rajdhani font-bold text-xl" style="color:#00d4ff;letter-spacing:2px;text-shadow:0 0 20px rgba(0,212,255,0.6);">GEN B</div><div class="font-rajdhani text-xs text-gray-500 tracking-widest">TOURNAMENTS</div></a>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="sidebar-link"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="dashboard.html" class="sidebar-link"><i data-lucide="layout-dashboard" class="w-5 h-5"></i>Dashboard</a>
+    <a href="tournaments.html" class="sidebar-link"><i data-lucide="trophy" class="w-5 h-5"></i>Tournaments</a>
+    <a href="wallet.html" class="sidebar-link"><i data-lucide="wallet" class="w-5 h-5"></i>Wallet</a>
+    <a href="leaderboard.html" class="sidebar-link"><i data-lucide="bar-chart-2" class="w-5 h-5"></i>Leaderboard</a>
+    <a href="rewards.html" class="sidebar-link active"><i data-lucide="gift" class="w-5 h-5"></i>Rewards</a>
+    <a href="referral.html" class="sidebar-link"><i data-lucide="users" class="w-5 h-5"></i>Referral</a>
+    <a href="clan.html" class="sidebar-link"><i data-lucide="shield" class="w-5 h-5"></i>Clan</a>
+    <a href="chat.html" class="sidebar-link"><i data-lucide="message-circle" class="w-5 h-5"></i>Chat</a>
+    <a href="profile.html" class="sidebar-link"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style="background:linear-gradient(135deg,#00d4ff,#b14aed);" id="sidebarAvatar">U</div>
+      <div><div class="text-sm font-semibold text-white" id="sidebarUsername">Loading...</div><div class="text-xs text-gray-500">Player</div></div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="mb-6">
+    <h1 class="font-rajdhani font-bold text-3xl" style="color:#ffd700;letter-spacing:2px;">🎁 REWARDS CENTER</h1>
+    <p class="text-gray-400 text-sm mt-1">Claim daily rewards, spin the wheel, and unlock achievements</p>
+  </div>
+
+  <!-- Streak Summary -->
+  <div class="glass-card p-4 mb-6 flex items-center justify-between flex-wrap gap-4">
+    <div class="flex items-center gap-4">
+      <div class="text-4xl">🔥</div>
+      <div><div class="font-rajdhani font-bold text-2xl" style="color:#ff6b35;"><span id="streakCount">0</span> DAY STREAK</div><div class="text-sm text-gray-400">Keep it going! Claim every day.</div></div>
+    </div>
+    <div class="flex gap-6 text-center">
+      <div><div class="font-rajdhani font-bold text-xl" style="color:#00d4ff;" id="totalEarned">₹0</div><div class="text-xs text-gray-500">Total Earned</div></div>
+      <div><div class="font-rajdhani font-bold text-xl" style="color:#b14aed;" id="totalSpins">0</div><div class="text-xs text-gray-500">Total Spins</div></div>
+    </div>
+  </div>
+
+  <!-- Daily Streak Section -->
+  <div class="glass-card p-6 mb-6">
+    <h2 class="font-rajdhani font-bold text-xl mb-5" style="color:#00d4ff;letter-spacing:1px;">📅 DAILY LOGIN REWARDS</h2>
+    <div class="grid grid-cols-4 md:grid-cols-7 gap-3" id="streakGrid">
+      <!-- Generated by JS -->
+    </div>
+    <div class="mt-6 text-center" id="claimSection">
+      <button id="claimBtn" onclick="claimDaily()" class="btn-primary px-10 py-3 text-lg">
+        <span id="claimBtnText">CLAIM TODAY'S REWARD</span>
+      </button>
+      <div id="claimStatus" class="text-sm text-gray-400 mt-2"></div>
+    </div>
+  </div>
+
+  <!-- Spin Wheel Section -->
+  <div class="glass-card p-6 mb-6">
+    <h2 class="font-rajdhani font-bold text-xl mb-2" style="color:#b14aed;letter-spacing:1px;">🎡 LUCKY SPIN WHEEL</h2>
+    <p class="text-sm text-gray-400 mb-6">Spin once per day for a chance to win cash or XP!</p>
+    <div class="flex flex-col lg:flex-row items-center gap-10">
+      <div class="flex flex-col items-center gap-5">
+        <div class="wheel-pointer"></div>
+        <canvas id="wheelCanvas" width="320" height="320"></canvas>
+        <button id="spinBtn" onclick="doSpin()" class="spin-btn">⚡ SPIN NOW</button>
+        <div id="spinStatus" class="text-sm text-center text-gray-400"></div>
+      </div>
+      <div class="flex-1">
+        <h3 class="font-rajdhani font-bold text-lg mb-4" style="color:#ffd700;">Prize Table</h3>
+        <div class="space-y-2" id="prizeTable">
+          <!-- Populated by JS -->
+        </div>
+        <div id="lastWin" class="mt-6 glass-card p-4 rounded-xl hidden">
+          <div class="text-xs text-gray-400 mb-1">🏆 Last Won</div>
+          <div class="font-rajdhani font-bold text-xl" id="lastWinText" style="color:#ffd700;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievements Section -->
+  <div class="glass-card p-6">
+    <h2 class="font-rajdhani font-bold text-xl mb-2" style="color:#ffd700;letter-spacing:1px;">🏅 ACHIEVEMENTS</h2>
+    <p class="text-sm text-gray-400 mb-6">Complete challenges to earn bonus rewards</p>
+    <div class="flex gap-3 mb-5 flex-wrap">
+      <button class="tab-btn-sm active" id="achTab-all" onclick="filterAch('all')">All</button>
+      <button class="tab-btn-sm" id="achTab-tournament" onclick="filterAch('tournament')">🏆 Tournament</button>
+      <button class="tab-btn-sm" id="achTab-social" onclick="filterAch('social')">👥 Social</button>
+      <button class="tab-btn-sm" id="achTab-wallet" onclick="filterAch('wallet')">💰 Wallet</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="achievementsGrid">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+</main>
+
+<!-- Mobile Nav -->
+<nav class="mobile-nav">
+  <a href="index.html" class="mobile-nav-item"><i data-lucide="home" class="w-5 h-5"></i><span>Home</span></a>
+  <a href="tournaments.html" class="mobile-nav-item"><i data-lucide="trophy" class="w-5 h-5"></i><span>Play</span></a>
+  <a href="wallet.html" class="mobile-nav-item"><i data-lucide="wallet" class="w-5 h-5"></i><span>Wallet</span></a>
+  <a href="leaderboard.html" class="mobile-nav-item"><i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Ranks</span></a>
+  <a href="profile.html" class="mobile-nav-item"><i data-lucide="user" class="w-5 h-5"></i><span>Profile</span></a>
+</nav>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/rewards.js"></script>
+<style>
+  .tab-btn-sm { padding:7px 18px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; letter-spacing:0.5px; border:1px solid rgba(0,212,255,0.2); border-radius:8px; color:#64748b; background:transparent; cursor:pointer; transition:all 0.3s; }
+  .tab-btn-sm.active { background:rgba(0,212,255,0.15); color:#00d4ff; border-color:rgba(0,212,255,0.5); }
+</style>
+<script>
+lucide.createIcons();
+let currentUser = null, rewardStatus = null, spinStatus = null, isSpinning = false;
+let currentAchFilter = 'all';
+
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div'); t.className=`toast toast-${type}`; t.textContent=msg; c.appendChild(t);
+  setTimeout(()=>t.remove(), 4000);
+}
+
+// Static achievements list
+const ACHIEVEMENTS = [
+  { id:'first_win', title:'First Blood', desc:'Win your first tournament', icon:'🏆', cat:'tournament', req:1, rewardType:'cash', rewardVal:20 },
+  { id:'win_5', title:'On Fire', desc:'Win 5 tournaments', icon:'🔥', cat:'tournament', req:5, rewardType:'xp', rewardVal:200 },
+  { id:'win_10', title:'Tournament King', desc:'Win 10 tournaments', icon:'👑', cat:'tournament', req:10, rewardType:'cash', rewardVal:100 },
+  { id:'play_10', title:'Veteran', desc:'Play 10 matches', icon:'⚔️', cat:'tournament', req:10, rewardType:'xp', rewardVal:100 },
+  { id:'play_50', title:'Battle Hardened', desc:'Play 50 matches', icon:'🛡️', cat:'tournament', req:50, rewardType:'cash', rewardVal:200 },
+  { id:'refer_1', title:'Recruiter', desc:'Refer 1 friend', icon:'📨', cat:'social', req:1, rewardType:'cash', rewardVal:10 },
+  { id:'refer_5', title:'Squad Leader', desc:'Refer 5 friends', icon:'👥', cat:'social', req:5, rewardType:'cash', rewardVal:50 },
+  { id:'refer_10', title:'Army Commander', desc:'Refer 10 friends', icon:'🎖️', cat:'social', req:10, rewardType:'cash', rewardVal:100 },
+  { id:'deposit_500', title:'Big Spender', desc:'Deposit ₹500 total', icon:'💰', cat:'wallet', req:500, rewardType:'xp', rewardVal:100 },
+  { id:'deposit_2000', title:'High Roller', desc:'Deposit ₹2000 total', icon:'💎', cat:'wallet', req:2000, rewardType:'xp', rewardVal:300 },
+  { id:'streak_7', title:'Week Warrior', desc:'7-day login streak', icon:'📅', cat:'social', req:7, rewardType:'cash', rewardVal:50 },
+  { id:'streak_30', title:'Dedicated', desc:'30-day login streak', icon:'🌟', cat:'social', req:30, rewardType:'cash', rewardVal:200 },
+];
+
+function filterAch(cat) {
+  currentAchFilter = cat;
+  document.querySelectorAll('[id^="achTab-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('achTab-'+cat).classList.add('active');
+  renderAchievements({});
+}
+
+function renderAchievements(userAch) {
+  const grid = document.getElementById('achievementsGrid');
+  const filtered = currentAchFilter==='all' ? ACHIEVEMENTS : ACHIEVEMENTS.filter(a=>a.cat===currentAchFilter);
+  grid.innerHTML = filtered.map(a => {
+    const ua = userAch[a.id] || { progress:0, completed:false };
+    const pct = Math.min(100, (ua.progress / a.req) * 100);
+    return `<div class="achievement-card ${ua.completed?'completed':''}">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="text-3xl">${a.icon}</div>
+        <div class="flex-1">
+          <div class="font-rajdhani font-bold text-base ${ua.completed?'text-yellow-400':'text-white'}">${a.title} ${ua.completed?'✓':''}</div>
+          <div class="text-xs text-gray-400">${a.desc}</div>
+        </div>
+        <div class="text-xs px-2 py-1 rounded-full" style="background:rgba(255,215,0,0.1);color:#ffd700;">${a.rewardType==='cash'?'₹':'⭐'}${a.rewardVal}</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="text-xs text-gray-500 mt-1 text-right">${ua.progress}/${a.req}</div>
+    </div>`;
+  }).join('');
+}
+
+// Spin Wheel Drawing
+const prizes = GENBCONFIG.spinWheel.prizes;
+function drawWheel(rotation=0) {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 160, cy = 160, r = 155;
+  const slice = (Math.PI*2) / prizes.length;
+  ctx.clearRect(0,0,320,320);
+  prizes.forEach((p,i) => {
+    const start = rotation + i*slice;
+    const end = start + slice;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+    ctx.fillStyle = p.color; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=2; ctx.stroke();
+    // Label
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start + slice/2);
+    ctx.textAlign='right';
+    ctx.fillStyle='#fff';
+    ctx.font='bold 13px Rajdhani, sans-serif';
+    ctx.fillText(p.label, r-12, 5);
+    ctx.restore();
+  });
+  // Center circle
+  ctx.beginPath(); ctx.arc(cx,cy,22,0,Math.PI*2);
+  ctx.fillStyle='#050510'; ctx.fill();
+  ctx.strokeStyle='rgba(0,212,255,0.5)'; ctx.lineWidth=3; ctx.stroke();
+  ctx.fillStyle='#00d4ff'; ctx.font='bold 12px Rajdhani'; ctx.textAlign='center'; ctx.fillText('SPIN',cx,cy+4);
+}
+
+function buildPrizeTable() {
+  document.getElementById('prizeTable').innerHTML = prizes.map(p => `
+    <div class="flex items-center justify-between py-2 border-b border-white/5">
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full" style="background:${p.color};"></div>
+        <span class="text-sm">${p.label}</span>
+      </div>
+      <span class="text-xs text-gray-400">${p.probability}% chance</span>
+    </div>`).join('');
+}
+
+function weightedRandom() {
+  const total = prizes.reduce((s,p)=>s+p.probability,0);
+  let r = Math.random()*total, cumulative=0;
+  for(let i=0;i<prizes.length;i++) { cumulative+=prizes[i].probability; if(r<=cumulative) return i; }
+  return 0;
+}
+
+async function doSpin() {
+  if(isSpinning) return;
+  if(!spinStatus || !spinStatus.canSpin) { showToast('You already spun today! Come back tomorrow.','error'); return; }
+  isSpinning=true;
+  const btn=document.getElementById('spinBtn'); btn.disabled=true; btn.textContent='SPINNING...';
+  const winner=weightedRandom();
+  const slice=(Math.PI*2)/prizes.length;
+  const targetAngle = (Math.PI*2*5) + (Math.PI*2 - (winner*slice + slice/2));
+  let start=null, duration=4000, initRot=0;
+  const canvas=document.getElementById('wheelCanvas');
+  function animate(ts) {
+    if(!start) start=ts;
+    const elapsed=ts-start, progress=Math.min(elapsed/duration,1);
+    const ease=1-Math.pow(1-progress,4);
+    const currentRot=initRot + ease*targetAngle;
+    drawWheel(currentRot);
+    if(progress<1) requestAnimationFrame(animate);
+    else {
+      isSpinning=false;
+      const prize=prizes[winner];
+      document.getElementById('lastWinText').textContent=prize.label;
+      document.getElementById('lastWin').classList.remove('hidden');
+      document.getElementById('spinStatus').textContent='🎉 You won: '+prize.label+'!';
+      btn.textContent='SPIN AGAIN TOMORROW';
+      spinStatus.canSpin=false;
+      // Save to DB
+      if(currentUser) {
+        window.GenBSupabase.db.from('spin_history').insert({ user_id:currentUser.id, prize_label:prize.label, prize_type:prize.type, prize_value:prize.value });
+        if(prize.type==='cash'&&prize.value>0) {
+          window.GenBSupabase.db.from('wallets').select('bonus_balance').eq('user_id',currentUser.id).single().then(({data})=>{
+            window.GenBSupabase.db.from('wallets').update({bonus_balance:(data?.bonus_balance||0)+prize.value}).eq('user_id',currentUser.id);
+          });
+        }
+        showToast('🎉 You won '+prize.label+'!', prize.value>0?'success':'info');
+      }
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function renderStreak(status) {
+  const days=GENBCONFIG.dailyRewards;
+  const streak=status.streak||0; const claimed=status.claimedToday||false;
+  document.getElementById('streakCount').textContent=streak;
+  document.getElementById('streakGrid').innerHTML=days.map((d,i)=>{
+    const dayNum=i+1;
+    const isClaimed=streak>=dayNum;
+    const isToday=streak+1===dayNum||(!claimed&&streak===i);
+    return `<div class="streak-day ${isClaimed?'claimed':''} ${isToday&&!claimed?'today':''}">
+      <div class="text-xs font-rajdhani font-bold mb-2 day-label" style="color:${isClaimed?'#00ff88':isToday&&!claimed?'#00d4ff':'#475569'}">DAY ${dayNum}</div>
+      <div class="text-2xl mb-1">${d.type==='cash'?'💰':'⭐'}</div>
+      <div class="font-rajdhani font-bold text-sm ${isClaimed?'text-green-400':isToday&&!claimed?'text-cyan-400':'text-gray-500'}">${d.reward}</div>
+      ${isClaimed?'<div class="text-green-500 text-lg mt-1">✓</div>':isToday&&!claimed?'<div class="text-cyan-400 text-xs mt-1">CLAIM!</div>':'<div class="text-gray-600 text-lg mt-1">🔒</div>'}
+    </div>`;
+  }).join('');
+}
+
+async function claimDaily() {
+  if(!currentUser) return;
+  if(rewardStatus?.claimedToday) { showToast('Already claimed today!','error'); return; }
+  const btn=document.getElementById('claimBtn'); btn.disabled=true; document.getElementById('claimBtnText').textContent='CLAIMING...';
+  try {
+    const streak=(rewardStatus?.streak||0)+1;
+    const dayIdx=Math.min(streak,7)-1;
+    const reward=GENBCONFIG.dailyRewards[dayIdx]||GENBCONFIG.dailyRewards[6];
+    await window.GenBSupabase.db.from('daily_claim_history').insert({ user_id:currentUser.id, day_number:dayIdx+1, reward_type:reward.type, reward_value:reward.value, streak });
+    if(reward.type==='cash') {
+      const {data:w}=await window.GenBSupabase.db.from('wallets').select('bonus_balance').eq('user_id',currentUser.id).single();
+      await window.GenBSupabase.db.from('wallets').update({bonus_balance:(w?.bonus_balance||0)+reward.value}).eq('user_id',currentUser.id);
+    } else {
+      const {data:p}=await window.GenBSupabase.db.from('profiles').select('xp').eq('id',currentUser.id).single();
+      await window.GenBSupabase.db.from('profiles').update({xp:(p?.xp||0)+reward.value}).eq('id',currentUser.id);
+    }
+    rewardStatus={streak,claimedToday:true};
+    renderStreak(rewardStatus);
+    document.getElementById('streakCount').textContent=streak;
+    showToast('🎁 Claimed '+reward.reward+'!','success');
+    document.getElementById('claimBtnText').textContent='✓ CLAIMED!';
+    document.getElementById('claimStatus').textContent='Come back tomorrow for Day '+(streak<7?streak+1:1)+' reward!';
+  } catch(e){ showToast('Claim error: '+e.message,'error'); btn.disabled=false; document.getElementById('claimBtnText').textContent='CLAIM TODAY\'S REWARD'; }
+}
+
+async function init() {
+  try {
+    const {user,profile}=await window.GenBSupabase.getCurrentUser();
+    if(!user){window.location.href='login.html';return;}
+    currentUser=user;
+    const u=profile?.username||user.email?.split('@')[0]||'Player';
+    document.getElementById('sidebarUsername').textContent=u;
+    document.getElementById('sidebarAvatar').textContent=u[0].toUpperCase();
+    // Load streak
+    const today=new Date().toDateString();
+    const {data:claims}=await window.GenBSupabase.db.from('daily_claim_history').select('*').eq('user_id',user.id).order('claimed_at',{ascending:false}).limit(1);
+    const lastClaim=claims?.[0];
+    const claimedToday=lastClaim&&new Date(lastClaim.claimed_at).toDateString()===today;
+    rewardStatus={streak:lastClaim?.streak||0,claimedToday};
+    if(claimedToday){document.getElementById('claimBtn').disabled=true;document.getElementById('claimBtnText').textContent='✓ CLAIMED TODAY';document.getElementById('claimStatus').textContent='Come back tomorrow!';}
+    renderStreak(rewardStatus);
+    // Load spin status
+    const {data:spins}=await window.GenBSupabase.db.from('spin_history').select('*').eq('user_id',user.id).order('spun_at',{ascending:false}).limit(1);
+    const lastSpin=spins?.[0];
+    const spunToday=lastSpin&&new Date(lastSpin.spun_at).toDateString()===today;
+    spinStatus={canSpin:!spunToday};
+    if(spunToday){ document.getElementById('spinBtn').disabled=true; document.getElementById('spinBtn').textContent='SPIN AGAIN TOMORROW'; document.getElementById('spinStatus').textContent='Last won: '+lastSpin.prize_label; document.getElementById('lastWinText').textContent=lastSpin.prize_label; document.getElementById('lastWin').classList.remove('hidden'); }
+    // Load achievements
+    const {data:ua}=await window.GenBSupabase.db.from('user_achievements').select('*').eq('user_id',user.id);
+    const uaMap={}; (ua||[]).forEach(a=>uaMap[a.achievement_id]={progress:a.progress,completed:a.completed});
+    renderAchievements(uaMap);
+    // Stats
+    const {data:spinsAll}=await window.GenBSupabase.db.from('spin_history').select('prize_value').eq('user_id',user.id);
+    const totalCash=(spinsAll||[]).filter(s=>s.prize_value>0).reduce((s,x)=>s+x.prize_value,0);
+    document.getElementById('totalEarned').textContent='₹'+totalCash;
+    document.getElementById('totalSpins').textContent=(spinsAll||[]).length;
+  } catch(e){ console.error(e); window.location.href='login.html'; }
+  drawWheel(); buildPrizeTable(); lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>

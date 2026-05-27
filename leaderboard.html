@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard — Gen B Tournaments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <style>
+    :root {
+      --neon-blue: #00d4ff;
+      --neon-purple: #b14aed;
+      --neon-pink: #ff2d78;
+      --neon-gold: #ffd700;
+      --neon-green: #00ff88;
+      --bg-primary: #050510;
+      --bg-card: #0a0a1a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-primary); color: #e2e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    h1, h2, h3, h4 { font-family: 'Rajdhani', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a1a; }
+    ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+
+    .glass-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 16px;
+    }
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 40;
+      background: rgba(5,5,16,0.95);
+      border-right: 1px solid rgba(0,212,255,0.1);
+      backdrop-filter: blur(20px);
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px; border-radius: 10px; margin: 2px 10px;
+      color: #94a3b8; text-decoration: none; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(0,212,255,0.1); color: var(--neon-blue); }
+    .sidebar-link.active { border-left: 3px solid var(--neon-blue); }
+
+    .mobile-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(5,5,16,0.97);
+      border-top: 1px solid rgba(0,212,255,0.15);
+      backdrop-filter: blur(20px);
+      display: flex; justify-content: space-around; padding: 8px 0;
+    }
+    .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #64748b; text-decoration: none; font-size: 10px; padding: 4px 10px; transition: color 0.2s; }
+    .mobile-nav a.active, .mobile-nav a:hover { color: var(--neon-blue); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes podium-rise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes crown-bounce { 0%,100% { transform: translateY(0) rotate(-10deg); } 50% { transform: translateY(-8px) rotate(10deg); } }
+    @keyframes glow-pulse { 0%,100% { box-shadow: 0 0 20px var(--c); } 50% { box-shadow: 0 0 40px var(--c), 0 0 60px var(--c); } }
+
+    .period-tab, .game-filter-tab {
+      padding: 8px 20px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: #64748b;
+      cursor: pointer; font-size: 14px; font-weight: 600;
+      transition: all 0.2s; font-family: 'Rajdhani', sans-serif;
+    }
+    .period-tab.active, .game-filter-tab.active,
+    .period-tab:hover, .game-filter-tab:hover {
+      background: rgba(0,212,255,0.15); color: var(--neon-blue);
+      border-color: rgba(0,212,255,0.4);
+    }
+
+    /* Podium */
+    .podium-platform {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-end;
+    }
+    .podium-avatar-wrap {
+      position: relative; width: 76px; height: 76px;
+    }
+    .podium-ring {
+      position: absolute; inset: -5px; border-radius: 50%;
+      border: 3px solid transparent;
+      animation: spin-slow 3s linear infinite;
+    }
+    .podium-block {
+      border-radius: 12px 12px 4px 4px;
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Rankings table */
+    .rank-row {
+      display: grid;
+      grid-template-columns: 48px 44px 1fr 80px 80px 80px 100px;
+      gap: 8px; padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      align-items: center; transition: background 0.2s;
+    }
+    .rank-row:hover { background: rgba(0,212,255,0.03); }
+    .rank-row.mine {
+      background: rgba(0,212,255,0.06);
+      border-left: 3px solid var(--neon-blue);
+    }
+
+    /* Sticky user rank bar */
+    #myRankBar {
+      position: sticky; bottom: 80px;
+      background: rgba(10,10,26,0.97); border: 1px solid rgba(0,212,255,0.4);
+      border-radius: 14px; padding: 14px 20px; margin: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 20px rgba(0,212,255,0.2);
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+
+    /* Toast */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; min-width: 240px; animation: fadeIn 0.3s ease; }
+    .toast.info { background: rgba(0,212,255,0.15); color: #00d4ff; border: 1px solid rgba(0,212,255,0.3); }
+
+    @media (max-width: 1024px) { .sidebar { display: none; } }
+    @media (min-width: 1025px) { .mobile-nav { display: none; } }
+    @media (max-width: 640px) {
+      .rank-row { grid-template-columns: 36px 36px 1fr 60px 60px; }
+      .rank-col-level, .rank-col-prize { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="p-6 mb-4">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚡</div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:white;">Gen B</span>
+    </div>
+  </div>
+  <nav style="padding: 0 10px;">
+    <a href="index.html" class="sidebar-link"><i data-lucide="home" style="width:18px;height:18px;"></i> Home</a>
+    <a href="tournaments.html" class="sidebar-link"><i data-lucide="trophy" style="width:18px;height:18px;"></i> Tournaments</a>
+    <a href="wallet.html" class="sidebar-link"><i data-lucide="wallet" style="width:18px;height:18px;"></i> Wallet</a>
+    <a href="leaderboard.html" class="sidebar-link active"><i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i> Leaderboard</a>
+    <a href="profile.html" class="sidebar-link"><i data-lucide="user" style="width:18px;height:18px;"></i> Profile</a>
+    <div style="margin: 12px 10px; border-top: 1px solid rgba(255,255,255,0.06);"></div>
+    <a href="clan.html" class="sidebar-link"><i data-lucide="shield" style="width:18px;height:18px;"></i> Clan</a>
+    <a href="chat.html" class="sidebar-link"><i data-lucide="message-circle" style="width:18px;height:18px;"></i> Chat</a>
+    <a href="referral.html" class="sidebar-link"><i data-lucide="users" style="width:18px;height:18px;"></i> Referral</a>
+    <a href="rewards.html" class="sidebar-link"><i data-lucide="gift" style="width:18px;height:18px;"></i> Rewards</a>
+  </nav>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:20px;">
+    <button id="sidebarLogout" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,45,120,0.3);background:rgba(255,45,120,0.08);color:#ff2d78;cursor:pointer;font-weight:500;">
+      <i data-lucide="log-out" style="width:16px;height:16px;"></i> Logout
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div style="margin-left:0;padding-bottom:80px;" class="lg:ml-[260px]">
+
+  <!-- PAGE HEADER -->
+  <div style="padding:32px 24px 0;">
+    <div style="max-width:960px;margin:0 auto;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <i data-lucide="bar-chart-2" style="width:28px;height:28px;color:var(--neon-blue);"></i>
+        <h1 style="font-size:36px;font-weight:700;color:white;">Leaderboard</h1>
+      </div>
+      <p style="color:#64748b;margin-bottom:24px;">Top players ranked by wins and prize earnings</p>
+
+      <!-- Controls -->
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:28px;">
+        <!-- Period tabs -->
+        <div style="display:flex;gap:8px;background:rgba(255,255,255,0.03);border-radius:999px;padding:4px;border:1px solid rgba(255,255,255,0.08);">
+          <button class="period-tab active" data-period="global" onclick="setPeriod('global')">Global</button>
+          <button class="period-tab" data-period="weekly" onclick="setPeriod('weekly')">Weekly</button>
+          <button class="period-tab" data-period="monthly" onclick="setPeriod('monthly')">Monthly</button>
+        </div>
+        <!-- Game filter -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="game-filter-tab active" data-game="all" onclick="setGame('all')">All</button>
+          <button class="game-filter-tab" data-game="bgmi" onclick="setGame('bgmi')">🎮 BGMI</button>
+          <button class="game-filter-tab" data-game="freefire" onclick="setGame('freefire')">🔥 Free Fire</button>
+          <button class="game-filter-tab" data-game="cod" onclick="setGame('cod')">💥 COD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:960px;margin:0 auto;padding:0 24px;">
+
+    <!-- PODIUM -->
+    <div class="glass-card" style="padding:40px 24px;margin-bottom:28px;overflow:hidden;position:relative;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple),var(--neon-gold));"></div>
+      <h2 style="text-align:center;font-size:22px;font-weight:700;color:white;margin-bottom:32px;letter-spacing:2px;">🏆 TOP CHAMPIONS</h2>
+
+      <div id="podiumContainer" style="display:flex;align-items:flex-end;justify-content:center;gap:12px;min-height:280px;">
+        <!-- Rendered by JS -->
+        <div style="text-align:center;color:#64748b;align-self:center;width:100%;">
+          <div style="width:40px;height:40px;border:2px solid rgba(0,212,255,0.3);border-top-color:var(--neon-blue);border-radius:50%;animation:spin-slow 1s linear infinite;margin:0 auto 12px;"></div>
+          Loading podium...
+        </div>
+      </div>
+    </div>
+
+    <!-- RANKINGS TABLE -->
+    <div class="glass-card" style="padding:24px;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <i data-lucide="list" style="width:20px;height:20px;color:var(--neon-blue);"></i>
+        <h2 style="font-size:22px;font-weight:700;color:white;">Rankings</h2>
+        <span style="margin-left:auto;font-size:13px;color:#64748b;" id="rankingPeriodLabel">All Time</span>
+      </div>
+
+      <!-- Table Header -->
+      <div class="rank-row" style="background:rgba(0,212,255,0.04);border-radius:8px;border-bottom:none;margin-bottom:8px;">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Rank</div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;"></div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Player</div>
+        <div class="rank-col-level" style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Level</div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Wins</div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Matches</div>
+        <div class="rank-col-prize" style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Prize</div>
+      </div>
+
+      <div id="rankingBody">
+        <div style="text-align:center;padding:40px;color:#64748b;">
+          <div style="width:32px;height:32px;border:2px solid rgba(0,212,255,0.3);border-top-color:var(--neon-blue);border-radius:50%;animation:spin-slow 1s linear infinite;margin:0 auto 12px;"></div>
+          Loading rankings...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY RANK BAR -->
+  <div id="myRankBar">
+    <div style="background:rgba(0,212,255,0.15);border-radius:999px;padding:4px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--neon-blue);font-size:18px;" id="myRankNum">#—</div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:white;" id="myRankName">Your Rank</div>
+      <div style="font-size:12px;color:#64748b;">Keep playing to climb higher!</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:20px;">
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:700;color:var(--neon-green);font-family:'Rajdhani',sans-serif;" id="myRankWins">0</div>
+        <div style="font-size:11px;color:#64748b;">Wins</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:700;color:var(--neon-gold);font-family:'Rajdhani',sans-serif;" id="myRankPrize">₹0</div>
+        <div style="font-size:11px;color:#64748b;">Earned</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav">
+  <a href="index.html"><i data-lucide="home" style="width:20px;height:20px;"></i><span>Home</span></a>
+  <a href="tournaments.html"><i data-lucide="trophy" style="width:20px;height:20px;"></i><span>Play</span></a>
+  <a href="wallet.html"><i data-lucide="wallet" style="width:20px;height:20px;"></i><span>Wallet</span></a>
+  <a href="leaderboard.html" class="active"><i data-lucide="bar-chart-2" style="width:20px;height:20px;"></i><span>Ranks</span></a>
+  <a href="profile.html"><i data-lucide="user" style="width:20px;height:20px;"></i><span>Profile</span></a>
+</nav>
+
+<div id="toast-container"></div>
+
+<script>
+  const { createClient } = supabase;
+  const supa = createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+
+  let currentUser = null;
+  let currentPeriod = 'global';
+  let currentGame = 'all';
+  let allPlayers = [];
+
+  // Demo leaderboard data
+  const DEMO_PLAYERS = [
+    { rank: 1, username: 'SnipeKingX', level: 10, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=king1', game: 'bgmi', wins: 147, matches: 210, prize: 45200 },
+    { rank: 2, username: 'EliteBlaze99', level: 9, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=blaze', game: 'freefire', wins: 132, matches: 198, prize: 38500 },
+    { rank: 3, username: 'ProWarrior', level: 9, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=warrior', game: 'cod', wins: 119, matches: 185, prize: 31000 },
+    { rank: 4, username: 'NightHunter', level: 8, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=night', game: 'bgmi', wins: 105, matches: 170, prize: 24000 },
+    { rank: 5, username: 'CyberGhost7', level: 8, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=ghost', game: 'freefire', wins: 98, matches: 155, prize: 21500 },
+    { rank: 6, username: 'StormBreaker', level: 7, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=storm', game: 'cod', wins: 89, matches: 143, prize: 18000 },
+    { rank: 7, username: 'VenomPro', level: 7, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=venom', game: 'bgmi', wins: 82, matches: 138, prize: 15500 },
+    { rank: 8, username: 'ShadowRift', level: 6, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=shadow', game: 'freefire', wins: 76, matches: 130, prize: 13000 },
+    { rank: 9, username: 'RaptorAce', level: 6, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=raptor', game: 'cod', wins: 71, matches: 125, prize: 11200 },
+    { rank: 10, username: 'PhantomX', level: 6, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=phantom', game: 'bgmi', wins: 65, matches: 118, prize: 9800 },
+    { rank: 11, username: 'ZeroHour', level: 5, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=zero', game: 'freefire', wins: 60, matches: 112, prize: 8500 },
+    { rank: 12, username: 'TitanForce', level: 5, avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=titan', game: 'cod', wins: 57, matches: 108, prize: 7200 },
+  ];
+
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+  }
+
+  async function init() {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+    currentUser = session.user;
+    await loadLeaderboard();
+    lucide.createIcons();
+  }
+
+  async function loadLeaderboard() {
+    try {
+      const { data } = await supa.from('profiles').select('id,username,avatar_url,level,xp,total_wins,total_matches,prize_earned').order('total_wins', { ascending: false }).limit(50);
+      allPlayers = data && data.length >= 3 ? data.map((p, i) => ({ ...p, rank: i + 1 })) : DEMO_PLAYERS;
+    } catch { allPlayers = DEMO_PLAYERS; }
+    renderPodium();
+    renderRankings();
+    renderMyRank();
+  }
+
+  function setPeriod(p) {
+    currentPeriod = p;
+    document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-period="${p}"]`).classList.add('active');
+    const labels = { global: 'All Time', weekly: 'This Week', monthly: 'This Month' };
+    document.getElementById('rankingPeriodLabel').textContent = labels[p];
+    renderRankings();
+  }
+
+  function setGame(g) {
+    currentGame = g;
+    document.querySelectorAll('.game-filter-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-game="${g}"]`).classList.add('active');
+    renderRankings();
+  }
+
+  function getFilteredPlayers() {
+    let list = [...allPlayers];
+    if (currentGame !== 'all') list = list.filter(p => p.game === currentGame);
+    return list;
+  }
+
+  function renderPodium() {
+    const top3 = getFilteredPlayers().slice(0, 3);
+    if (top3.length < 3) { document.getElementById('podiumContainer').innerHTML = '<div style="text-align:center;color:#64748b;align-self:center;width:100%;padding:40px;">Not enough players</div>'; return; }
+
+    const [first, second, third] = top3;
+    const configs = [
+      { player: second, place: 2, color: '#94a3b8', ringColor: '#94a3b8', height: 120, order: 0 },
+      { player: first, place: 1, color: '#ffd700', ringColor: '#ffd700', height: 180, order: 1 },
+      { player: third, place: 3, color: '#cd7f32', ringColor: '#cd7f32', height: 90, order: 2 },
+    ];
+
+    const placeIcons = { 1: '👑', 2: '🥈', 3: '🥉' };
+    document.getElementById('podiumContainer').innerHTML = configs.map(c => `
+      <div class="podium-platform" style="flex:1;max-width:220px;animation:podium-rise 0.6s ease ${c.order * 0.15}s both;">
+        <!-- Player info above -->
+        <div style="text-align:center;margin-bottom:16px;">
+          ${c.place === 1 ? `<div style="font-size:28px;animation:crown-bounce 2s ease infinite;">👑</div>` : ''}
+          <div class="podium-avatar-wrap" style="margin:0 auto 8px;">
+            <div class="podium-ring" style="background:conic-gradient(${c.ringColor},transparent,${c.ringColor});"></div>
+            <img src="${c.player.avatar || c.player.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${c.player.username}`}" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid ${c.color}44;position:relative;z-index:1;" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=default'" />
+            <div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:${c.color};border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700;color:#000;font-family:'Rajdhani',sans-serif;white-space:nowrap;z-index:2;">${placeIcons[c.place]}</div>
+          </div>
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:white;">${c.player.username}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px;">Lv ${c.player.level || 1}</div>
+          <div style="font-size:14px;color:${c.color};font-weight:700;font-family:'Rajdhani',sans-serif;margin-top:4px;">₹${((c.player.prize || c.player.prize_earned || 0)).toLocaleString('en-IN')}</div>
+        </div>
+        <!-- Platform -->
+        <div class="podium-block" style="height:${c.height}px;background:linear-gradient(180deg,${c.color}22,${c.color}08);border:2px solid ${c.color}44;box-shadow:0 0 20px ${c.color}22;">${c.place}</div>
+      </div>
+    `).join('');
+  }
+
+  function getLevelInfo(level) {
+    return GENBCONFIG.levels.find(l => l.level === (level || 1)) || GENBCONFIG.levels[0];
+  }
+
+  function renderRankings() {
+    const players = getFilteredPlayers().slice(3); // rank 4+
+    const myId = currentUser?.id;
+    if (players.length === 0) {
+      document.getElementById('rankingBody').innerHTML = '<div style="text-align:center;padding:32px;color:#64748b;">No players found</div>';
+      return;
+    }
+    document.getElementById('rankingBody').innerHTML = players.map((p, i) => {
+      const rank = i + 4;
+      const isMe = p.id === myId;
+      const lvl = getLevelInfo(p.level);
+      const gameEmoji = { bgmi: '🎮', freefire: '🔥', cod: '💥' }[p.game] || '🎮';
+      return `
+        <div class="rank-row ${isMe ? 'mine' : ''}">
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:${isMe ? 'var(--neon-blue)' : '#94a3b8'};">#${rank}</div>
+          <div>
+            <img src="${p.avatar || p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${p.username}`}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid ${isMe ? 'var(--neon-blue)' : 'rgba(255,255,255,0.1)'};" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=default'" />
+          </div>
+          <div>
+            <div style="font-weight:600;color:${isMe ? 'var(--neon-blue)' : '#e2e8f0'};font-size:14px;">${p.username} ${isMe ? '(You)' : ''}</div>
+            <div style="font-size:11px;color:#64748b;">${gameEmoji} ${p.game?.toUpperCase() || 'ALL'}</div>
+          </div>
+          <div class="rank-col-level" style="font-size:13px;font-weight:600;color:${lvl.color};">Lv ${p.level || 1}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--neon-green);font-family:'Rajdhani',sans-serif;">${p.wins || p.total_wins || 0}</div>
+          <div style="font-size:13px;color:#94a3b8;">${p.matches || p.total_matches || 0}</div>
+          <div class="rank-col-prize" style="font-size:14px;font-weight:700;color:var(--neon-gold);font-family:'Rajdhani',sans-serif;">₹${(p.prize || p.prize_earned || 0).toLocaleString('en-IN')}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderMyRank() {
+    const all = getFilteredPlayers();
+    const myIdx = all.findIndex(p => p.id === currentUser?.id);
+    const myRank = myIdx === -1 ? 247 : myIdx + 1;
+    const myData = myIdx === -1 ? null : all[myIdx];
+    document.getElementById('myRankNum').textContent = `#${myRank}`;
+    document.getElementById('myRankName').textContent = myData?.username || currentUser?.email?.split('@')[0] || 'You';
+    document.getElementById('myRankWins').textContent = myData?.wins || myData?.total_wins || 0;
+    document.getElementById('myRankPrize').textContent = `₹${(myData?.prize || myData?.prize_earned || 0).toLocaleString('en-IN')}`;
+  }
+
+  document.getElementById('sidebarLogout').addEventListener('click', async () => {
+    await supa.auth.signOut();
+    window.location.href = 'index.html';
+  });
+
+  init();
+</script>
+</body>
+</html>

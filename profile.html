@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Gen B Tournaments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="assets/js/config.js"></script>
+  <style>
+    :root {
+      --neon-blue: #00d4ff;
+      --neon-purple: #b14aed;
+      --neon-pink: #ff2d78;
+      --neon-gold: #ffd700;
+      --neon-green: #00ff88;
+      --bg-primary: #050510;
+      --bg-card: #0a0a1a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-primary); color: #e2e8f0; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    h1, h2, h3, h4 { font-family: 'Rajdhani', sans-serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a1a; }
+    ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+
+    /* Glass card */
+    .glass-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 16px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 260px; z-index: 40;
+      background: rgba(5,5,16,0.95);
+      border-right: 1px solid rgba(0,212,255,0.1);
+      backdrop-filter: blur(20px);
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px; border-radius: 10px; margin: 2px 10px;
+      color: #94a3b8; text-decoration: none; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: rgba(0,212,255,0.1); color: var(--neon-blue);
+    }
+    .sidebar-link.active { border-left: 3px solid var(--neon-blue); }
+
+    /* Mobile bottom nav */
+    .mobile-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(5,5,16,0.97);
+      border-top: 1px solid rgba(0,212,255,0.15);
+      backdrop-filter: blur(20px);
+      display: flex; justify-content: space-around; padding: 8px 0;
+    }
+    .mobile-nav a {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #64748b; text-decoration: none; font-size: 10px; padding: 4px 10px;
+      transition: color 0.2s;
+    }
+    .mobile-nav a.active, .mobile-nav a:hover { color: var(--neon-blue); }
+
+    /* Level ring animation */
+    @keyframes ring-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse-glow { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes float-up { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+
+    .level-ring {
+      position: absolute; inset: -6px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      animation: ring-rotate 3s linear infinite;
+    }
+    .xp-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      transition: width 1s ease;
+      box-shadow: 0 0 10px rgba(0,212,255,0.5);
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .stat-card:hover {
+      border-color: rgba(0,212,255,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,212,255,0.15);
+    }
+    .badge-hex {
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      width: 64px; height: 70px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .badge-card {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 16px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,212,255,0.1);
+      background: rgba(255,255,255,0.02);
+      transition: all 0.3s; cursor: pointer;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .badge-card:hover { border-color: rgba(0,212,255,0.4); transform: scale(1.05); }
+    .badge-card.locked { filter: grayscale(0.8); opacity: 0.5; }
+
+    .match-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+      gap: 12px; padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .match-row:hover { background: rgba(0,212,255,0.03); }
+    .filter-tab {
+      padding: 6px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: #64748b;
+      cursor: pointer; font-size: 13px; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .filter-tab.active, .filter-tab:hover {
+      background: rgba(0,212,255,0.15); color: var(--neon-blue);
+      border-color: rgba(0,212,255,0.4);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: #0a0a1a;
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 20px;
+      width: 90%; max-width: 540px; max-height: 90vh;
+      overflow-y: auto; padding: 32px;
+      transform: translateY(20px); transition: transform 0.3s;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+
+    /* Toast */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;
+      min-width: 240px; animation: fadeIn 0.3s ease;
+      border: 1px solid rgba(0,212,255,0.3);
+    }
+    .toast.success { background: rgba(0,255,136,0.15); color: #00ff88; border-color: rgba(0,255,136,0.3); }
+    .toast.error { background: rgba(255,45,120,0.15); color: #ff2d78; border-color: rgba(255,45,120,0.3); }
+    .toast.info { background: rgba(0,212,255,0.15); color: #00d4ff; border-color: rgba(0,212,255,0.3); }
+
+    /* Avatar presets */
+    .avatar-preset {
+      width: 56px; height: 56px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.2s;
+      object-fit: cover;
+    }
+    .avatar-preset:hover, .avatar-preset.selected { border-color: var(--neon-blue); box-shadow: 0 0 12px rgba(0,212,255,0.5); }
+
+    .input-field {
+      width: 100%; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,212,255,0.2); border-radius: 10px;
+      padding: 12px 16px; color: #e2e8f0; font-size: 14px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      color: white; border: none; border-radius: 10px;
+      padding: 12px 24px; font-weight: 700; font-size: 15px;
+      cursor: pointer; transition: all 0.3s; font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,255,0.35); }
+
+    @media (max-width: 1024px) { .sidebar { display: none; } }
+    @media (min-width: 1025px) { .mobile-nav { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="p-6 mb-4">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚡</div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:white;">Gen B</span>
+    </div>
+  </div>
+  <nav style="padding: 0 10px;">
+    <a href="index.html" class="sidebar-link"><i data-lucide="home" style="width:18px;height:18px;"></i> Home</a>
+    <a href="tournaments.html" class="sidebar-link"><i data-lucide="trophy" style="width:18px;height:18px;"></i> Tournaments</a>
+    <a href="wallet.html" class="sidebar-link"><i data-lucide="wallet" style="width:18px;height:18px;"></i> Wallet</a>
+    <a href="leaderboard.html" class="sidebar-link"><i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i> Leaderboard</a>
+    <a href="profile.html" class="sidebar-link active"><i data-lucide="user" style="width:18px;height:18px;"></i> Profile</a>
+    <div style="margin: 12px 10px; border-top: 1px solid rgba(255,255,255,0.06);"></div>
+    <a href="clan.html" class="sidebar-link"><i data-lucide="shield" style="width:18px;height:18px;"></i> Clan</a>
+    <a href="chat.html" class="sidebar-link"><i data-lucide="message-circle" style="width:18px;height:18px;"></i> Chat</a>
+    <a href="referral.html" class="sidebar-link"><i data-lucide="users" style="width:18px;height:18px;"></i> Referral</a>
+    <a href="rewards.html" class="sidebar-link"><i data-lucide="gift" style="width:18px;height:18px;"></i> Rewards</a>
+  </nav>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:20px;">
+    <button id="sidebarLogout" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,45,120,0.3);background:rgba(255,45,120,0.08);color:#ff2d78;cursor:pointer;font-weight:500;">
+      <i data-lucide="log-out" style="width:16px;height:16px;"></i> Logout
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div style="margin-left:0;padding-bottom:80px;" class="lg:ml-[260px]">
+
+  <!-- PROFILE HEADER -->
+  <div style="background:linear-gradient(180deg,rgba(0,212,255,0.08) 0%,transparent 100%);padding:40px 24px 0;">
+    <div style="max-width:900px;margin:0 auto;">
+      <!-- Avatar + info row -->
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:28px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <!-- Avatar -->
+        <div style="position:relative;display:inline-block;flex-shrink:0;">
+          <div style="position:relative;width:120px;height:120px;">
+            <div id="levelRing" class="level-ring" style="background:conic-gradient(from 0deg, var(--neon-gold), var(--neon-purple), var(--neon-blue), var(--neon-gold));"></div>
+            <div style="position:absolute;inset:4px;border-radius:50%;background:#0a0a1a;overflow:hidden;">
+              <img id="profileAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer1&backgroundColor=0a0a1a" alt="Avatar" style="width:100%;height:100%;object-fit:cover;" />
+            </div>
+          </div>
+          <div id="levelBadgeImg" style="position:absolute;bottom:-8px;right:-8px;background:linear-gradient(135deg,#ffd700,#ff6b35);color:white;border-radius:999px;padding:2px 10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;white-space:nowrap;border:2px solid #050510;">Lv 5</div>
+        </div>
+
+        <!-- Info -->
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <h1 id="profileUsername" style="font-size:36px;font-weight:700;color:white;letter-spacing:2px;">GamerXPRO</h1>
+            <span id="verifiedBadge" style="display:none;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--neon-blue);display:flex;align-items:center;gap:4px;">
+              <i data-lucide="check-circle" style="width:12px;height:12px;"></i> Verified
+            </span>
+          </div>
+          <div id="levelTitle" style="font-family:'Rajdhani',sans-serif;color:var(--neon-gold);font-weight:600;font-size:18px;margin:4px 0 12px;">Lv 5 CHAMPION</div>
+
+          <!-- XP bar -->
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:6px;">
+              <span id="xpCurrent">1250 XP</span>
+              <span id="xpNext">Next level at 1500 XP</span>
+            </div>
+            <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;">
+              <div id="xpBarFill" class="xp-bar-fill" style="width:75%;"></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button id="editProfileBtn" class="btn-primary" style="padding:10px 20px;font-size:14px;display:flex;align-items:center;gap:6px;">
+              <i data-lucide="edit-2" style="width:14px;height:14px;"></i> Edit Profile
+            </button>
+            <a href="wallet.html" style="padding:10px 20px;border-radius:10px;border:1px solid rgba(0,212,255,0.3);color:var(--neon-blue);font-weight:600;font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,212,255,0.1)'" onmouseout="this.style.background='transparent'">
+              <i data-lucide="wallet" style="width:14px;height:14px;"></i> Wallet
+            </a>
+          </div>
+        </div>
+
+        <!-- Game UIDs quick view -->
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:180px;">
+          <div style="font-size:12px;color:#64748b;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Game UIDs</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+            <span>🎮</span><span style="color:#94a3b8;">BGMI:</span><span id="bgmiUid" style="color:#e2e8f0;font-weight:500;">—</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+            <span>🔥</span><span style="color:#94a3b8;">Free Fire:</span><span id="ffUid" style="color:#e2e8f0;font-weight:500;">—</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+            <span>💥</span><span style="color:#94a3b8;">COD:</span><span id="codUid" style="color:#e2e8f0;font-weight:500;">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:900px;margin:0 auto;padding:24px;">
+
+    <!-- STATS GRID -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;" class="sm:grid-cols-2">
+      <div class="stat-card">
+        <div style="font-size:32px;font-weight:700;font-family:'Rajdhani',sans-serif;color:var(--neon-blue);" id="statMatches">0</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Matches</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:32px;font-weight:700;font-family:'Rajdhani',sans-serif;color:var(--neon-green);" id="statWins">0</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Wins</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:32px;font-weight:700;font-family:'Rajdhani',sans-serif;color:var(--neon-pink);" id="statKD">0.0</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">K/D Ratio</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:32px;font-weight:700;font-family:'Rajdhani',sans-serif;color:var(--neon-gold);" id="statWinRate">0%</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Win Rate</div>
+      </div>
+    </div>
+
+    <!-- BADGES SECTION -->
+    <div class="glass-card" style="padding:24px;margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <i data-lucide="award" style="width:20px;height:20px;color:var(--neon-gold);"></i>
+        <h2 style="font-size:22px;font-weight:700;color:white;">Badges</h2>
+      </div>
+      <div id="badgesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px;">
+        <!-- Badges rendered by JS -->
+      </div>
+    </div>
+
+    <!-- CLAN CARD (shown if in clan) -->
+    <div id="clanCard" class="glass-card" style="padding:24px;margin-bottom:28px;display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <i data-lucide="shield" style="width:20px;height:20px;color:var(--neon-purple);"></i>
+        <h2 style="font-size:22px;font-weight:700;color:white;">Clan</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div id="clanBanner" style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--neon-purple),var(--neon-blue));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:white;font-family:'Rajdhani',sans-serif;">G</div>
+        <div>
+          <div id="clanName" style="font-size:20px;font-weight:700;color:white;font-family:'Rajdhani',sans-serif;">Gen B Elite</div>
+          <div id="clanRole" style="font-size:13px;color:var(--neon-blue);">Leader</div>
+        </div>
+        <a href="clan.html" style="margin-left:auto;padding:8px 16px;border-radius:8px;border:1px solid rgba(177,74,237,0.4);color:var(--neon-purple);font-size:13px;text-decoration:none;font-weight:600;">View Clan →</a>
+      </div>
+    </div>
+
+    <!-- MATCH HISTORY -->
+    <div class="glass-card" style="padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <i data-lucide="history" style="width:20px;height:20px;color:var(--neon-blue);"></i>
+          <h2 style="font-size:22px;font-weight:700;color:white;">Match History</h2>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="matchFilterTabs">
+          <button class="filter-tab active" data-filter="all" onclick="filterMatches('all')">All</button>
+          <button class="filter-tab" data-filter="wins" onclick="filterMatches('wins')">Wins</button>
+          <button class="filter-tab" data-filter="bgmi" onclick="filterMatches('bgmi')">BGMI</button>
+          <button class="filter-tab" data-filter="freefire" onclick="filterMatches('freefire')">Free Fire</button>
+          <button class="filter-tab" data-filter="cod" onclick="filterMatches('cod')">COD</button>
+        </div>
+      </div>
+
+      <!-- Table Header -->
+      <div class="match-row" style="background:rgba(0,212,255,0.05);border-radius:8px;border-bottom:none;margin-bottom:4px;">
+        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Tournament</div>
+        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Date</div>
+        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Place</div>
+        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Kills</div>
+        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;">XP</div>
+        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Prize</div>
+      </div>
+
+      <div id="matchHistoryBody">
+        <!-- Loading state -->
+        <div id="matchLoading" style="text-align:center;padding:40px;color:#64748b;">
+          <div style="width:32px;height:32px;border:2px solid rgba(0,212,255,0.3);border-top-color:var(--neon-blue);border-radius:50%;animation:spin-slow 1s linear infinite;margin:0 auto 12px;"></div>
+          Loading match history...
+        </div>
+      </div>
+
+      <div id="matchEmpty" style="display:none;text-align:center;padding:40px;color:#64748b;">
+        <i data-lucide="inbox" style="width:40px;height:40px;margin:0 auto 12px;opacity:0.3;display:block;"></i>
+        No matches found
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav">
+  <a href="index.html"><i data-lucide="home" style="width:20px;height:20px;"></i><span>Home</span></a>
+  <a href="tournaments.html"><i data-lucide="trophy" style="width:20px;height:20px;"></i><span>Play</span></a>
+  <a href="wallet.html"><i data-lucide="wallet" style="width:20px;height:20px;"></i><span>Wallet</span></a>
+  <a href="leaderboard.html"><i data-lucide="bar-chart-2" style="width:20px;height:20px;"></i><span>Ranks</span></a>
+  <a href="profile.html" class="active"><i data-lucide="user" style="width:20px;height:20px;"></i><span>Profile</span></a>
+</nav>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <h2 style="font-size:24px;font-weight:700;color:white;">Edit Profile</h2>
+      <button onclick="closeEditModal()" style="background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:8px;cursor:pointer;color:#94a3b8;">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
+    </div>
+
+    <!-- Avatar selection -->
+    <div style="margin-bottom:20px;">
+      <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Avatar</label>
+      <div style="text-align:center;margin-bottom:16px;">
+        <img id="modalAvatarPreview" src="" alt="Preview" style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(0,212,255,0.4);object-fit:cover;" />
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px;">Choose preset:</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <img class="avatar-preset" src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer1&backgroundColor=0a0a1a" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer1&backgroundColor=0a0a1a" onclick="selectPresetAvatar(this)" />
+        <img class="avatar-preset" src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer2&backgroundColor=0d1117" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer2&backgroundColor=0d1117" onclick="selectPresetAvatar(this)" />
+        <img class="avatar-preset" src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer3&backgroundColor=0a0a1a" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=gamer3&backgroundColor=0a0a1a" onclick="selectPresetAvatar(this)" />
+        <img class="avatar-preset" src="https://api.dicebear.com/7.x/bottts/svg?seed=elite1&backgroundColor=0d1117" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=elite1&backgroundColor=0d1117" onclick="selectPresetAvatar(this)" />
+        <img class="avatar-preset" src="https://api.dicebear.com/7.x/bottts/svg?seed=pro99&backgroundColor=0a0a1a" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=pro99&backgroundColor=0a0a1a" onclick="selectPresetAvatar(this)" />
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-size:12px;color:#64748b;">Or enter custom avatar URL:</label>
+        <input id="customAvatarUrl" class="input-field" style="margin-top:6px;" placeholder="https://..." oninput="document.getElementById('modalAvatarPreview').src=this.value" />
+      </div>
+    </div>
+
+    <!-- Username -->
+    <div style="margin-bottom:16px;">
+      <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Username</label>
+      <input id="editUsername" class="input-field" placeholder="Enter username" />
+    </div>
+
+    <!-- Game UIDs -->
+    <div style="margin-bottom:16px;">
+      <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">🎮 BGMI UID</label>
+      <input id="editBgmiUid" class="input-field" placeholder="Enter BGMI UID" />
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">🔥 Free Fire UID</label>
+      <input id="editFfUid" class="input-field" placeholder="Enter Free Fire UID" />
+    </div>
+    <div style="margin-bottom:24px;">
+      <label style="font-size:13px;color:#94a3b8;display:block;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">💥 COD Mobile UID</label>
+      <input id="editCodUid" class="input-field" placeholder="Enter COD UID" />
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button onclick="closeEditModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#94a3b8;cursor:pointer;font-weight:600;">Cancel</button>
+      <button onclick="saveProfile()" class="btn-primary" style="flex:2;" id="saveProfileBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+  // Init Supabase
+  const { createClient } = supabase;
+  const supa = createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+
+  let currentUser = null;
+  let profileData = null;
+  let allMatches = [];
+  let selectedAvatarUrl = '';
+
+  // ─── Toast ────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+  }
+
+  // ─── Auth Check ───────────────────────────────────────────────────────────
+  async function init() {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+    currentUser = session.user;
+    await loadProfile();
+    await loadMatchHistory();
+    renderBadges();
+    lucide.createIcons();
+  }
+
+  // ─── Load Profile ─────────────────────────────────────────────────────────
+  async function loadProfile() {
+    const { data, error } = await supa
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .single();
+
+    if (error || !data) {
+      // Demo data
+      profileData = {
+        username: currentUser.email?.split('@')[0] || 'Player',
+        avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=gamer1&backgroundColor=0a0a1a',
+        level: 5, xp: 1250, verified: false,
+        bgmi_uid: '', ff_uid: '', cod_uid: '',
+        total_matches: 42, total_wins: 18, total_kills: 247, clan_id: null,
+      };
+    } else {
+      profileData = data;
+    }
+
+    renderProfile();
+  }
+
+  function renderProfile() {
+    const p = profileData;
+    const levelInfo = GENBCONFIG.levels.find(l => l.level === (p.level || 1)) || GENBCONFIG.levels[0];
+    const nextLevel = GENBCONFIG.levels.find(l => l.level === (p.level || 1) + 1);
+
+    document.getElementById('profileUsername').textContent = p.username || 'Player';
+    document.getElementById('profileAvatar').src = p.avatar_url || 'https://api.dicebear.com/7.x/bottts/svg?seed=default';
+    document.getElementById('levelBadgeImg').textContent = `Lv ${p.level || 1}`;
+    document.getElementById('levelBadgeImg').style.background = `linear-gradient(135deg, ${levelInfo.color}, ${levelInfo.color}aa)`;
+    document.getElementById('levelTitle').textContent = `Lv ${p.level || 1} ${levelInfo.title.toUpperCase()}`;
+    document.getElementById('levelTitle').style.color = levelInfo.color;
+
+    // Level ring color
+    document.getElementById('levelRing').style.background = `conic-gradient(from 0deg, ${levelInfo.color}, ${levelInfo.color}44, ${levelInfo.color})`;
+
+    // XP bar
+    const xp = p.xp || 0;
+    const currentXpReq = levelInfo.xpRequired;
+    const nextXpReq = nextLevel ? nextLevel.xpRequired : currentXpReq + 1000;
+    const pct = Math.min(100, ((xp - currentXpReq) / (nextXpReq - currentXpReq)) * 100);
+    document.getElementById('xpBarFill').style.width = pct + '%';
+    document.getElementById('xpCurrent').textContent = `${xp} XP`;
+    document.getElementById('xpNext').textContent = nextLevel ? `Next level at ${nextXpReq} XP` : 'MAX LEVEL';
+
+    // Stats
+    const matches = p.total_matches || 0;
+    const wins = p.total_wins || 0;
+    const kills = p.total_kills || 0;
+    document.getElementById('statMatches').textContent = matches;
+    document.getElementById('statWins').textContent = wins;
+    document.getElementById('statKD').textContent = matches > 0 ? (kills / matches).toFixed(1) : '0.0';
+    document.getElementById('statWinRate').textContent = matches > 0 ? Math.round((wins / matches) * 100) + '%' : '0%';
+
+    // UIDs
+    document.getElementById('bgmiUid').textContent = p.bgmi_uid || '—';
+    document.getElementById('ffUid').textContent = p.ff_uid || '—';
+    document.getElementById('codUid').textContent = p.cod_uid || '—';
+
+    // Verified
+    if (p.verified) document.getElementById('verifiedBadge').style.display = 'flex';
+
+    // Clan
+    if (p.clan_id) {
+      document.getElementById('clanCard').style.display = 'block';
+    }
+  }
+
+  // ─── Badges ───────────────────────────────────────────────────────────────
+  const BADGES_DEF = [
+    { id: 'first_win', icon: '🏆', name: 'First Win', desc: 'Win your first match', earned: true, color: '#ffd700' },
+    { id: 'five_wins', icon: '⭐', name: '5 Wins', desc: 'Win 5 matches', earned: true, color: '#00d4ff' },
+    { id: 'ten_wins', icon: '🔥', name: '10 Wins', desc: 'Win 10 matches', earned: false, color: '#ff2d78' },
+    { id: 'referrer', icon: '👥', name: 'Recruiter', desc: 'Refer 5 friends', earned: true, color: '#00ff88' },
+    { id: 'depositor', icon: '💰', name: 'High Roller', desc: 'Deposit ₹500+', earned: false, color: '#b14aed' },
+    { id: 'streak7', icon: '🗓️', name: '7-Day Streak', desc: '7-day login streak', earned: false, color: '#ffd700' },
+    { id: 'bgmi_master', icon: '🎮', name: 'BGMI Master', desc: 'Win 5 BGMI tournaments', earned: true, color: '#ff6b35' },
+    { id: 'clan_leader', icon: '🛡️', name: 'Clan Leader', desc: 'Create a clan', earned: false, color: '#00d4ff' },
+  ];
+
+  function renderBadges() {
+    const grid = document.getElementById('badgesGrid');
+    grid.innerHTML = '';
+    BADGES_DEF.forEach(b => {
+      const div = document.createElement('div');
+      div.className = `badge-card ${b.earned ? '' : 'locked'}`;
+      div.title = b.desc;
+      div.innerHTML = `
+        <div class="badge-hex" style="background:${b.earned ? `linear-gradient(135deg,${b.color}33,${b.color}11);border:2px solid ${b.color}55` : 'rgba(255,255,255,0.05)'};position:relative;">
+          <span style="font-size:26px;">${b.earned ? b.icon : '🔒'}</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:${b.earned ? '#e2e8f0' : '#64748b'};text-align:center;">${b.name}</div>
+        ${b.earned ? `<div style="width:8px;height:8px;border-radius:50%;background:${b.color};box-shadow:0 0 8px ${b.color};"></div>` : ''}
+      `;
+      grid.appendChild(div);
+    });
+  }
+
+  // ─── Match History ─────────────────────────────────────────────────────────
+  const DEMO_MATCHES = [
+    { tournament: 'BGMI Championship #12', date: '2026-05-20', game: 'bgmi', placement: 1, kills: 8, xp: 150, prize: '₹500', won: true },
+    { tournament: 'Free Fire Blaze #9', date: '2026-05-18', game: 'freefire', placement: 4, kills: 5, xp: 60, prize: '—', won: false },
+    { tournament: 'COD Mobile War #3', date: '2026-05-15', game: 'cod', placement: 2, kills: 11, xp: 100, prize: '₹200', won: false },
+    { tournament: 'BGMI Solo Rush #7', date: '2026-05-12', game: 'bgmi', placement: 1, kills: 14, xp: 200, prize: '₹1000', won: true },
+    { tournament: 'Free Fire Duo Cup', date: '2026-05-10', game: 'freefire', placement: 6, kills: 3, xp: 40, prize: '—', won: false },
+    { tournament: 'BGMI Squad Clash', date: '2026-05-05', game: 'bgmi', placement: 3, kills: 7, xp: 80, prize: '₹100', won: false },
+  ];
+
+  async function loadMatchHistory() {
+    document.getElementById('matchLoading').style.display = 'block';
+    try {
+      const { data } = await supa.from('match_history').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(50);
+      allMatches = data && data.length > 0 ? data : DEMO_MATCHES;
+    } catch { allMatches = DEMO_MATCHES; }
+    document.getElementById('matchLoading').style.display = 'none';
+    renderMatchHistory(allMatches);
+  }
+
+  function filterMatches(filter) {
+    document.querySelectorAll('.filter-tab').forEach(t => { t.classList.remove('active'); });
+    document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+    let filtered = allMatches;
+    if (filter === 'wins') filtered = allMatches.filter(m => m.placement === 1 || m.won);
+    else if (filter !== 'all') filtered = allMatches.filter(m => m.game === filter);
+    renderMatchHistory(filtered);
+  }
+
+  function renderMatchHistory(matches) {
+    const body = document.getElementById('matchHistoryBody');
+    const empty = document.getElementById('matchEmpty');
+    if (!matches || matches.length === 0) {
+      body.innerHTML = '';
+      empty.style.display = 'block';
+      lucide.createIcons();
+      return;
+    }
+    empty.style.display = 'none';
+    body.innerHTML = matches.map(m => {
+      const placement = m.placement || 1;
+      const placeColor = placement === 1 ? '#ffd700' : placement <= 3 ? '#94a3b8' : '#64748b';
+      const placeText = placement === 1 ? '🥇 1st' : placement === 2 ? '🥈 2nd' : placement === 3 ? '🥉 3rd' : `#${placement}`;
+      const gameEmoji = { bgmi: '🎮', freefire: '🔥', cod: '💥' }[m.game] || '🎮';
+      return `
+        <div class="match-row">
+          <div>
+            <div style="font-weight:600;color:#e2e8f0;font-size:14px;">${m.tournament}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px;">${gameEmoji} ${m.game?.toUpperCase() || 'BGMI'}</div>
+          </div>
+          <div style="font-size:13px;color:#94a3b8;">${m.date ? new Date(m.date).toLocaleDateString('en-IN') : '—'}</div>
+          <div style="font-weight:700;color:${placeColor};font-family:'Rajdhani',sans-serif;">${placeText}</div>
+          <div style="font-size:14px;color:#e2e8f0;font-weight:600;">${m.kills || 0}</div>
+          <div style="font-size:14px;color:var(--neon-blue);font-weight:600;">+${m.xp || 0}</div>
+          <div style="font-size:14px;color:var(--neon-green);font-weight:600;">${m.prize || '—'}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── Edit Modal ───────────────────────────────────────────────────────────
+  function openEditModal() {
+    if (!profileData) return;
+    document.getElementById('editUsername').value = profileData.username || '';
+    document.getElementById('editBgmiUid').value = profileData.bgmi_uid || '';
+    document.getElementById('editFfUid').value = profileData.ff_uid || '';
+    document.getElementById('editCodUid').value = profileData.cod_uid || '';
+    document.getElementById('modalAvatarPreview').src = profileData.avatar_url || '';
+    selectedAvatarUrl = profileData.avatar_url || '';
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+  }
+
+  function selectPresetAvatar(el) {
+    document.querySelectorAll('.avatar-preset').forEach(a => a.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedAvatarUrl = el.dataset.src;
+    document.getElementById('modalAvatarPreview').src = selectedAvatarUrl;
+    document.getElementById('customAvatarUrl').value = '';
+  }
+
+  async function saveProfile() {
+    const btn = document.getElementById('saveProfileBtn');
+    btn.textContent = 'Saving...'; btn.disabled = true;
+    const username = document.getElementById('editUsername').value.trim();
+    const avatarUrl = document.getElementById('customAvatarUrl').value.trim() || selectedAvatarUrl;
+    const updates = {
+      username, avatar_url: avatarUrl,
+      bgmi_uid: document.getElementById('editBgmiUid').value.trim(),
+      ff_uid: document.getElementById('editFfUid').value.trim(),
+      cod_uid: document.getElementById('editCodUid').value.trim(),
+      updated_at: new Date().toISOString(),
+    };
+    const { error } = await supa.from('profiles').upsert({ id: currentUser.id, ...updates });
+    btn.textContent = 'Save Changes'; btn.disabled = false;
+    if (error) { showToast('Error saving profile: ' + error.message, 'error'); return; }
+    Object.assign(profileData, updates);
+    renderProfile();
+    closeEditModal();
+    showToast('Profile updated successfully!', 'success');
+    lucide.createIcons();
+  }
+
+  // ─── Sidebar logout ───────────────────────────────────────────────────────
+  document.getElementById('sidebarLogout').addEventListener('click', async () => {
+    await supa.auth.signOut();
+    window.location.href = 'index.html';
+  });
+
+  document.getElementById('editProfileBtn').addEventListener('click', openEditModal);
+  document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
+
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Chat | Gen B Tournaments</title>
+  <meta name="description" content="Global chat, match chat and clan chat on Gen B Tournaments."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/css/main.css"/>
+  <link rel="stylesheet" href="assets/css/animations.css"/>
+  <link rel="stylesheet" href="assets/css/components.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{'neon-blue':'#00d4ff','neon-purple':'#b14aed'},fontFamily:{'rajdhani':['Rajdhani','sans-serif'],'inter':['Inter','sans-serif']}}}}</script>
+  <style>
+    body{background:#050510;color:#e2e8f0;font-family:'Inter',sans-serif;overflow:hidden;}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:rgba(5,5,16,0.95);backdrop-filter:blur(20px);border-right:1px solid rgba(0,212,255,0.1);z-index:40;overflow-y:auto;}
+    .sidebar-link{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#94a3b8;border-radius:10px;margin:2px 8px;transition:all 0.2s;text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px;}
+    .sidebar-link:hover,.sidebar-link.active{background:rgba(0,212,255,0.1);color:#00d4ff;}
+    .sidebar-link.active{border-left:3px solid #00d4ff;}
+    .chat-area{position:fixed;left:260px;top:0;right:0;bottom:0;display:flex;flex-direction:column;}
+    .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(5,5,16,0.98);backdrop-filter:blur(20px);border-top:1px solid rgba(0,212,255,0.15);z-index:50;padding:8px 0;}
+    .mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;padding:6px 4px;color:#64748b;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:600;text-decoration:none;transition:color 0.2s;}
+    .mobile-nav-item.active,.mobile-nav-item:hover{color:#00d4ff;}
+    @media(max-width:768px){.sidebar{display:none;}.chat-area{left:0;bottom:68px;}.mobile-nav{display:flex;}}
+    .chat-tab-bar{background:rgba(5,5,16,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,0.1);padding:12px 20px;display:flex;gap:8px;flex-shrink:0;}
+    .chat-tab{padding:8px 18px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.5px;border:1px solid rgba(0,212,255,0.2);color:#64748b;background:transparent;cursor:pointer;transition:all 0.2s;}
+    .chat-tab.active{background:rgba(0,212,255,0.15);color:#00d4ff;border-color:rgba(0,212,255,0.5);}
+    .messages-area{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;}
+    .messages-area::-webkit-scrollbar{width:4px;} .messages-area::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.3);border-radius:4px;}
+    .msg{display:flex;gap:10px;max-width:75%;animation:msgIn 0.2s ease;}
+    .msg.self{flex-direction:row-reverse;align-self:flex-end;}
+    @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .msg-avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+    .msg-bubble{padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;word-break:break-word;max-width:100%;}
+    .msg.other .msg-bubble{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-top-left-radius:4px;}
+    .msg.self .msg-bubble{background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(177,74,237,0.15));border:1px solid rgba(0,212,255,0.3);border-top-right-radius:4px;}
+    .msg-meta{font-size:10px;color:#475569;margin-top:3px;}
+    .msg.self .msg-meta{text-align:right;}
+    .msg-system{text-align:center;color:#475569;font-size:11px;padding:4px 0;}
+    .input-bar{background:rgba(5,5,16,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,212,255,0.1);padding:14px 20px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+    .chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:10px 16px;color:#e2e8f0;font-size:14px;outline:none;resize:none;font-family:'Inter',sans-serif;max-height:100px;transition:border 0.2s;}
+    .chat-input:focus{border-color:#00d4ff;}
+    .send-btn{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#b14aed);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
+    .send-btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,212,255,0.4);}
+    .emoji-btn{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
+    .emoji-btn:hover{background:rgba(255,255,255,0.1);}
+    .emoji-picker{position:absolute;bottom:80px;left:20px;background:rgba(10,10,30,0.98);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.2);border-radius:14px;padding:12px;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:280px;z-index:100;}
+    .emoji-picker.hidden{display:none;}
+    .emoji-item{padding:6px;text-align:center;cursor:pointer;border-radius:6px;font-size:18px;transition:background 0.15s;}
+    .emoji-item:hover{background:rgba(0,212,255,0.15);}
+    .online-sidebar{width:220px;border-left:1px solid rgba(0,212,255,0.1);background:rgba(5,5,16,0.7);padding:16px;flex-shrink:0;overflow-y:auto;}
+    @media(max-width:1024px){.online-sidebar{display:none;}}
+    .online-user{display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;}
+    .online-dot{width:8px;height:8px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px rgba(0,255,136,0.6);}
+    .chat-body{display:flex;flex:1;overflow:hidden;}
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+    .toast{padding:12px 18px;border-radius:10px;backdrop-filter:blur(20px);border:1px solid;animation:slideIn 0.3s ease;font-size:13px;min-width:220px;}
+    .toast-success{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:#00ff88;}
+    .toast-error{background:rgba(255,45,120,0.1);border-color:rgba(255,45,120,0.3);color:#ff2d78;}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+  </style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="p-6 border-b border-white/5">
+    <a href="index.html"><div class="font-rajdhani font-bold text-xl" style="color:#00d4ff;letter-spacing:2px;text-shadow:0 0 20px rgba(0,212,255,0.6);">GEN B</div><div class="font-rajdhani text-xs text-gray-500 tracking-widest">TOURNAMENTS</div></a>
+  </div>
+  <div class="p-4 flex flex-col gap-1 mt-2">
+    <a href="index.html" class="sidebar-link"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="dashboard.html" class="sidebar-link"><i data-lucide="layout-dashboard" class="w-5 h-5"></i>Dashboard</a>
+    <a href="tournaments.html" class="sidebar-link"><i data-lucide="trophy" class="w-5 h-5"></i>Tournaments</a>
+    <a href="wallet.html" class="sidebar-link"><i data-lucide="wallet" class="w-5 h-5"></i>Wallet</a>
+    <a href="leaderboard.html" class="sidebar-link"><i data-lucide="bar-chart-2" class="w-5 h-5"></i>Leaderboard</a>
+    <a href="rewards.html" class="sidebar-link"><i data-lucide="gift" class="w-5 h-5"></i>Rewards</a>
+    <a href="referral.html" class="sidebar-link"><i data-lucide="users" class="w-5 h-5"></i>Referral</a>
+    <a href="clan.html" class="sidebar-link"><i data-lucide="shield" class="w-5 h-5"></i>Clan</a>
+    <a href="chat.html" class="sidebar-link active"><i data-lucide="message-circle" class="w-5 h-5"></i>Chat</a>
+    <a href="profile.html" class="sidebar-link"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </div>
+  <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style="background:linear-gradient(135deg,#00d4ff,#b14aed);" id="sidebarAvatar">U</div>
+      <div><div class="text-sm font-semibold text-white" id="sidebarUsername">Loading...</div><div class="text-xs text-gray-500">Player</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- Full-height chat area -->
+<div class="chat-area">
+  <!-- Tab bar -->
+  <div class="chat-tab-bar">
+    <button class="chat-tab active" id="tab-global" onclick="switchChannel('global')">🌐 Global</button>
+    <button class="chat-tab" id="tab-match" onclick="switchChannel('match')">🎮 Match Chat</button>
+    <button class="chat-tab" id="tab-clan" onclick="switchChannel('clan')">🛡️ Clan</button>
+    <div class="ml-auto flex items-center gap-2">
+      <div class="online-dot"></div>
+      <span class="text-xs text-gray-400"><span id="onlineCount">—</span> online</span>
+    </div>
+  </div>
+
+  <!-- Body: messages + online sidebar -->
+  <div class="chat-body">
+    <!-- Messages -->
+    <div class="messages-area" id="messagesArea">
+      <div class="msg-system">Welcome to Gen B Global Chat! Be respectful. 🎮</div>
+      <div class="text-center py-8 text-gray-500" id="loadingMsg">
+        <i data-lucide="loader" class="w-6 h-6 mx-auto animate-spin mb-2" style="color:#00d4ff;"></i>
+        <p class="text-sm">Loading messages...</p>
+      </div>
+    </div>
+
+    <!-- Online users sidebar (desktop only) -->
+    <div class="online-sidebar">
+      <div class="font-rajdhani font-bold text-xs tracking-widest mb-4" style="color:#00d4ff;">ONLINE NOW</div>
+      <div id="onlineUsersList">
+        <div class="text-xs text-gray-600">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emoji picker -->
+  <div class="emoji-picker hidden" id="emojiPicker">
+    <div class="emoji-item" onclick="addEmoji('😂')">😂</div><div class="emoji-item" onclick="addEmoji('🔥')">🔥</div><div class="emoji-item" onclick="addEmoji('👑')">👑</div><div class="emoji-item" onclick="addEmoji('💀')">💀</div>
+    <div class="emoji-item" onclick="addEmoji('🎮')">🎮</div><div class="emoji-item" onclick="addEmoji('⚡')">⚡</div><div class="emoji-item" onclick="addEmoji('🏆')">🏆</div><div class="emoji-item" onclick="addEmoji('🎯')">🎯</div>
+    <div class="emoji-item" onclick="addEmoji('💪')">💪</div><div class="emoji-item" onclick="addEmoji('🤩')">🤩</div><div class="emoji-item" onclick="addEmoji('😎')">😎</div><div class="emoji-item" onclick="addEmoji('👏')">👏</div>
+    <div class="emoji-item" onclick="addEmoji('🚀')">🚀</div><div class="emoji-item" onclick="addEmoji('💯')">💯</div><div class="emoji-item" onclick="addEmoji('🎉')">🎉</div><div class="emoji-item" onclick="addEmoji('❤️')">❤️</div>
+    <div class="emoji-item" onclick="addEmoji('👋')">👋</div><div class="emoji-item" onclick="addEmoji('😡')">😡</div><div class="emoji-item" onclick="addEmoji('🥵')">🥵</div><div class="emoji-item" onclick="addEmoji('🤣')">🤣</div>
+    <div class="emoji-item" onclick="addEmoji('😭')">😭</div><div class="emoji-item" onclick="addEmoji('🔫')">🔫</div><div class="emoji-item" onclick="addEmoji('🩸')">🩸</div><div class="emoji-item" onclick="addEmoji('🥷')">🥷</div>
+  </div>
+
+  <!-- Input bar -->
+  <div class="input-bar" style="position:relative;">
+    <button class="emoji-btn" onclick="toggleEmoji()">😊</button>
+    <textarea class="chat-input" id="chatInput" placeholder="Type a message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" onclick="sendMessage()"><i data-lucide="send" class="w-5 h-5 text-white"></i></button>
+  </div>
+</div>
+
+<!-- Mobile Nav -->
+<nav class="mobile-nav">
+  <a href="index.html" class="mobile-nav-item"><i data-lucide="home" class="w-5 h-5"></i><span>Home</span></a>
+  <a href="tournaments.html" class="mobile-nav-item"><i data-lucide="trophy" class="w-5 h-5"></i><span>Play</span></a>
+  <a href="wallet.html" class="mobile-nav-item"><i data-lucide="wallet" class="w-5 h-5"></i><span>Wallet</span></a>
+  <a href="leaderboard.html" class="mobile-nav-item"><i data-lucide="bar-chart-2" class="w-5 h-5"></i><span>Ranks</span></a>
+  <a href="profile.html" class="mobile-nav-item"><i data-lucide="user" class="w-5 h-5"></i><span>Profile</span></a>
+</nav>
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+lucide.createIcons();
+let currentUser=null, currentProfile=null, currentChannel='global', realtimeSub=null;
+const COLORS=['#00d4ff','#b14aed','#ff2d78','#ffd700','#00ff88','#ff6b35'];
+function getColor(str){let h=0;for(let i=0;i<str.length;i++)h=str.charCodeAt(i)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length];}
+function showToast(msg,type='info'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
+function toggleEmoji(){document.getElementById('emojiPicker').classList.toggle('hidden');}
+function addEmoji(e){const inp=document.getElementById('chatInput');inp.value+=e;inp.focus();document.getElementById('emojiPicker').classList.add('hidden');}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+document.addEventListener('click',e=>{if(!e.target.closest('.emoji-btn')&&!e.target.closest('.emoji-picker'))document.getElementById('emojiPicker').classList.add('hidden');});
+
+function formatTime(ts){return new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+function renderMessage(msg){
+  const isSelf=msg.user_id===currentUser?.id;
+  const name=msg.profiles?.username||'Player';
+  const initials=name[0].toUpperCase();
+  const col=getColor(msg.user_id||name);
+  const area=document.getElementById('messagesArea');
+  const div=document.createElement('div');
+  div.className=`msg ${isSelf?'self':'other'}`;
+  div.innerHTML=`
+    <div class="msg-avatar" style="background:${col}22;border:1px solid ${col}44;color:${col};">${initials}</div>
+    <div>
+      ${!isSelf?`<div class="text-xs mb-1" style="color:${col};font-family:'Rajdhani',sans-serif;font-weight:700;">${name}</div>`:''}
+      <div class="msg-bubble">${escapeHtml(msg.text)}</div>
+      <div class="msg-meta">${formatTime(msg.created_at)}</div>
+    </div>`;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+function escapeHtml(s){const d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;}
+
+async function loadMessages(){
+  const area=document.getElementById('messagesArea');
+  area.innerHTML='<div class="msg-system">Welcome to Gen B '+(currentChannel==='global'?'Global':currentChannel==='match'?'Match':'Clan')+' Chat! 🎮</div>';
+  document.getElementById('loadingMsg')?.remove();
+  try{
+    const{data}=await window.GenBSupabase.db.from('messages').select('*,profiles(username,avatar_url)').eq('channel_type',currentChannel).order('created_at',{ascending:true}).limit(60);
+    (data||[]).forEach(renderMessage);
+  }catch(e){console.warn('Load messages error:',e);}
+}
+
+function subscribeToChannel(){
+  if(realtimeSub){window.GenBSupabase.db.removeChannel(realtimeSub);}
+  realtimeSub=window.GenBSupabase.db.channel('chat-'+currentChannel)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`channel_type=eq.${currentChannel}`},async payload=>{
+      const msg=payload.new;
+      if(!msg.profiles){const{data:p}=await window.GenBSupabase.db.from('profiles').select('username').eq('id',msg.user_id).single();msg.profiles=p;}
+      renderMessage(msg);
+    }).subscribe();
+}
+
+async function sendMessage(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text||!currentUser)return;
+  if(text.length>300){showToast('Message too long (max 300 chars)','error');return;}
+  input.value=''; input.style.height='auto';
+  try{
+    await window.GenBSupabase.db.from('messages').insert({channel_type:currentChannel,channel_id:currentChannel==='match'?'global':currentChannel,user_id:currentUser.id,text});
+  }catch(e){showToast('Send failed: '+e.message,'error');}
+}
+
+async function switchChannel(ch){
+  currentChannel=ch;
+  ['global','match','clan'].forEach(t=>{document.getElementById('tab-'+t).classList.remove('active');});
+  document.getElementById('tab-'+ch).classList.add('active');
+  await loadMessages();
+  subscribeToChannel();
+}
+
+async function loadOnlineUsers(){
+  try{
+    const{data}=await window.GenBSupabase.db.from('profiles').select('username').order('created_at',{ascending:false}).limit(12);
+    const list=document.getElementById('onlineUsersList');
+    const onlineCount=Math.floor(Math.random()*50)+20;
+    document.getElementById('onlineCount').textContent=onlineCount;
+    list.innerHTML=(data||[]).map(u=>`
+      <div class="online-user">
+        <div class="online-dot" style="background:${getColor(u.username)};box-shadow:0 0 6px ${getColor(u.username)}88;"></div>
+        <span class="text-xs text-gray-300 truncate">${u.username}</span>
+      </div>`).join('');
+  }catch(e){}
+}
+
+async function init(){
+  try{
+    const{user,profile}=await window.GenBSupabase.getCurrentUser();
+    if(!user){window.location.href='login.html';return;}
+    currentUser=user; currentProfile=profile;
+    document.getElementById('sidebarUsername').textContent=profile?.username||user.email?.split('@')[0]||'Player';
+    document.getElementById('sidebarAvatar').textContent=(profile?.username||'U')[0].toUpperCase();
+    await loadMessages();
+    subscribeToChannel();
+    await loadOnlineUsers();
+    document.getElementById('loadingMsg')?.remove();
+  }catch(e){console.error(e);window.location.href='login.html';}
+  lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>
