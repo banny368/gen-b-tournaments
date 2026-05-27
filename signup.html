@@ -491,10 +491,19 @@
     }
 
     // ─── Supabase client ─────────────────────────────────────────────────────
+    let _sbClient = null;
     function getSB() {
-      if (window.GBSupabase) return window.GBSupabase;
-      if (typeof supabase !== 'undefined' && typeof GENBCONFIG !== 'undefined')
-        return supabase.createClient(GENBCONFIG.supabase.url, GENBCONFIG.supabase.anonKey);
+      if (_sbClient) return _sbClient;
+      if (window.GenBSupabase && window.GenBSupabase.db) { _sbClient = window.GenBSupabase; return _sbClient; }
+      if (typeof supabase !== 'undefined' && typeof GENBCONFIG !== 'undefined') {
+        // Use the full correct anon key from config
+        _sbClient = supabase.createClient(
+          GENBCONFIG.supabase.url,
+          GENBCONFIG.supabase.anonKey,
+          { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'genb_auth_session' } }
+        );
+        return _sbClient;
+      }
       return null;
     }
 
@@ -751,16 +760,38 @@
         // Insert profile row if Supabase signUp succeeded
         if (data.user) {
           try {
+            // Map game UID to correct column
+            const gameUidFields = {
+              bgmi: { bgmi_uid: uid },
+              freefire: { ff_uid: uid },
+              cod: { cod_uid: uid },
+            };
+            const gameUidData = gameUidFields[game] || { bgmi_uid: uid };
+
+            // Build the referral code for this new user
+            const newReferralCode = username.toUpperCase().slice(0, 5) + Math.random().toString(36).slice(2, 6).toUpperCase();
+
             await sb.from('profiles').upsert({
               id: data.user.id,
               username,
               email,
-              game_uid: uid,
+              ...gameUidData,
               game_type: game,
               avatar_index: selectedAvatar,
-              referral_code: referral || null,
-              created_at: new Date().toISOString(),
+              referral_code: newReferralCode,
+              referred_by: referral || null,
             }, { onConflict: 'id' });
+
+            // Create wallet if trigger didn't
+            await sb.from('wallets').upsert({ user_id: data.user.id }, { onConflict: 'user_id' });
+
+            // Process referral bonus if code was provided
+            if (referral) {
+              const { data: referrer } = await sb.from('profiles').select('id').eq('referral_code', referral).maybeSingle();
+              if (referrer) {
+                await sb.from('referrals').insert({ referrer_id: referrer.id, referred_id: data.user.id }).onConflict('referred_id').ignore();
+              }
+            }
           } catch (profileErr) { console.warn('Profile insert failed:', profileErr); }
         }
 

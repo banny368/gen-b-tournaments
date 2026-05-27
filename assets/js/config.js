@@ -31,7 +31,7 @@ const GENBCONFIG = {
     tagline: 'Show Your Skill And Earn Real Cash',
     currency: '₹',
     currencyCode: 'INR',
-    version: '1.0.0',
+    version: '1.0.1',
     supportEmail: 'support@genbtournaments.com',
     telegramLink: 'https://t.me/genbtournaments',
     whatsappLink: 'https://wa.me/91XXXXXXXXXX',
