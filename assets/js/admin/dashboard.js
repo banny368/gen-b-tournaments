@@ -69,7 +69,7 @@ function showToast(message, type = 'info') {
 async function requireAdmin() {
   const db = getClient();
   const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = '/index.html'; return false; }
+  if (!session) { window.location.href = '../index.html'; return false; }
 
   const { data: profile, error } = await db
     .from('profiles')
@@ -78,7 +78,7 @@ async function requireAdmin() {
     .single();
 
   if (error || !profile || !GENBCONFIG.admin.roles.includes(profile.role)) {
-    window.location.href = '/index.html';
+    window.location.href = '../index.html';
     return false;
   }
   return true;

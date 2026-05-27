@@ -185,7 +185,12 @@ async function _processReferral(newUserId, referralCode) {
  * @param {string} [redirectTo='/login.html']
  * @returns {Promise<void>}
  */
-async function signOut(redirectTo = '/login.html') {
+async function signOut(redirectTo) {
+  if (!redirectTo) {
+    // Auto-detect depth: admin pages need '../login.html'
+    const depth = window.location.pathname.split('/').filter(Boolean).length;
+    redirectTo = depth >= 2 ? '../login.html' : 'login.html';
+  }
   try {
     await _auth.signOut();
     sessionStorage.removeItem('genb_redirect_after_login');
@@ -368,7 +373,8 @@ function _bindLoginForm() {
       // Redirect
       const intended = sessionStorage.getItem('genb_redirect_after_login');
       sessionStorage.removeItem('genb_redirect_after_login');
-      window.location.href = intended || '/index.html';
+      const depth = window.location.pathname.split('/').filter(Boolean).length;
+      window.location.href = intended || (depth >= 2 ? '../index.html' : 'index.html');
     })();
 
     try {
@@ -457,7 +463,8 @@ function _bindSignupForm() {
 
       // Redirect to login after a short delay
       setTimeout(() => {
-        window.location.href = '/login.html?registered=1';
+        const depth = window.location.pathname.split('/').filter(Boolean).length;
+        window.location.href = (depth >= 2 ? '../login.html' : 'login.html') + '?registered=1';
       }, 2000);
     })();
 
@@ -576,7 +583,8 @@ function _bindResetPasswordForm() {
     const promise = (async () => {
       await updatePassword(newPass);
       showToast?.('Password updated successfully!', 'success');
-      setTimeout(() => { window.location.href = '/login.html'; }, 1500);
+      setTimeout(() => { const depth = window.location.pathname.split('/').filter(Boolean).length;
+      window.location.href = depth >= 2 ? '../login.html' : 'login.html'; }, 1500);
     })();
 
     try {
