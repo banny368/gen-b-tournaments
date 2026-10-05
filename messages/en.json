@@ -67,6 +67,8 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "checkEmail": "Check your email to confirm your account.",
     "invalidCredentials": "Invalid email or password",
+    "emailNotConfirmed": "Your email isn't confirmed yet — we've sent you a new confirmation link.",
+    "resendConfirmation": "Resend confirmation email",
     "termsAccept": "I accept the {terms} and {privacy}",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy"

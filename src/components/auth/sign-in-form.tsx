@@ -23,7 +23,15 @@ export function SignInForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast.error(t("invalidCredentials"));
+      if (error.code === "email_not_confirmed") {
+        toast.error(t("emailNotConfirmed"));
+        // best-effort resend (Supabase's built-in mail is heavily rate-limited on free tier)
+        await supabase.auth.resend({ type: "signup", email });
+      } else if (error.status === 400 || error.message?.toLowerCase().includes("invalid login")) {
+        toast.error(t("invalidCredentials"));
+      } else {
+        toast.error(error.message);
+      }
       return;
     }
     router.push("/");
