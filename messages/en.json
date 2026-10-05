@@ -180,6 +180,7 @@
     "manualUpiStep2": "2. Copy the UTR / reference number from your payment app",
     "manualUpiStep3": "3. Submit it here — our team verifies within a few hours",
     "payExactAmount": "Pay the exact amount or verification will fail",
+    "demoCredits": "Demo credits",
     "noTransactions": "No transactions yet",
     "txnTypes": {
       "DEPOSIT": "Deposit",
