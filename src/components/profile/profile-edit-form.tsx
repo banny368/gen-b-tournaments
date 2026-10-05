@@ -71,7 +71,7 @@ export function ProfileEditForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">
-              {t("notifications")} <span className="text-muted">({t("private")})</span>
+              {t("phone")} <span className="text-muted">({t("private")})</span>
             </Label>
             <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>

@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent as SharedDialogContent, DialogTitle as SharedDialogTitle } from "@/components/ui/dialog";
+import { useRouter } from "@/i18n/navigation";
 import { callRpc } from "@/lib/rpc";
 import { formatINR } from "@/lib/utils";
 import type { WalletBalances } from "@/lib/types";
@@ -15,6 +17,7 @@ export function WithdrawDialog({ balances }: { balances: WalletBalances }) {
   const t = useTranslations("wallet");
   const te = useTranslations("errors");
   const tc = useTranslations("common");
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [destination, setDestination] = useState("UPI");
@@ -45,6 +48,7 @@ export function WithdrawDialog({ balances }: { balances: WalletBalances }) {
     setLoading(false);
     if (res.success) {
       toast.success(t("withdrawSuccess"));
+      router.refresh();
       setOpen(false);
       setAmount("");
       setUpiId("");
@@ -61,8 +65,8 @@ export function WithdrawDialog({ balances }: { balances: WalletBalances }) {
       <Button variant="secondary" onClick={() => setOpen(true)}>
         <ArrowUpRight /> {t("withdraw")}
       </Button>
-      <DialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
-        <DialogTitle className="font-display text-lg font-bold">{t("withdrawTitle")}</DialogTitle>
+      <SharedDialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
+        <SharedDialogTitle className="font-display text-lg font-bold">{t("withdrawTitle")}</SharedDialogTitle>
 
         <div className="mt-4 space-y-4">
           <div className="rounded-xl border border-border bg-surface-2/40 px-4 py-3 text-sm">
@@ -120,7 +124,7 @@ export function WithdrawDialog({ balances }: { balances: WalletBalances }) {
             {t("submit")}
           </Button>
         </div>
-      </DialogContent>
+      </SharedDialogContent>
     </Dialog>
   );
 }

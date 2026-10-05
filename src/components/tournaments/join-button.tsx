@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export function JoinButton({
 }) {
   const t = useTranslations("tournament");
   const te = useTranslations("errors");
+  const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(alreadyJoined);
@@ -40,6 +42,7 @@ export function JoinButton({
     if (result.success) {
       setJoined(true);
       toast.success(t("joinedSuccess"));
+      router.refresh(); // sync participants list, slots, header balance
     } else if (result.error?.code === "INSUFFICIENT_BALANCE" || result.error?.code === "INSUFFICIENT_REAL_BALANCE") {
       setNeedsFunds(true);
       toast.error(te(result.error.code));

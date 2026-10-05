@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export function RewardClaimButton({
 }) {
   const tc = useTranslations("common");
   const te = useTranslations("errors");
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [claimed, setClaimed] = useState(false);
 
@@ -34,6 +36,7 @@ export function RewardClaimButton({
     if (res.success) {
       setClaimed(true);
       toast.success(`+₹${(res.data as { amount: number })?.amount ?? 0}`);
+      router.refresh(); // sync header wallet chip + balances
     } else if (res.error?.code === "DAILY_CAP_REACHED" || res.error?.code === "COOLDOWN") {
       toast.info(res.error.message);
     } else {

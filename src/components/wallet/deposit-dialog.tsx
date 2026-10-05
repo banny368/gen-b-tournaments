@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Copy, PlusCircle, RefreshCw } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent as SharedDialogContent, DialogTitle as SharedDialogTitle } from "@/components/ui/dialog";
 import { callRpc } from "@/lib/rpc";
 import { formatINR } from "@/lib/utils";
 
@@ -23,6 +25,7 @@ export function DepositDialog() {
   const t = useTranslations("wallet");
   const te = useTranslations("errors");
   const tc = useTranslations("common");
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("choose");
   const [amount, setAmount] = useState("");
@@ -47,6 +50,7 @@ export function DepositDialog() {
       toast.success(`+${data?.amount ?? 0} ${t("bonus")}`);
       setOpen(false);
       reset();
+      router.refresh();
     } else {
       toast.error(res.error && te.has(res.error.code) ? te(res.error.code) : res.error?.message ?? tc("unknownError"));
     }
@@ -75,6 +79,7 @@ export function DepositDialog() {
     if (res.success) {
       toast.success(t("pendingReview", { ref: "—" }));
       setOpen(false);
+      router.refresh();
       reset();
     } else {
       toast.error(res.error && te.has(res.error.code) ? te(res.error.code) : res.error?.message ?? tc("unknownError"));
@@ -86,8 +91,8 @@ export function DepositDialog() {
       <Button onClick={() => setOpen(true)}>
         <PlusCircle /> {t("addMoney")}
       </Button>
-      <DialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
-        <DialogTitle className="font-display text-lg font-bold">{t("addMoney")}</DialogTitle>
+      <SharedDialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
+        <SharedDialogTitle className="font-display text-lg font-bold">{t("addMoney")}</SharedDialogTitle>
 
         {step === "choose" && (
           <div className="mt-4 space-y-3">
@@ -173,7 +178,7 @@ export function DepositDialog() {
             </Button>
           </div>
         )}
-      </DialogContent>
+      </SharedDialogContent>
     </Dialog>
   );
 }

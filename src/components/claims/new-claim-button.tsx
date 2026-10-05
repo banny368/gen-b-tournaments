@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent as SharedDialogContent, DialogTitle as SharedDialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { callRpc } from "@/lib/rpc";
@@ -49,8 +50,8 @@ export function NewClaimButton() {
       <Button size="sm" onClick={() => setOpen(true)}>
         <Plus /> {t("newClaim")}
       </Button>
-      <DialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
-        <DialogTitle className="font-display text-lg font-bold">{t("newClaim")}</DialogTitle>
+      <SharedDialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
+        <SharedDialogTitle className="font-display text-lg font-bold">{t("newClaim")}</SharedDialogTitle>
         <div className="mt-4 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="claim-cat">{t("category")}</Label>
@@ -78,7 +79,7 @@ export function NewClaimButton() {
             {t("submitClaim")}
           </Button>
         </div>
-      </DialogContent>
+      </SharedDialogContent>
     </Dialog>
   );
 }

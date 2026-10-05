@@ -1,6 +1,13 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { effectiveTournamentStatus } from "@/lib/tournament-status";
 import type { Game, Tournament, WalletBalances } from "@/lib/types";
+
+/** Public listings show the server-time-derived status, never the stored one. */
+function withEffectiveStatus<T extends Tournament>(rows: T[]): T[] {
+  const now = new Date();
+  return rows.map((t) => ({ ...t, status: effectiveTournamentStatus(t, now) }));
+}
 
 export function isSupabaseConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -53,10 +60,12 @@ export async function getHomeTournaments() {
   ]);
 
   return {
-    featured: ((featured.data?.[0] ?? null) as unknown as Tournament | null),
-    upcoming: ((upcoming.data ?? []) as unknown as Tournament[]),
-    live: ((live.data ?? []) as unknown as Tournament[]),
-    completed: ((completed.data ?? []) as unknown as Tournament[]),
+    featured: withEffectiveStatus(
+      featured.data ? [featured.data[0] as unknown as Tournament] : [],
+    )[0] ?? null,
+    upcoming: withEffectiveStatus((upcoming.data ?? []) as unknown as Tournament[]),
+    live: withEffectiveStatus((live.data ?? []) as unknown as Tournament[]),
+    completed: withEffectiveStatus((completed.data ?? []) as unknown as Tournament[]),
   };
 }
 
@@ -76,13 +85,20 @@ export async function getTournaments(filters: {
     .limit(filters.limit ?? 24);
 
   if (filters.gameId) query = query.eq("game_id", filters.gameId);
-  if (filters.status) query = query.in("status", filters.status.split(","));
-  else query = query.in("status", ["SCHEDULED", "REGISTRATION_OPEN", "LIVE"]);
   if (filters.maxFee !== undefined) query = query.lte("entry_fee", filters.maxFee);
   if (filters.search) query = query.ilike("title", `%${filters.search}%`);
 
   const { data } = await query;
-  return ((data ?? []) as unknown as Tournament[]);
+  const rows = withEffectiveStatus((data ?? []) as unknown as Tournament[]);
+
+  // status filter applies to the EFFECTIVE status (server time), not stored
+  if (filters.status) {
+    const wanted = new Set(filters.status.split(","));
+    return rows.filter((t) => wanted.has(t.status));
+  }
+  return rows.filter((t) =>
+    ["SCHEDULED", "REGISTRATION_OPEN", "REGISTRATION_CLOSED", "LIVE"].includes(t.status),
+  );
 }
 
 export async function getTournamentBySlugOrId(idOrSlug: string): Promise<Tournament | null> {
@@ -94,7 +110,8 @@ export async function getTournamentBySlugOrId(idOrSlug: string): Promise<Tournam
     .eq(isUuid ? "id" : "slug", idOrSlug)
     .neq("visibility", "HIDDEN")
     .maybeSingle();
-  return ((data ?? null) as unknown as Tournament | null);
+  const t = (data ?? null) as unknown as Tournament | null;
+  return t ? { ...t, status: effectiveTournamentStatus(t) } : null;
 }
 
 export async function getWalletBalances(userId: string): Promise<WalletBalances> {

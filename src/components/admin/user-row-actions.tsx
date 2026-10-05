@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent as SharedDialogContent, DialogTitle as SharedDialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { banUserAction, grantRoleAction, manualAdjustmentAction } from "@/lib/admin-actions";
@@ -40,8 +41,8 @@ export function UserRowActions({
         <Button variant="outline" size="sm" onClick={() => setAdjustOpen(true)}>
           {t("adjustBalance")}
         </Button>
-        <DialogContent className="glass max-w-sm rounded-card p-6" aria-describedby={undefined}>
-          <DialogTitle className="font-display text-base font-bold">{t("adjustBalance")} · @{username}</DialogTitle>
+        <SharedDialogContent className="glass max-w-sm rounded-card p-6" aria-describedby={undefined}>
+          <SharedDialogTitle className="font-display text-base font-bold">{t("adjustBalance")} · @{username}</SharedDialogTitle>
           <p className="mt-1 text-xs text-warning">{t("adjustWarning")}</p>
           <form
             action={async (fd) => {
@@ -70,7 +71,7 @@ export function UserRowActions({
               Apply
             </Button>
           </form>
-        </DialogContent>
+        </SharedDialogContent>
       </Dialog>
 
       <Select

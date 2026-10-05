@@ -6,6 +6,7 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogOverlay,
   AlertDialogTitle,
 } from "@radix-ui/react-alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
@@ -42,7 +43,8 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="glass max-w-sm rounded-card p-6">
+      <AlertDialogOverlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+      <AlertDialogContent className="glass fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-card p-6 focus:outline-none">
         <Header>
           <AlertDialogTitle className="font-display text-lg font-semibold">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-sm text-muted">{description}</AlertDialogDescription>

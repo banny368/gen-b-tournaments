@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog } from "@radix-ui/react-dialog";
+import { DialogContent as SharedDialogContent, DialogTitle as SharedDialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import {
@@ -52,8 +53,8 @@ export function CreateTournamentForm({ games }: { games: { id: string; name: str
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button onClick={() => setOpen(true)}>{t("createTournament")}</Button>
-      <DialogContent className="glass max-h-[85vh] max-w-2xl overflow-y-auto rounded-card p-6" aria-describedby={undefined}>
-        <DialogTitle className="font-display text-lg font-bold">{t("createTournament")}</DialogTitle>
+      <SharedDialogContent className="glass max-h-[85vh] max-w-2xl overflow-y-auto rounded-card p-6" aria-describedby={undefined}>
+        <SharedDialogTitle className="font-display text-lg font-bold">{t("createTournament")}</SharedDialogTitle>
         <form action={submit} className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="title">Title</Label>
@@ -118,7 +119,7 @@ export function CreateTournamentForm({ games }: { games: { id: string; name: str
             {t("createTournament")}
           </Button>
         </form>
-      </DialogContent>
+      </SharedDialogContent>
     </Dialog>
   );
 }
@@ -173,8 +174,8 @@ export function AdminTournamentActions({
         <Button variant="outline" size="sm" onClick={() => setRoomOpen(true)}>
           Room
         </Button>
-        <DialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
-          <DialogTitle className="font-display text-base font-bold">Room credentials</DialogTitle>
+        <SharedDialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
+          <SharedDialogTitle className="font-display text-base font-bold">Room credentials</SharedDialogTitle>
           <form action={async (fd) => { await upsertRoomAction(fd); setRoomOpen(false); }} className="mt-4 space-y-3">
             <input type="hidden" name="tournament_id" value={tournament.id} />
             <Input name="room_id" placeholder="Room ID" />
@@ -186,7 +187,7 @@ export function AdminTournamentActions({
               Save room
             </Button>
           </form>
-        </DialogContent>
+        </SharedDialogContent>
       </Dialog>
 
       <Button variant="outline" size="sm" disabled={loading} onClick={() => act(() => releaseRoomAction(tournament.id))}>
@@ -197,8 +198,8 @@ export function AdminTournamentActions({
         <Button variant="outline" size="sm" onClick={() => setResultsOpen(true)}>
           {t("publishResults")}
         </Button>
-        <DialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
-          <DialogTitle className="font-display text-base font-bold">{t("publishResults")}</DialogTitle>
+        <SharedDialogContent className="glass max-w-md rounded-card p-6" aria-describedby={undefined}>
+          <SharedDialogTitle className="font-display text-base font-bold">{t("publishResults")}</SharedDialogTitle>
           <p className="mt-1 text-xs text-muted">
             Commission is applied automatically. Pool: {formatINR(tournament.prize_pool)}
           </p>
@@ -214,7 +215,7 @@ export function AdminTournamentActions({
               Pay winners
             </Button>
           </form>
-        </DialogContent>
+        </SharedDialogContent>
       </Dialog>
 
       <Button

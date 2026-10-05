@@ -60,7 +60,15 @@ export default async function ProfilePage() {
       {/* stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label={t("referral")} value={String(referrals.count ?? 0)} />
-        <StatCard label={t("kycStatus")} value={t(`kyc${kycStatus.charAt(0)}${kycStatus.slice(1).toLowerCase()}`.replace("kycN", "kycN"))} />
+        <StatCard
+          label={t("kycStatus")}
+          value={t(
+            kycStatus === "NOT_SUBMITTED" ? "kycNotSubmitted"
+            : kycStatus === "PENDING" ? "kycPending"
+            : kycStatus === "APPROVED" ? "kycApproved"
+            : "kycRejected",
+          )}
+        />
         <StatCard label={tb("matches")} value="0" />
         <StatCard label={tb("wins")} value="0" />
       </div>

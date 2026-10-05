@@ -31,7 +31,8 @@ export default async function HomePage() {
 
   const [games, home] = await Promise.all([getGames(), getHomeTournaments()]);
   const serverNowIso = new Date().toISOString();
-  const featured = home.featured ?? home.upcoming[0] ?? null;
+  // hero should always be joinable — fall back to the next open tournament
+  const featured = home.featured ?? home.upcoming.find((t) => t.status === "REGISTRATION_OPEN") ?? null;
 
   return (
     <div className="space-y-8">
