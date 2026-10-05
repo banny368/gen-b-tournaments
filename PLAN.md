@@ -41,7 +41,16 @@
 | 8 | Rewards | Referrals, campaigns, reward ledger, anti-abuse caps, ad-reward stub | ✅ Done (ads OFF) |
 | 9 | Admin panel | Dashboard, queues, settings, flags, audit viewer, claims, users, adjustments | ✅ Done |
 | 10 | Security & performance | RLS lockdown, upload security model, security headers, money-rule tests, CI | ✅ Done (e2e race tests pending live DB) |
-| 11 | Release | Final audit, legal pages, docs, prod build, **deploy live** | 🔶 Docs+build done; deploy pending user accounts |
+| 11 | Release | Final audit, legal pages, docs, prod build, **deploy live** | ✅ LIVE: https://gen-b-tournaments.vercel.app |
+
+## Deployment record (2026-10-05)
+
+- Database: 12 migrations applied to Supabase (project `nyvkxtxhqhpzumwueyag`, Mumbai)
+- Backend e2e smoke suite: **20/20 passed** (`node scripts/e2e-smoke.mjs`)
+- Repo: `banny368/gen-b-tournaments` (branch `main`; old `master` = previous static attempt)
+- Hosting: Vercel project `gen-b-tournaments` (framework corrected from "Other" to Next.js,
+  deployment protection disabled)
+- CI on every push (lint + money tests + build)
 
 ## Verification Gates (per master prompt §108 — never declare complete until all pass)
 

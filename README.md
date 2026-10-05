@@ -1,10 +1,13 @@
 # Gen B Tournaments
 
+**Live: https://gen-b-tournaments.vercel.app**
+
 Premium, mobile-first esports tournament platform — Next.js 16 PWA + Supabase (free tier), built
 free-first per the master build prompt.
 
-**Status:** full platform built and verified locally (build + lint + 16 money-rule unit tests
-pass). Real-money features are **disabled behind feature flags** pending compliance approval.
+**Status:** deployed to production and verified end-to-end against the live database (20/20
+backend smoke checks: auth, RLS, race-safe join, ledger integrity, kill switches, access
+control). Real-money features are **disabled behind feature flags** pending compliance approval.
 
 ---
 
