@@ -29,7 +29,11 @@ begin
     return jsonb_build_object('success', false, 'error', jsonb_build_object('code','ZERO_AMOUNT','message','Amount cannot be zero.'));
   end if;
 
-  v_direction := p_amount > 0 ? 'CREDIT' : 'DEBIT';
+  if p_amount > 0 then
+    v_direction := 'CREDIT';
+  else
+    v_direction := 'DEBIT';
+  end if;
 
   perform public.ledger_post('ADJUSTMENT',
     jsonb_build_array(

@@ -75,6 +75,7 @@ create table public.chat_members (
   role text not null default 'MEMBER' check (role in ('MEMBER', 'MODERATOR', 'ADMIN')),
   is_muted boolean not null default false,
   muted_until timestamptz,
+  status text not null default 'ACTIVE' check (status in ('ACTIVE', 'REMOVED', 'LEFT')),
   joined_at timestamptz not null default now(),
   unique (channel_id, user_id)
 );

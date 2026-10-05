@@ -43,7 +43,7 @@ async function main() {
   const dir = path.join(process.cwd(), "supabase", "migrations");
   const files = fs2.readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
 
-  const { rows } = await client.query<{ name: string }>(`select name from _migrations`);
+  const { rows } = await client.query(`select name from _migrations`);
   const applied = new Set(rows.map((r) => r.name));
 
   let ran = 0;

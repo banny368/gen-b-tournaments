@@ -79,7 +79,7 @@ create trigger trg_ledger_tx_immutable
 -- Double-entry guard: at COMMIT, every transaction must balance to zero.
 -- DEBIT amounts are stored as negative contributions, CREDIT as positive.
 create or replace function public.assert_transaction_balanced()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql security definer set search_path = public as $$
 declare
   imbalance numeric(14,2);
 begin

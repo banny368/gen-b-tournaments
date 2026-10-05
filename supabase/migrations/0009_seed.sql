@@ -66,7 +66,7 @@ insert into public.admin_settings (key, category, value, description) values
   ('manual_upi_id','PAYMENTS','""','UPI ID shown for manual deposits'),
   ('manual_upi_name','PAYMENTS','""','Payee name for manual deposits'),
   ('manual_upi_instructions','PAYMENTS','"Pay the exact amount, then submit your UTR reference number here. Deposits are verified by our team."','Manual deposit instructions'),
-  ('referral_qualification_event','REWARDS','FIRST_DEPOSIT','Event that qualifies a referral: FIRST_DEPOSIT or FIRST_PAID_ENTRY'),
+  ('referral_qualification_event','REWARDS','"FIRST_DEPOSIT"','Event that qualifies a referral: FIRST_DEPOSIT or FIRST_PAID_ENTRY'),
   ('referral_reward_amount','REWARDS','25','Referral reward amount (INR)'),
   ('daily_login_reward_amount','REWARDS','5','Daily login reward (INR)')
 on conflict (key) do nothing;

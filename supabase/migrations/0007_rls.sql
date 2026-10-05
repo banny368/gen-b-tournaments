@@ -58,8 +58,8 @@ create policy "users update own profile"
   on public.profiles for update to authenticated using (id = auth.uid());
 
 -- ---------- profile_private ----------
-grant select on public.profile_private to authenticated;
-grant update (date_of_birth, phone, state_code) on public.profile_private to authenticated;
+grant select, insert, delete on public.profile_private to authenticated;
+grant update on public.profile_private to authenticated;
 create policy "own private profile"
   on public.profile_private for all to authenticated using (user_id = auth.uid());
 create policy "admins read private profile"
