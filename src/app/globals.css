@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme {
+  /* Gen B — premium dark esports palette */
+  --color-background: #05070d;
+  --color-surface: #0a0f1c;
+  --color-surface-2: #101830;
+  --color-border: #1c2742;
+  --color-foreground: #e9edf5;
+  --color-muted: #8a94ab;
+
+  --color-primary: #3d7bff;
+  --color-primary-strong: #2563eb;
+  --color-primary-soft: #1a2f5e;
+  --color-accent: #22d3ee;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-live: #f43f5e;
+
+  --font-display: var(--font-space-grotesk), "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --radius-card: 1rem;
+  --radius-pill: 999px;
+
+  --shadow-glow: 0 0 24px rgb(61 123 255 / 0.28);
+  --shadow-card: 0 10px 32px rgb(0 0 0 / 0.45);
+
+  --animate-fade-up: fade-up 0.4s ease-out both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-pulse-live: pulse-live 1.6s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 500px at 80% -10%, rgb(61 123 255 / 0.09), transparent 60%),
+    radial-gradient(900px 420px at 5% 0%, rgb(34 211 238 / 0.05), transparent 55%),
+    var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* glass surface used sparingly on premium cards */
+.glass {
+  background: linear-gradient(160deg, rgb(20 30 56 / 0.75), rgb(10 15 28 / 0.85));
+  border: 1px solid rgb(61 123 255 / 0.14);
+  backdrop-filter: blur(12px);
+}
+
+.glow-primary {
+  box-shadow: var(--shadow-glow);
+}
+
+.text-gradient {
+  background: linear-gradient(92deg, #7dabff 0%, var(--color-primary) 45%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.skeleton {
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-2) 37%, var(--color-surface) 63%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #27355c; }
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
