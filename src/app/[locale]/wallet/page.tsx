@@ -34,6 +34,9 @@ export default async function WalletPage() {
     supabase
       .from("ledger_entries")
       .select("id, account, direction, amount, created_at, ledger_transactions (id, txn_type, description, created_at)")
+      // explicit own-rows filter: admins get broader RLS visibility, but the
+      // personal wallet history must never include system-account rows
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50),
     supabase.from("deposits").select("*").order("created_at", { ascending: false }).limit(10),
